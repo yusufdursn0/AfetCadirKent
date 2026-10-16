@@ -42,6 +42,19 @@ Döngün her aşamada şudur:
 - Sadece **projenin amacını veya şartnamedeki bir gereksinimi değiştirecek** kritik kararlarda dur ve kullanıcıya sor.
 - Şartnamede olmayan kritik bir bilgiyi gerçekmiş gibi uydurma. Standart bir varsayımla ilerleyebiliyorsan varsayımı belgeleyip ilerle.
 
+### 1.2.1 Otonom çalışma modu (kullanıcı kararı)
+Kullanıcı Claude Code'u **auto modda** çalıştırır ve projenin kendi kendine ilerlemesini ister. Bu nedenle:
+- Bir aşama bitince (Bölüm 1.3'teki kontroller geçtiyse) **onay beklemeden** sıradaki aşamaya geç. "Devam edeyim mi?" diye sorma.
+- Aşama içinde de alt adımlar arasında onay isteme; commit ve aşama sonu `git push` işlemlerini kendin yap.
+- Kullanıcıya özet, iş akışını durdurmadan kısa durum bilgisi olarak verilir; özet vermek için bekleme.
+- **Sadece şu durumlarda dur ve kullanıcıyı bekle:**
+  1. Kullanıcının fiziksel olarak yapması gereken iş (DevExpress kurulumu, Ollama kurulumu / `ollama pull`, Visual Studio'da bir ayar). Bölüm 5'teki ⏸ noktası budur.
+  2. Projenin amacını veya şartnamedeki bir gereksinimi değiştirecek kritik karar (Bölüm 1.2).
+  3. Bölüm 6.2'deki geri alınamaz/riskli işlemler.
+  4. Aynı hatayı kök nedeniyle 3 denemede çözemediysen: durumu `PROJECT_STATUS.md`'ye yaz, kullanıcıya bildir.
+- Belirsiz ama kritik olmayan konularda standart varsayımı seç, `PROJECT_DECISIONS.md`'ye yaz ve ilerle.
+- Oturum/bağlam sınırına gelindiğinde iş yarım kalmasın: her anlamlı adımdan sonra commit at ve `PROJECT_STATUS.md`'deki "Sıradaki adım" bilgisini güncel tut ki bir sonraki oturum kaldığı yerden devam edebilsin.
+
 ### 1.3 Her aşamada
 1. Aşamanın gereksinimlerini (REQ ID'leriyle) belirle.
 2. Etkilenecek dosyaları belirle.
@@ -344,7 +357,7 @@ Bu bir masaüstü uygulamasıdır; ayrı bir backend/HTTP API **yoktur**. UI, Bu
 
 ## 5. AŞAMA PLANI
 
-> ⚠️ **DevExpress henüz kurulu değil.** 30 günlük deneme süresi kurulumla başlar. Bu yüzden **arayüz gerektirmeyen aşamalar (0–4) önce** yapılır. Aşama 4 bitince **dur** ve kullanıcıdan DevExpress'i kurmasını iste.
+> ⚠️ **DevExpress henüz kurulu değil.** 30 günlük deneme süresi kurulumla başlar. Bu yüzden **arayüz gerektirmeyen aşamalar (0–4) önce** yapılır. Aşamalar 0→4 arasında onay beklemeden ilerle; Aşama 4 bitince **dur** ve kullanıcıdan DevExpress'i kurmasını iste. Kullanıcı kurulumu bildirdikten sonra 5→10 yine onay beklemeden ilerler.
 
 | Aşama | İçerik | Çıktı |
 |---|---|---|
@@ -376,11 +389,13 @@ Bu bir masaüstü uygulamasıdır; ayrı bir backend/HTTP API **yoktur**. UI, Bu
 - ❌ Hata mesajını susturmak için geçici çözüm; testleri geçirmek için testi bozmak.
 - ❌ Olmayan problemleri raporda varmış gibi göstermek.
 
-### 6.2 Kullanıcıya sormadan YAPMA
+### 6.2 Kullanıcıya sormadan YAPMA (auto modda da geçerli)
 - `git push --force`, `git reset --hard`, geçmişi yeniden yazan git komutları
-- Veritabanını silmek veya sıfırlamak (geliştirme veritabanı dahil)
+- Veritabanını silmek veya sıfırlamak — şu istisnalar dışında:
+  - Test veritabanı (`AfetCadirKent_Test`) testler tarafından serbestçe oluşturulup silinebilir.
+  - Geliştirme veritabanı **Aşama 5'ten önce** (henüz arayüz yokken içinde yalnızca seed verisi bulunduğundan) migration değişiklikleri için silinip yeniden oluşturulabilir. Aşama 5 ve sonrasında sor.
 - Proje klasörü dışındaki dosyalara dokunmak
-- Sistem ayarı değiştirmek veya bilgisayara program kurmak (DevExpress, Ollama modeli vb. kurulumları kullanıcı yapar)
+- Sistem ayarı değiştirmek veya bilgisayara program kurmak (DevExpress, Ollama modeli vb. kurulumları kullanıcı yapar). Proje içi araçlar (NuGet paketleri, `dotnet tool` yerel manifest ile `dotnet-ef`) bu kapsamda değildir, serbestçe eklenebilir.
 
 ### 6.3 Kod kalitesi
 Çalışabilir, okunabilir, modüler, güvenli, test edilebilir, tekrarsız ve mimariyle uyumlu kod. Gereksiz soyutlama yapma; kısa kod için kaliteden de ödün verme. Async kullanımında UI thread'ini dondurma.
@@ -452,14 +467,20 @@ Gerçek kullanıcı gibi: uygulamayı başlat → ilk yöneticiyi oluştur → g
 ## 11. KULLANICIYLA İLETİŞİM
 
 - Kullanıcıyla **Türkçe** konuş. Kullanıcı kod yazmıyor; açıklamaları sade tut.
-- Her aşama sonunda kısa bir özet ver: **ne yapıldı, nasıl denenir (hangi ekran/komut), sırada ne var.**
-- Kullanıcının yapması gereken bir şey varsa (DevExpress kurulumu, Ollama modeli indirme, Visual Studio'da bir ayar) adım adım ve net söyle, sonra bekle.
+- Her aşama sonunda kısa bir özet ver: **ne yapıldı, nasıl denenir (hangi ekran/komut), sırada ne var** — ve onay beklemeden sıradaki aşamaya geç (Bölüm 1.2.1).
+- Kullanıcının yapması gereken bir şey varsa (DevExpress kurulumu, Ollama modeli indirme, Visual Studio'da bir ayar) adım adım ve net söyle, sonra bekle. Otonom modda durulan tek olağan nokta budur.
 - Uzun teknik açıklamaları dokümana yaz; sohbette kısa tut.
 
 ---
 
-## 12. İLK OTURUMDA YAPILACAKLAR
+## 12. OTURUM BAŞLANGICI
 
+**İlk oturum adımları 2026-10-16'da tamamlandı** (Aşama 0 ve 1). Bundan sonraki her oturumda:
+1. `docs/PROJECT_STATUS.md`'yi oku; "Sıradaki adım" neyse oradan devam et.
+2. Gerekiyorsa `docs/REQUIREMENTS.md` ve `docs/PROJECT_DECISIONS.md`'nin ilgili bölümlerine bak (tamamını tekrar okuma, Bölüm 6.4).
+3. Onay beklemeden geliştirmeye devam et (Bölüm 1.2.1).
+
+Referans için ilk oturum adımları:
 1. Bu dosyayı ve varsa `docs/` içindeki PDF'leri tamamen oku.
 2. Kapsamı çıkar, gereksinim envanterini oluştur (`docs/REQUIREMENTS.md`).
 3. Mevcut proje yapısını incele.

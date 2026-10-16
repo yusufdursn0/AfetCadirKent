@@ -11,6 +11,8 @@ Föy kendi içinde bir tutarsızlık barındırıyor: Bölüm 5'te raporlama "op
 
 **K-002 – Yapay zeka kullanım beyanı.** Bu projenin geliştirilmesinde kod yardımcısı olarak **Claude Code (Anthropic)** kullanılmıştır. Uygulama içi yapay zeka özelliği yerel **Ollama** modeliyle sağlanır. Beyan README'de de yer alır (Föy 8).
 
+**K-003 – Otonom çalışma (2026-10-16, kullanıcı kararı).** Kullanıcı Claude Code'u auto modda çalıştırır; aşamalar arasında onay beklenmez (CLAUDE.md 1.2.1). Duraklanan noktalar: kullanıcının yapması gereken kurulumlar (DevExpress, Ollama), şartnameyi değiştiren kritik kararlar ve geri alınamaz işlemler (CLAUDE.md 6.2). Geliştirme veritabanı yalnızca Aşama 5'ten önce sormadan yeniden oluşturulabilir.
+
 ## B. Platform
 
 **K-010 – .NET 10 (LTS).** Kurulu SDK'lar: 9.0.317 ve 10.0.402. .NET 10 güncel LTS sürümüdür. Entities/DataAccess/Business/Tests `net10.0`, UI `net10.0-windows`. DevExpress sürümü kurulumda .NET 10'u destekleyen en yeni sürüm olarak seçilecek (Aşama 5).
