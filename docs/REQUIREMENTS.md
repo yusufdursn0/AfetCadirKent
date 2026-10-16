@@ -21,16 +21,16 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | REQ-006 | README: tanıtım, kurulum/çalıştırma, teknolojiler ve sürümleri, Ollama kurulumu ve `ollama pull`, ilk yönetici oluşturma, rol ekleme adımları | F 2.4, F 6.1, Ş GitHub | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-007 | Gizli bilgi (bağlantı dizesi, parola, anahtar) repoda ve kodda yok; `appsettings.json` .gitignore'da, `appsettings.example.json` repoda | F 2.4, F 8 | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-008 | Yapay zeka entegrasyonu (yerel LLM – Ollama) | F 2.5 | Y | M10 | NOT IMPLEMENTED | BT, KT |
-| REQ-009 | OOP: anlamlı sınıf tasarımı, sınıflar ve nesneler | F 3 | Y | — | NOT IMPLEMENTED | DK |
+| REQ-009 | OOP: anlamlı sınıf tasarımı, sınıflar ve nesneler | F 3 | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-010 | OOP: kapsülleme (property, erişim belirleyici, doğrulama) | F 3, Ş OOP | Y | — | PARTIALLY IMPLEMENTED | BT, DK |
 | REQ-011 | OOP: kalıtım ve çok biçimlilik | F 3, Ş OOP | Y | REQ-230, REQ-231 | PARTIALLY IMPLEMENTED | BT, DK |
 | REQ-012 | OOP: interface ve soyut sınıf | F 3, Ş OOP | Y | REQ-060, REQ-130, REQ-232 | PARTIALLY IMPLEMENTED | DK |
 | REQ-013 | OOP: koleksiyonlar (List, Dictionary) ve generic yapılar | F 3, Ş OOP | Y | REQ-232 | PARTIALLY IMPLEMENTED | DK |
-| REQ-014 | İstisna yönetimi (try/catch), anlaşılır mesaj, teknik ayrıntı logda | F 3, Ş M14 | Y | — | NOT IMPLEMENTED | BT, MT |
+| REQ-014 | İstisna yönetimi (try/catch), anlaşılır mesaj, teknik ayrıntı logda | F 3, Ş M14 | Y | — | PARTIALLY IMPLEMENTED | BT, MT |
 | REQ-015 | Katmanlı yapı: UI → Business → DataAccess → Entities; UI DbContext kullanmaz | F 3, C 4.1 | Y | — | PARTIALLY IMPLEMENTED | DK |
-| REQ-016 | Veritabanı üzerinde ekle / listele / güncelle / sil | F 5 | Y | REQ-180, REQ-181 | NOT IMPLEMENTED | VT, MT |
+| REQ-016 | Veritabanı üzerinde ekle / listele / güncelle / sil | F 5 | Y | REQ-180, REQ-181 | PARTIALLY IMPLEMENTED | VT, MT |
 | REQ-017 | Birden fazla ilişkili tablo içeren düşünülmüş veritabanı tasarımı | F 5 | Y | REQ-190 | IMPLEMENTED | VT, DK |
-| REQ-018 | Girdi doğrulama ve anlamlı hata/uyarı mesajları | F 5, Ş M14 | Y | — | NOT IMPLEMENTED | BT, MT |
+| REQ-018 | Girdi doğrulama ve anlamlı hata/uyarı mesajları | F 5, Ş M14 | Y | — | PARTIALLY IMPLEMENTED | BT, MT |
 | REQ-019 | Raporlama / dışa aktarma (PDF/Excel) | F 5, Ş M13 | Y | REQ-161 | NOT IMPLEMENTED | MT |
 | REQ-020 | Yazılı rapor için malzeme: ER şeması, sınıf yapısı/UML, OOP eşlemesi, zorluklar ve çözümler | F 6.2 | O | — | NOT IMPLEMENTED | DK |
 | REQ-021 | Sunum notları (mimari, veritabanı, OOP, yapay zeka; olası sorular) | F 6.3 | O | — | NOT IMPLEMENTED | DK |
@@ -46,38 +46,38 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | REQ-033 | Kullanıcı adı ve parolayla giriş; pasif kullanıcı giremez | Ş Ekran 2 | Y | REQ-032 | NOT IMPLEMENTED | BT, KT |
 | REQ-034 | Görme, değiştirme ve rapor alma ayrı izinlerdir (Yetkiler tablosu) | Ş M1 | Y | — | PARTIALLY IMPLEMENTED | BT |
 | REQ-035 | Altı rol ve yetki matrisi (Koordinatör, Kayıt görevlisi, Depo sorumlusu, Sağlık personeli, Saha görevlisi, Kiosk) | Ş Roller | Y | REQ-034 | PARTIALLY IMPLEMENTED | BT |
-| REQ-036 | Yetkisiz ekran/butonlar gizlenir **ve** Business katmanında kontrol edilir | C 4.5 | Y | REQ-035 | NOT IMPLEMENTED | BT, KT |
+| REQ-036 | Yetkisiz ekran/butonlar gizlenir **ve** Business katmanında kontrol edilir | C 4.5 | Y | REQ-035 | PARTIALLY IMPLEMENTED | BT, KT |
 
 ## 3. M2 – Kayıt
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
 | REQ-040 | Her kişiye ve aileye benzersiz numara | Ş M2 | Y | — | IMPLEMENTED | VT |
-| REQ-041 | Kimliği (TC) olmayan kişi kaydedilebilir | Ş M2 | Y | — | PARTIALLY IMPLEMENTED | BT |
-| REQ-042 | TC doğrulama (11 hane + algoritma); aynı TC ile ikinci kayıt engellenir | Ş M2, C 9.2 | Y | — | PARTIALLY IMPLEMENTED | BT, VT |
-| REQ-043 | TC yoksa: ad-soyad aynı ve yaş farkı 2'den az ise olası eşleşmeler gösterilir | Ş M2 | Y | REQ-044 | NOT IMPLEMENTED | BT |
-| REQ-044 | Türkçe karakter farkları (ı/i, ş/s, ç/c, ğ/g, ö/o, ü/u) karşılaştırmada yok sayılır | Ş M2, M8 | Y | — | PARTIALLY IMPLEMENTED | BT |
-| REQ-045 | Geliş, ayrılış, nakil ve çadır değişiklikleri geçmişiyle tutulur (KisiHareketleri) | Ş M2 | Y | — | NOT IMPLEMENTED | VT |
-| REQ-046 | Aileye sonradan gelen yakın eklenebilir | Ş M2 | Y | — | NOT IMPLEMENTED | VT |
-| REQ-047 | Bir aile iki çadıra yerleşebilir | Ş M2 | O | REQ-073 | NOT IMPLEMENTED | VT |
-| REQ-048 | Aileden ayırma: seçilen kişiler yeni aile olur, yeni numara, AileGecmisi kaydı, gerekçe ve haklar iki aile için yeniden hesaplanır | Ş M2 | Y | REQ-060 | NOT IMPLEMENTED | VT, KT |
+| REQ-041 | Kimliği (TC) olmayan kişi kaydedilebilir | Ş M2 | Y | — | IMPLEMENTED | BT |
+| REQ-042 | TC doğrulama (11 hane + algoritma); aynı TC ile ikinci kayıt engellenir | Ş M2, C 9.2 | Y | — | IMPLEMENTED | BT, VT |
+| REQ-043 | TC yoksa: ad-soyad aynı ve yaş farkı 2'den az ise olası eşleşmeler gösterilir | Ş M2 | Y | REQ-044 | IMPLEMENTED | BT |
+| REQ-044 | Türkçe karakter farkları (ı/i, ş/s, ç/c, ğ/g, ö/o, ü/u) karşılaştırmada yok sayılır | Ş M2, M8 | Y | — | IMPLEMENTED | BT |
+| REQ-045 | Geliş, ayrılış, nakil ve çadır değişiklikleri geçmişiyle tutulur (KisiHareketleri) | Ş M2 | Y | — | PARTIALLY IMPLEMENTED | VT |
+| REQ-046 | Aileye sonradan gelen yakın eklenebilir | Ş M2 | Y | — | IMPLEMENTED | VT |
+| REQ-047 | Bir aile iki çadıra yerleşebilir | Ş M2 | O | REQ-073 | PARTIALLY IMPLEMENTED | VT |
+| REQ-048 | Aileden ayırma: seçilen kişiler yeni aile olur, yeni numara, AileGecmisi kaydı, gerekçe ve haklar iki aile için yeniden hesaplanır | Ş M2 | Y | REQ-060 | IMPLEMENTED | VT, KT |
 | REQ-049 | Aile fişi (aile no, çadır, kiosk giriş bilgisi) XtraReports ile yazdırılır | Ş M2 | O | DevExpress | NOT IMPLEMENTED | MT |
-| REQ-050 | Refakatsiz çocuk kaydını yalnızca Koordinatör görür | Ş M2 | Y | REQ-036 | NOT IMPLEMENTED | BT |
-| REQ-051 | İsteğe bağlı fotoğraf: kamerayla çekilir, 300×300'e küçültülür, `varbinary` saklanır | Ş M2 | O | DevExpress | NOT IMPLEMENTED | BT, MT |
-| REQ-052 | Hastanede durumu: çadırdaki yer korunur, dağıtım hakkı ailede kalır, dönüşte "Burada" | Ş M2 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-053 | Kişi durumları: Burada / Ayrıldı / Nakil / Hastanede | Ş Durumlar | Y | — | PARTIALLY IMPLEMENTED | BT |
+| REQ-050 | Refakatsiz çocuk kaydını yalnızca Koordinatör görür | Ş M2 | Y | REQ-036 | IMPLEMENTED | BT |
+| REQ-051 | İsteğe bağlı fotoğraf: kamerayla çekilir, 300×300'e küçültülür, `varbinary` saklanır | Ş M2 | O | DevExpress | PARTIALLY IMPLEMENTED | BT, MT |
+| REQ-052 | Hastanede durumu: çadırdaki yer korunur, dağıtım hakkı ailede kalır, dönüşte "Burada" | Ş M2 | Y | — | IMPLEMENTED | BT |
+| REQ-053 | Kişi durumları: Burada / Ayrıldı / Nakil / Hastanede | Ş Durumlar | Y | — | IMPLEMENTED | BT |
 
 ## 4. M3 – Gerekçeli öncelik
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-060 | 10 gerekçe kuralı interface + polimorfizmle; her kural destek önceliğini, yerleşim etkisini, öncelikli malzemelerini döndürür | Ş M3, Ş OOP | Y | — | NOT IMPLEMENTED | BT |
-| REQ-061 | Ailenin destek önceliği (Yüksek/Orta/Normal) en yüksek gerekçeye göre | Ş M3 | Y | REQ-060 | NOT IMPLEMENTED | BT |
-| REQ-062 | Malzemeye özel ihtiyaç ürün bazında hesaplanır | Ş M3 | Y | REQ-060 | NOT IMPLEMENTED | BT |
-| REQ-063 | Ekranda iki ayrı alan: "Destek önceliği: … (gerekçeler)" ve "Malzeme ihtiyaçları: Mama ✔ …" | Ş M3 | Y | DevExpress | NOT IMPLEMENTED | MT |
-| REQ-064 | Görevli gerekçe ekleyip çıkarabilir; açıklama zorunlu; değişiklik kaydedilir | Ş M3 | Y | REQ-170 | NOT IMPLEMENTED | BT |
-| REQ-065 | "Acil" kelimesi hiçbir ekranda yok; etiket "Yardım önceliği"; tıbbi değerlendirme değildir | Ş M3 | Y | — | NOT IMPLEMENTED | DK, MT |
-| REQ-066 | Gerekçe ayarları (Ayarlar ekranı): gerekçe–ürün eşleşmeleri düzenlenebilir | Ş Ekran 17 | O | REQ-060 | NOT IMPLEMENTED | VT |
+| REQ-060 | 10 gerekçe kuralı interface + polimorfizmle; her kural destek önceliğini, yerleşim etkisini, öncelikli malzemelerini döndürür | Ş M3, Ş OOP | Y | — | IMPLEMENTED | BT |
+| REQ-061 | Ailenin destek önceliği (Yüksek/Orta/Normal) en yüksek gerekçeye göre | Ş M3 | Y | REQ-060 | IMPLEMENTED | BT |
+| REQ-062 | Malzemeye özel ihtiyaç ürün bazında hesaplanır | Ş M3 | Y | REQ-060 | IMPLEMENTED | BT |
+| REQ-063 | Ekranda iki ayrı alan: "Destek önceliği: … (gerekçeler)" ve "Malzeme ihtiyaçları: Mama ✔ …" | Ş M3 | Y | DevExpress | PARTIALLY IMPLEMENTED | MT |
+| REQ-064 | Görevli gerekçe ekleyip çıkarabilir; açıklama zorunlu; değişiklik kaydedilir | Ş M3 | Y | REQ-170 | IMPLEMENTED | BT |
+| REQ-065 | "Acil" kelimesi hiçbir ekranda yok; etiket "Yardım önceliği"; tıbbi değerlendirme değildir | Ş M3 | Y | — | PARTIALLY IMPLEMENTED | DK, MT |
+| REQ-066 | Gerekçe ayarları (Ayarlar ekranı): gerekçe–ürün eşleşmeleri düzenlenebilir | Ş Ekran 17 | O | REQ-060 | PARTIALLY IMPLEMENTED | VT |
 
 ## 5. M4 – Çadır ve bekleme listesi
 
@@ -189,7 +189,7 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-170 | İşlem geçmişi: kim oluşturdu, değiştirdi, iptal etti (ne zaman, neyi) | Ş M14 | Y | — | NOT IMPLEMENTED | VT |
+| REQ-170 | İşlem geçmişi: kim oluşturdu, değiştirdi, iptal etti (ne zaman, neyi) | Ş M14 | Y | — | PARTIALLY IMPLEMENTED | VT |
 | REQ-171 | `RowVersion` ile iyimser eşzamanlılık: aynı çadır/stok iki kişiye verilemez; anlaşılır mesaj | Ş M14 | Y | — | PARTIALLY IMPLEMENTED | VT |
 | REQ-172 | Program içinden yedek alma ve geri yükleme | Ş M14 | O | — | NOT IMPLEMENTED | VT, MT |
 | REQ-173 | Bağlantı kesilirse işlemin kaydedilip kaydedilmediği açıkça gösterilir | Ş M14 | O | — | NOT IMPLEMENTED | MT |
@@ -248,4 +248,4 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 ---
 
-**Özet:** Toplam 142 gereksinim · IMPLEMENTED 13 · PARTIALLY 29 · NOT IMPLEMENTED 100 · BLOCKED 0
+**Özet:** Toplam 142 gereksinim · IMPLEMENTED 26 · PARTIALLY 37 · NOT IMPLEMENTED 79 · BLOCKED 0

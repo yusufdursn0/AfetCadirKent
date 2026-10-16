@@ -130,6 +130,26 @@ Gerekçe: talepler "kayıt masasından" da gelir (kayıt görevlisi talep açar)
 
 **K-063 – Veri oturumu.** Business servisleri her işlem için `IVeriOturumuFabrikasi.Ac()` ile kısa ömürlü bir `VeriOturumu` (unit of work) açar; aynı oturumdaki `Repo<T>()` çağrıları aynı DbContext'i paylaşır (repository'ler `Dictionary<Type, object>` içinde tutulur).
 
+**K-064 – Kişi durum geçişleri.** İzin verilen geçişler ve kişi hareketleri:
+| Eski → Yeni | Hareket | Çadırdaki yer |
+|---|---|---|
+| Burada → Hastanede | Hastaneye sevk | Korunur |
+| Hastanede → Burada | Hastaneden dönüş | — |
+| Burada/Hastanede → Ayrıldı | Ayrılış | Boşalır (yerleşim kapanır, doluluk −1) |
+| Burada/Hastanede → Nakil | Nakil | Boşalır |
+| Ayrıldı/Nakil → Burada | Geliş | Çadırsız döner; yerleşim çadır ekranından yapılır |
+Diğer geçişler (ör. Ayrıldı → Hastanede) "önce 'Burada' kaydedin" mesajıyla reddedilir. Pasif kaydın durumu değiştirilemez.
+
+**K-065 – Aileden ayırma kuralları.** Taşınacak kişilerin hepsi o aileye ait ve çadır kentte (Burada/Hastanede, aktif) olmalı; eski ailede en az bir kişi kalmalı; gerekçe (açıklama) zorunlu. Yeni aile yeni numara alır; `AileGecmisi` (Ayırma) ve her kişi için `AileDegisikligi` hareketi yazılır. Kişilerin çadır yerleşimi değişmez (ayrı çadıra geçiş çadır ekranından yapılır). Gerekçe ve haklar kayıtlı veriden hesaplandığı için iki aile için kendiliğinden yeniden hesaplanır. Elle yapılmış gerekçe değişiklikleri eski ailede kalır. Kaynak ailenin RowVersion'ı kontrol edilir; aynı aile eşzamanlı iki kez ayrılamaz.
+
+**K-066 – Pasif yapma.** Kişi pasif yapılırken aktif yerleşimi kapanır ve çadırdaki yer boşalır (açıklama zorunlu, işlem geçmişine yazılır). Aile ancak çadır kentte üyesi kalmadıysa pasif yapılabilir; bekleme listesindeyse listeden çıkar. Kayıtlar fiziksel olarak silinmez.
+
+**K-067 – Sağlık bilgisi görünürlüğü.** `SaglikNotu` yalnızca "Sağlık bilgisi" görme izni olan rollere (Koordinatör, Sağlık personeli) döner; diğer rollerde sorgu sonucunda boşaltılır. Kayıt sırasında sağlık notu girmek "Sağlık bilgisi" değiştirme izni ister. Hamile/kronik hasta/tekerlekli sandalye işaretleri gerekçe hesabı için gerektiğinden kayıt görevlisi tarafından da işaretlenebilir.
+
+**K-068 – Refakatsiz çocuk görünürlüğü (uygulama).** Koordinatör dışındaki rollerde kişi listesi, aile ayrıntısı, kişi hareketleri ve mükerrer kontrolün olası eşleşmeleri refakatsiz çocukları içermez; tüm üyeleri refakatsiz çocuk olan aile "bulunamadı" olarak döner. Dağıtım listelerindeki gösterim P4'te ele alınacak.
+
+**K-069 – Fotoğraf küçültme.** 300×300 küçültme ve kamera ile çekme arayüz katmanında (DevExpress CameraControl, Aşama 6) yapılır; Business, gelen `byte[]`'ı saklar. Gerekçe: görüntü işleme Windows'a özgü kütüphaneler gerektirir; Business platform bağımsız tutulur.
+
 ## E. Test
 
 **K-070** – Saf iş kuralları (normalizasyon, gerekçe, öneri, FEFO, hak, tahmin, talep durum makinesi, yapay zeka cevap ayrıştırma) veritabanısız birim testlerle; servisler ayrı LocalDB test veritabanı `AfetCadirKent_Test` üzerinde entegrasyon testleriyle test edilir. Ollama testlerinde sahte `HttpMessageHandler` kullanılır; gerçek Ollama gerekmez.

@@ -20,3 +20,18 @@ Gereksinim: SQL Server LocalDB (`sqllocaldb info` → `MSSQLLocalDB`). Farklı s
 | Tarih | Toplam | Başarılı | Başarısız |
 |---|---|---|---|
 | 2026-10-16 (Aşama 2) | 52 | 52 | 0 |
+| 2026-10-16 (Aşama 3a / P2) | 103 | 103 | 0 |
+
+## Kapsanan kurallar (C 9.1 listesine göre)
+| Kural | Test sınıfı |
+|---|---|
+| Mükerrer kayıt ve Türkçe normalizasyon | `MukerrerKontrolTestleri`, `TurkceMetinTestleri`, `KayitServisiTestleri` |
+| Gerekçe → destek önceliği ve malzeme ihtiyacı | `GerekceKuralTestleri`, `KayitServisiTestleri.DemoAilesiIcinIkiAyriBilgiGosterilir` |
+| Yetki kontrolleri | `OturumTestleri`, `KayitServisiTestleri.YetkisizRolKayitYapamaz`, refakatsiz çocuk ve sağlık notu testleri |
+| Silme / pasife alma | `RepositoryTestleri`, `KayitServisiTestleri.KisiPasifYapilir…` |
+| Çadır kapasitesi (entity + DB) | `CadirTestleri`, `VeritabaniKisitTestleri` |
+| Parti, ayırma, SKT | `PartiVeStokHareketiTestleri` |
+| Sağlık talebinin öncelik almaması (DB kısıtı) | `VeritabaniKisitTestleri.SaglikTalebineYardimOnceligiVerilemez` |
+| Henüz yok (P3–P6) | Çadır öneri sırası, bekleme listesi, FEFO seçimi, hak hesabı, tekrar alma, stok tahmini, talep geçişleri, yapay zeka |
+
+Servis testleri kendi oluşturdukları ailelerle (benzersiz soyad) çalışır; demo verisi testleri yalnızca demo ailelerini sayar.

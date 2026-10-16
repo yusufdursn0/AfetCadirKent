@@ -9,14 +9,13 @@ _Son güncelleme: 2026-10-16_
 | 0 | Şartname analizi, gereksinim envanteri, kararlar, mimari | ✅ Tamamlandı |
 | 1 | Solution iskeleti, projeler, `appsettings.example.json`, README taslağı | ✅ Tamamlandı |
 | 2 | Entity'ler, DbContext, migration, seed | ✅ Tamamlandı (P1) |
-| 3 | Business servisleri ve kurallar + birim testleri | ⏳ Sırada (P2–P5) |
+| 3 | Business servisleri ve kurallar + birim testleri | ⏳ Devam ediyor: 3a ✅ (P2), 3b–3d sırada (P3–P5) |
 | 4 | Ollama yapay zeka servisi + testleri | Bekliyor |
 | ⏸ | DevExpress kurulumu ve Ollama modeli (kullanıcı) | Bekliyor |
 | 5–10 | UI, ana akış, diğer formlar, altyapı, test, final denetim | Bekliyor |
 
 ## Sıradaki adım
-**P2 – Aşama 3a (yeni oturumda):** Business iskeleti (istisnalar, oturum/yetki altyapısı, işlem geçmişi yazıcısı) → mükerrer kontrol → kayıt servisi (aile/kişi ekleme, durum değiştirme, kişi hareketleri) → aileden ayırma → `IGerekceKurali` ve 10 kural + gerekçe servisi (elle ekleme/kaldırma) → birim ve veritabanı testleri. İlgili REQ: 040–053, 060–066.
-
+**P3 – Aşama 3b:** Çadır servisi (bölge/çadır ekle-listele-güncelle-sil, kullanılmışsa silinemez), çadır öneri motoru (kullanılabilir → yeterli yer → yerleşim etkisi → en az israf; tek çadır yetmezse aynı bölgede iki çadır), görevli onayıyla yerleştirme (RowVersion), çadır değişikliği hareketi, bekleme listesi (ekleme, yer açılınca öneri: destek önceliği → en uzun bekleyen, onayla yerleşip listeden çıkma), çadır planı verisi + testler. İlgili REQ: 045, 047, 070–078, 180.
 ## Takvim (teslim: Aralık başı)
 
 Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gerekirse kayar.
@@ -54,6 +53,11 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
   - Generic `IRepository<T>` / `Repository<T>`, `VeriOturumu` (unit of work), tasarım zamanı fabrikası (bağlantı dizesi ortam değişkeni veya yerel `appsettings.json`).
   - Geliştirme veritabanı `AfetCadirKent` LocalDB'de oluşturuldu (şema + referans verisi; demo verisi ilk uygulama açılışında yüklenecek).
   - 52 test (birim + `AfetCadirKent_Test` üzerinde veritabanı testleri), tamamı başarılı.
+- **Aşama 3a (P2, 2026-10-16):**
+  - Business altyapısı: `Oturum` (rol izinleri, `IzinGerekli`), Business istisnaları, işlem geçmişi yazıcısı, eşzamanlılık/tekillik hatalarını anlaşılır mesaja çeviren `GuvenliKaydetAsync`, `TimeProvider` ile test edilebilir zaman.
+  - Gerekçe kuralları: `IGerekceKurali` + 10 kural sınıfı (polimorfizm), `GerekceDegerlendirici` (en yüksek gerekçe → destek önceliği, elle ekleme/kaldırma), `GerekceServisi` (toplu değerlendirme, ürün bazlı malzeme ihtiyacı, açıklamalı elle değişiklik + geri alma + geçmiş).
+  - Kayıt: `MukerrerKontrol` (TC engeli, ad-soyad + yaş farkı < 2, Türkçe karakter farkı yok sayılır), `KayitServisi` (aile/kişi kaydı, sonradan yakın ekleme, güncelleme, sağlık bilgisi, durum geçişleri ve hareketler, aileden ayırma, pasif yapma, refakatsiz çocuk ve sağlık notu görünürlüğü, listeleme/arama).
+  - 103 test, tamamı başarılı; derleme 0 uyarı.
 
 ## Ortam
 - .NET SDK 10.0.402 (ve 9.0.317) → hedef .NET 10.
@@ -66,7 +70,7 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
 - Başlangıç mesajı geçici olarak standart `MessageBox` (K-016).
 
 ## Test durumu
-- 52 / 52 başarılı (bkz. `docs/TESTING.md`).
+- 103 / 103 başarılı (bkz. `docs/TESTING.md`).
 
 ## Kalan gereksinimler
-- IMPLEMENTED 13 · PARTIALLY 29 · NOT IMPLEMENTED 100 (bkz. REQUIREMENTS.md).
+- IMPLEMENTED 26 · PARTIALLY 37 · NOT IMPLEMENTED 79 (bkz. REQUIREMENTS.md).
