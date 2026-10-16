@@ -134,8 +134,8 @@ ER görseli rapor için Aşama 10'da bu tablodan üretilecektir.
 | `IKurulumServisi` | `IlkKurulumGerekliMi()`, `IlkYoneticiOlustur(...)` |
 | `IOturumServisi` | `GirisYap(kullaniciAdi, parola)`, `Cikis()`, `AktifKullanici`, `IzinVarMi(Modul, Izin)` |
 | `IKullaniciServisi` | Kullanıcı CRUD, rol atama, parola değiştirme |
-| `IKayitServisi` | `AileOlustur`, `KisiEkle`, `MukerrerKontrol`, `DurumDegistir`, `AiledenAyir`, `AileFisiBilgisi` |
-| `IGerekceServisi` | `Degerlendir(aileId)` → `AileOncelikSonucu` (destek önceliği + gerekçeler + malzeme ihtiyaçları), `ElleEkle/ElleKaldir(aciklama)` |
+| `IKayitServisi` ✅ | `MukerrerKontrolAsync`, `AileOlusturAsync`, `AileGuncelleAsync`, `KisiEkleAsync`, `KisiGuncelleAsync`, `SaglikBilgisiGuncelleAsync`, `DurumDegistirAsync`, `AiledenAyirAsync`, `KisiPasifYapAsync`, `AilePasifYapAsync`, `KisileriListeleAsync`, `AileleriListeleAsync`, `AileGetirAsync`, `KisiHareketleriAsync`, `AileGecmisiAsync` (aile fişi verisi Aşama 7) |
+| `IGerekceServisi` ✅ | `DegerlendirAsync(aileId)` / toplu `DegerlendirAsync(aileIdler)` → `AileOncelikSonucu` (destek önceliği + gerekçeler + malzeme ihtiyaçları + ekran metinleri), `ElleDegistirAsync(kod, tür, açıklama)`, `ElleDegisikligiGeriAlAsync`, `DegisiklikGecmisiAsync` |
 | `ICadirServisi` | Bölge/çadır CRUD, `OneriGetir(aileId)`, `Yerlestir(onay)`, `CadirPlani()` |
 | `IBeklemeListesiServisi` | `Ekle`, `CadirIcinOneri(cadirId)`, `OnaylaVeYerlestir` |
 | `IStokServisi` | Ürün CRUD, `StokGirisi`, `Hareket(iade/hasar/sayım)`, `StokDurumu`, `SktGecenleriFireyeDus` |
