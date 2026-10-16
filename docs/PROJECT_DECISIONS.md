@@ -21,6 +21,12 @@ Föy kendi içinde bir tutarsızlık barındırıyor: Bölüm 5'te raporlama "op
 
 **K-013 – Yapılandırma.** `appsettings.json` (git'e girmez) içinde: `ConnectionStrings:AfetDb`, `Ollama:Adres`, `Ollama:Model`, `Ollama:ZamanAsimiSaniye`, `Uygulama:SktUyariGunu`, `Uygulama:YedekKlasoru`. Repoda yalnızca `appsettings.example.json` bulunur. Dosya yoksa uygulama açılışta kurulum adımını gösteren mesajla kapanır.
 
+**K-014 – Solution dosyası `.slnx`.** .NET 10 SDK ve Visual Studio 2026'nın varsayılan yeni solution biçimi kullanıldı (`AfetCadirKent.slnx`); CLAUDE.md'deki `.sln` adı yerine geçer, içerik ve proje yapısı aynıdır.
+
+**K-015 – Güvenlik açığı olan dolaylı paket.** EF Core SqlServer sağlayıcısı dolaylı olarak `System.Security.Cryptography.Pkcs 9.0.11` getiriyordu (bilinen orta/yüksek açık, NU1902/NU1903). DataAccess projesine paketin güncel sürümü doğrudan eklenerek giderildi; derleme uyarısızdır.
+
+**K-016 – Geçici başlangıç mesajları.** DevExpress kurulana kadar (Aşama 5) `Program.cs` ayar dosyası kontrolünde standart `MessageBox` kullanır; Aşama 5'te `XtraMessageBox` ile değiştirilecektir.
+
 ## C. Veri modeli
 
 **K-020 – Kalıtım eşlemesi (Kisi → Afetzede, Gorevli, Gonullu).** `Kisi` soyut bir C# sınıfıdır ve EF modelinde ayrı tablo olarak eşlenmez; ortak alanları (ad, soyad, telefon, doğrulama) taşır. Her alt sınıf kendi tablosuna gider:

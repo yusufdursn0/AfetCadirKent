@@ -18,8 +18,8 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | REQ-003 | Veritabanı: SQL Server LocalDB (Access yok) | F 2.3 | Y | — | NOT IMPLEMENTED | VT |
 | REQ-004 | Veri erişimi EF Core; veritabanı migration ile tek komutla kurulur, demo verisi otomatik yüklenir | F 2.3, Ş GitHub | Y | REQ-003 | NOT IMPLEMENTED | VT, KT |
 | REQ-005 | GitHub'da düzenli, küçük, anlamlı Türkçe commit geçmişi | F 2.4, F 8 | Y | — | PARTIALLY IMPLEMENTED | DK |
-| REQ-006 | README: tanıtım, kurulum/çalıştırma, teknolojiler ve sürümleri, Ollama kurulumu ve `ollama pull`, ilk yönetici oluşturma, rol ekleme adımları | F 2.4, F 6.1, Ş GitHub | Y | — | NOT IMPLEMENTED | DK |
-| REQ-007 | Gizli bilgi (bağlantı dizesi, parola, anahtar) repoda ve kodda yok; `appsettings.json` .gitignore'da, `appsettings.example.json` repoda | F 2.4, F 8 | Y | — | NOT IMPLEMENTED | DK |
+| REQ-006 | README: tanıtım, kurulum/çalıştırma, teknolojiler ve sürümleri, Ollama kurulumu ve `ollama pull`, ilk yönetici oluşturma, rol ekleme adımları | F 2.4, F 6.1, Ş GitHub | Y | — | PARTIALLY IMPLEMENTED | DK |
+| REQ-007 | Gizli bilgi (bağlantı dizesi, parola, anahtar) repoda ve kodda yok; `appsettings.json` .gitignore'da, `appsettings.example.json` repoda | F 2.4, F 8 | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-008 | Yapay zeka entegrasyonu (yerel LLM – Ollama) | F 2.5 | Y | M10 | NOT IMPLEMENTED | BT, KT |
 | REQ-009 | OOP: anlamlı sınıf tasarımı, sınıflar ve nesneler | F 3 | Y | — | NOT IMPLEMENTED | DK |
 | REQ-010 | OOP: kapsülleme (property, erişim belirleyici, doğrulama) | F 3, Ş OOP | Y | — | NOT IMPLEMENTED | BT, DK |
@@ -27,7 +27,7 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | REQ-012 | OOP: interface ve soyut sınıf | F 3, Ş OOP | Y | REQ-060, REQ-130, REQ-232 | NOT IMPLEMENTED | DK |
 | REQ-013 | OOP: koleksiyonlar (List, Dictionary) ve generic yapılar | F 3, Ş OOP | Y | REQ-232 | NOT IMPLEMENTED | DK |
 | REQ-014 | İstisna yönetimi (try/catch), anlaşılır mesaj, teknik ayrıntı logda | F 3, Ş M14 | Y | — | NOT IMPLEMENTED | BT, MT |
-| REQ-015 | Katmanlı yapı: UI → Business → DataAccess → Entities; UI DbContext kullanmaz | F 3, C 4.1 | Y | — | NOT IMPLEMENTED | DK |
+| REQ-015 | Katmanlı yapı: UI → Business → DataAccess → Entities; UI DbContext kullanmaz | F 3, C 4.1 | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-016 | Veritabanı üzerinde ekle / listele / güncelle / sil | F 5 | Y | REQ-180, REQ-181 | NOT IMPLEMENTED | VT, MT |
 | REQ-017 | Birden fazla ilişkili tablo içeren düşünülmüş veritabanı tasarımı | F 5 | Y | REQ-190 | NOT IMPLEMENTED | VT, DK |
 | REQ-018 | Girdi doğrulama ve anlamlı hata/uyarı mesajları | F 5, Ş M14 | Y | — | NOT IMPLEMENTED | BT, MT |
@@ -194,7 +194,7 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | REQ-172 | Program içinden yedek alma ve geri yükleme | Ş M14 | O | — | NOT IMPLEMENTED | VT, MT |
 | REQ-173 | Bağlantı kesilirse işlemin kaydedilip kaydedilmediği açıkça gösterilir | Ş M14 | O | — | NOT IMPLEMENTED | MT |
 | REQ-174 | Beklenmeyen hatalar `logs/` klasörüne loglanır | C 4.2 | O | — | NOT IMPLEMENTED | MT |
-| REQ-175 | `appsettings.json` yoksa anlaşılır kurulum mesajı | C 4.3 | O | — | NOT IMPLEMENTED | MT |
+| REQ-175 | `appsettings.json` yoksa anlaşılır kurulum mesajı | C 4.3 | O | — | PARTIALLY IMPLEMENTED | MT |
 
 ## 16. Ekle / Listele / Güncelle / Sil kuralları
 
@@ -248,4 +248,4 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 ---
 
-**Özet:** Toplam 142 gereksinim · IMPLEMENTED 0 · PARTIALLY 3 · NOT IMPLEMENTED 139 · BLOCKED 0
+**Özet:** Toplam 142 gereksinim · IMPLEMENTED 0 · PARTIALLY 7 · NOT IMPLEMENTED 135 · BLOCKED 0
