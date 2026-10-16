@@ -9,6 +9,11 @@
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Saf kural metotlarının (ör. durum geçişleri) birim testleri için -->
+    <InternalsVisibleTo Include="AfetCadirKent.Tests" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

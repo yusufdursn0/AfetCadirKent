@@ -1,0 +1,80 @@
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+
+namespace AfetCadirKent.Business.Ortak;
+
+/// <summary>Servislerin ortak yardımcıları: işlem geçmişi, hata çevirili kaydetme, zaman, gösterim metinleri.</summary>
+public static class ServisYardimcilari
+{
+    /// <summary>İşlem geçmişine (kim, ne zaman, neyi) kayıt ekler; kayıt aynı SaveChanges ile yazılır.</summary>
+    public static void IslemKaydet(this IVeriOturumu veri, IOturum oturum, DateTime zaman,
+        IslemTuru tur, string varlikAdi, int? varlikId, string aciklama)
+    {
+        var kullanici = oturum.Kullanici;
+        veri.Repo<IslemKaydi>().Ekle(new IslemKaydi
+        {
+            Zaman = zaman,
+            KullaniciId = kullanici is { Id: > 0 } ? kullanici.Id : null,
+            KullaniciAdi = kullanici?.KullaniciAdi ?? "sistem",
+            IslemTuru = tur,
+            VarlikAdi = varlikAdi,
+            VarlikId = varlikId,
+            Aciklama = aciklama.Length > 2000 ? aciklama[..2000] : aciklama,
+        });
+    }
+
+    /// <summary>
+    /// Kaydeder; eşzamanlılık ve tekillik ihlallerini kullanıcıya anlaşılır istisnalara çevirir.
+    /// Diğer veritabanı hataları olduğu gibi yükselir (UI loglar ve "kaydedilemedi" der).
+    /// </summary>
+    public static async Task GuvenliKaydetAsync(this IVeriOturumu veri, CancellationToken iptal = default)
+    {
+        try
+        {
+            await veri.KaydetAsync(iptal);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new EszamanlilikException();
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 })
+        {
+            throw new IsKuraliException("Aynı bilgilerle kayıtlı bir kayıt zaten var.", ex);
+        }
+    }
+
+    public static DateTime Simdi(this TimeProvider zaman) => zaman.GetLocalNow().DateTime;
+
+    public static DateOnly Bugun(this TimeProvider zaman) => DateOnly.FromDateTime(zaman.GetLocalNow().DateTime);
+}
+
+/// <summary>Enum değerlerinin ekranda gösterilen Türkçe karşılıkları.</summary>
+public static class Gosterim
+{
+    public static string Metin(this DestekOnceligi oncelik) => oncelik switch
+    {
+        DestekOnceligi.Yuksek => "Yüksek",
+        DestekOnceligi.Orta => "Orta",
+        _ => "Normal",
+    };
+
+    public static string Metin(this KisiDurumu durum) => durum switch
+    {
+        KisiDurumu.Burada => "Burada",
+        KisiDurumu.Ayrildi => "Ayrıldı",
+        KisiDurumu.Nakil => "Nakil",
+        KisiDurumu.Hastanede => "Hastanede",
+        _ => durum.ToString(),
+    };
+
+    public static string Metin(this YerlesimEtkisi etki) => etki switch
+    {
+        YerlesimEtkisi.SicakCadir => "Sıcak çadır",
+        YerlesimEtkisi.SaglikNoktasinaYakin => "Sağlık noktasına yakın",
+        YerlesimEtkisi.ErisilebilirCadir => "Erişilebilir çadır",
+        YerlesimEtkisi.KoordinatorTakibi => "Koordinatör takibi",
+        YerlesimEtkisi.GorevliTakibi => "Görevli takibi",
+        YerlesimEtkisi.BuyukCadir => "Büyük çadır",
+        _ => "—",
+    };
+}
