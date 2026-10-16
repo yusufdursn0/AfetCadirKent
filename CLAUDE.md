@@ -52,6 +52,7 @@ Kullanıcı Claude Code'u **auto modda** çalıştırır ve projenin kendi kendi
   2. Projenin amacını veya şartnamedeki bir gereksinimi değiştirecek kritik karar (Bölüm 1.2).
   3. Bölüm 6.2'deki geri alınamaz/riskli işlemler.
   4. Aynı hatayı kök nedeniyle 3 denemede çözemediysen: durumu `PROJECT_STATUS.md`'ye yaz, kullanıcıya bildir.
+- **Oturum başına bir iş paketi (kullanıcı kararı, 2026-10-16):** Geliştirme gerçekten günlere yayılır; her oturumda takvimdeki (`docs/PROJECT_STATUS.md` → "Takvim") **bir** iş paketi yapılır. Paket bitince commit + push, kısa özet ve **dur**; sonraki paket yeni oturumda başlar. Oturum içinde onay beklenmez. Commit tarihleri hiçbir şekilde elle değiştirilmez, hazır kod sonradan parça parça commit'lenmez.
 - Belirsiz ama kritik olmayan konularda standart varsayımı seç, `PROJECT_DECISIONS.md`'ye yaz ve ilerle.
 - Oturum/bağlam sınırına gelindiğinde iş yarım kalmasın: her anlamlı adımdan sonra commit at ve `PROJECT_STATUS.md`'deki "Sıradaki adım" bilgisini güncel tut ki bir sonraki oturum kaldığı yerden devam edebilsin.
 
