@@ -15,21 +15,21 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 |---|---|---|---|---|---|---|
 | REQ-001 | C#, Visual Studio 2026, Windows Forms masaüstü uygulaması | F 2.1 | Y | — | NOT IMPLEMENTED | MT |
 | REQ-002 | Arayüzde DevExpress kontrolleri (GridControl, form kontrolleri, rapor araçları); DevExpress karşılığı olan yerde standart WinForms kontrolü yok | F 2.2, Ş DevExpress | Y | DevExpress kurulumu | NOT IMPLEMENTED | MT, DK |
-| REQ-003 | Veritabanı: SQL Server LocalDB (Access yok) | F 2.3 | Y | — | NOT IMPLEMENTED | VT |
-| REQ-004 | Veri erişimi EF Core; veritabanı migration ile tek komutla kurulur, demo verisi otomatik yüklenir | F 2.3, Ş GitHub | Y | REQ-003 | NOT IMPLEMENTED | VT, KT |
+| REQ-003 | Veritabanı: SQL Server LocalDB (Access yok) | F 2.3 | Y | — | IMPLEMENTED | VT |
+| REQ-004 | Veri erişimi EF Core; veritabanı migration ile tek komutla kurulur, demo verisi otomatik yüklenir | F 2.3, Ş GitHub | Y | REQ-003 | PARTIALLY IMPLEMENTED | VT, KT |
 | REQ-005 | GitHub'da düzenli, küçük, anlamlı Türkçe commit geçmişi | F 2.4, F 8 | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-006 | README: tanıtım, kurulum/çalıştırma, teknolojiler ve sürümleri, Ollama kurulumu ve `ollama pull`, ilk yönetici oluşturma, rol ekleme adımları | F 2.4, F 6.1, Ş GitHub | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-007 | Gizli bilgi (bağlantı dizesi, parola, anahtar) repoda ve kodda yok; `appsettings.json` .gitignore'da, `appsettings.example.json` repoda | F 2.4, F 8 | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-008 | Yapay zeka entegrasyonu (yerel LLM – Ollama) | F 2.5 | Y | M10 | NOT IMPLEMENTED | BT, KT |
 | REQ-009 | OOP: anlamlı sınıf tasarımı, sınıflar ve nesneler | F 3 | Y | — | NOT IMPLEMENTED | DK |
-| REQ-010 | OOP: kapsülleme (property, erişim belirleyici, doğrulama) | F 3, Ş OOP | Y | — | NOT IMPLEMENTED | BT, DK |
-| REQ-011 | OOP: kalıtım ve çok biçimlilik | F 3, Ş OOP | Y | REQ-230, REQ-231 | NOT IMPLEMENTED | BT, DK |
-| REQ-012 | OOP: interface ve soyut sınıf | F 3, Ş OOP | Y | REQ-060, REQ-130, REQ-232 | NOT IMPLEMENTED | DK |
-| REQ-013 | OOP: koleksiyonlar (List, Dictionary) ve generic yapılar | F 3, Ş OOP | Y | REQ-232 | NOT IMPLEMENTED | DK |
+| REQ-010 | OOP: kapsülleme (property, erişim belirleyici, doğrulama) | F 3, Ş OOP | Y | — | PARTIALLY IMPLEMENTED | BT, DK |
+| REQ-011 | OOP: kalıtım ve çok biçimlilik | F 3, Ş OOP | Y | REQ-230, REQ-231 | PARTIALLY IMPLEMENTED | BT, DK |
+| REQ-012 | OOP: interface ve soyut sınıf | F 3, Ş OOP | Y | REQ-060, REQ-130, REQ-232 | PARTIALLY IMPLEMENTED | DK |
+| REQ-013 | OOP: koleksiyonlar (List, Dictionary) ve generic yapılar | F 3, Ş OOP | Y | REQ-232 | PARTIALLY IMPLEMENTED | DK |
 | REQ-014 | İstisna yönetimi (try/catch), anlaşılır mesaj, teknik ayrıntı logda | F 3, Ş M14 | Y | — | NOT IMPLEMENTED | BT, MT |
 | REQ-015 | Katmanlı yapı: UI → Business → DataAccess → Entities; UI DbContext kullanmaz | F 3, C 4.1 | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-016 | Veritabanı üzerinde ekle / listele / güncelle / sil | F 5 | Y | REQ-180, REQ-181 | NOT IMPLEMENTED | VT, MT |
-| REQ-017 | Birden fazla ilişkili tablo içeren düşünülmüş veritabanı tasarımı | F 5 | Y | REQ-190 | NOT IMPLEMENTED | VT, DK |
+| REQ-017 | Birden fazla ilişkili tablo içeren düşünülmüş veritabanı tasarımı | F 5 | Y | REQ-190 | IMPLEMENTED | VT, DK |
 | REQ-018 | Girdi doğrulama ve anlamlı hata/uyarı mesajları | F 5, Ş M14 | Y | — | NOT IMPLEMENTED | BT, MT |
 | REQ-019 | Raporlama / dışa aktarma (PDF/Excel) | F 5, Ş M13 | Y | REQ-161 | NOT IMPLEMENTED | MT |
 | REQ-020 | Yazılı rapor için malzeme: ER şeması, sınıf yapısı/UML, OOP eşlemesi, zorluklar ve çözümler | F 6.2 | O | — | NOT IMPLEMENTED | DK |
@@ -41,22 +41,22 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
 | REQ-030 | Hiç kullanıcı yoksa ilk açılışta "İlk yönetici hesabını oluştur" ekranı | Ş M1 | Y | — | NOT IMPLEMENTED | VT, KT |
-| REQ-031 | Kodda hiçbir parola bulunmaz; seed kullanıcı içermez | Ş M1, Ş Demo | Y | — | NOT IMPLEMENTED | DK |
+| REQ-031 | Kodda hiçbir parola bulunmaz; seed kullanıcı içermez | Ş M1, Ş Demo | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-032 | Parolalar BCrypt ile hash'lenerek saklanır | Ş M1 | Y | — | NOT IMPLEMENTED | BT |
 | REQ-033 | Kullanıcı adı ve parolayla giriş; pasif kullanıcı giremez | Ş Ekran 2 | Y | REQ-032 | NOT IMPLEMENTED | BT, KT |
-| REQ-034 | Görme, değiştirme ve rapor alma ayrı izinlerdir (Yetkiler tablosu) | Ş M1 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-035 | Altı rol ve yetki matrisi (Koordinatör, Kayıt görevlisi, Depo sorumlusu, Sağlık personeli, Saha görevlisi, Kiosk) | Ş Roller | Y | REQ-034 | NOT IMPLEMENTED | BT |
+| REQ-034 | Görme, değiştirme ve rapor alma ayrı izinlerdir (Yetkiler tablosu) | Ş M1 | Y | — | PARTIALLY IMPLEMENTED | BT |
+| REQ-035 | Altı rol ve yetki matrisi (Koordinatör, Kayıt görevlisi, Depo sorumlusu, Sağlık personeli, Saha görevlisi, Kiosk) | Ş Roller | Y | REQ-034 | PARTIALLY IMPLEMENTED | BT |
 | REQ-036 | Yetkisiz ekran/butonlar gizlenir **ve** Business katmanında kontrol edilir | C 4.5 | Y | REQ-035 | NOT IMPLEMENTED | BT, KT |
 
 ## 3. M2 – Kayıt
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-040 | Her kişiye ve aileye benzersiz numara | Ş M2 | Y | — | NOT IMPLEMENTED | VT |
-| REQ-041 | Kimliği (TC) olmayan kişi kaydedilebilir | Ş M2 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-042 | TC doğrulama (11 hane + algoritma); aynı TC ile ikinci kayıt engellenir | Ş M2, C 9.2 | Y | — | NOT IMPLEMENTED | BT, VT |
+| REQ-040 | Her kişiye ve aileye benzersiz numara | Ş M2 | Y | — | IMPLEMENTED | VT |
+| REQ-041 | Kimliği (TC) olmayan kişi kaydedilebilir | Ş M2 | Y | — | PARTIALLY IMPLEMENTED | BT |
+| REQ-042 | TC doğrulama (11 hane + algoritma); aynı TC ile ikinci kayıt engellenir | Ş M2, C 9.2 | Y | — | PARTIALLY IMPLEMENTED | BT, VT |
 | REQ-043 | TC yoksa: ad-soyad aynı ve yaş farkı 2'den az ise olası eşleşmeler gösterilir | Ş M2 | Y | REQ-044 | NOT IMPLEMENTED | BT |
-| REQ-044 | Türkçe karakter farkları (ı/i, ş/s, ç/c, ğ/g, ö/o, ü/u) karşılaştırmada yok sayılır | Ş M2, M8 | Y | — | NOT IMPLEMENTED | BT |
+| REQ-044 | Türkçe karakter farkları (ı/i, ş/s, ç/c, ğ/g, ö/o, ü/u) karşılaştırmada yok sayılır | Ş M2, M8 | Y | — | PARTIALLY IMPLEMENTED | BT |
 | REQ-045 | Geliş, ayrılış, nakil ve çadır değişiklikleri geçmişiyle tutulur (KisiHareketleri) | Ş M2 | Y | — | NOT IMPLEMENTED | VT |
 | REQ-046 | Aileye sonradan gelen yakın eklenebilir | Ş M2 | Y | — | NOT IMPLEMENTED | VT |
 | REQ-047 | Bir aile iki çadıra yerleşebilir | Ş M2 | O | REQ-073 | NOT IMPLEMENTED | VT |
@@ -65,7 +65,7 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | REQ-050 | Refakatsiz çocuk kaydını yalnızca Koordinatör görür | Ş M2 | Y | REQ-036 | NOT IMPLEMENTED | BT |
 | REQ-051 | İsteğe bağlı fotoğraf: kamerayla çekilir, 300×300'e küçültülür, `varbinary` saklanır | Ş M2 | O | DevExpress | NOT IMPLEMENTED | BT, MT |
 | REQ-052 | Hastanede durumu: çadırdaki yer korunur, dağıtım hakkı ailede kalır, dönüşte "Burada" | Ş M2 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-053 | Kişi durumları: Burada / Ayrıldı / Nakil / Hastanede | Ş Durumlar | Y | — | NOT IMPLEMENTED | BT |
+| REQ-053 | Kişi durumları: Burada / Ayrıldı / Nakil / Hastanede | Ş Durumlar | Y | — | PARTIALLY IMPLEMENTED | BT |
 
 ## 4. M3 – Gerekçeli öncelik
 
@@ -83,11 +83,11 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-070 | Çadır: bölge, sıra, numara, kapasite, doluluk, durum, erişilebilirlik, sağlık noktasına yakınlık | Ş M4 | Y | — | NOT IMPLEMENTED | VT |
-| REQ-071 | Çadır durumları: Kullanılabilir / Bakımda / Kapalı | Ş Durumlar | Y | — | NOT IMPLEMENTED | BT |
+| REQ-070 | Çadır: bölge, sıra, numara, kapasite, doluluk, durum, erişilebilirlik, sağlık noktasına yakınlık | Ş M4 | Y | — | IMPLEMENTED | VT |
+| REQ-071 | Çadır durumları: Kullanılabilir / Bakımda / Kapalı | Ş Durumlar | Y | — | IMPLEMENTED | BT |
 | REQ-072 | Öneri sırası: kullanılabilir → yeterli yer → yerleşim etkisi → en az boş yatak israfı | Ş M4 | Y | REQ-060 | NOT IMPLEMENTED | BT |
 | REQ-073 | Sistem önerir, görevli onaylar | Ş M4 | Y | REQ-072 | NOT IMPLEMENTED | VT, KT |
-| REQ-074 | Kapasite asla aşılmaz (eşzamanlı işlemlerde de) | Ş M4, M14 | Y | REQ-171 | NOT IMPLEMENTED | BT, VT |
+| REQ-074 | Kapasite asla aşılmaz (eşzamanlı işlemlerde de) | Ş M4, M14 | Y | REQ-171 | PARTIALLY IMPLEMENTED | BT, VT |
 | REQ-075 | Yer yoksa aile bekleme listesine alınır | Ş M4 | Y | — | NOT IMPLEMENTED | VT |
 | REQ-076 | Yer açılınca o çadıra uyan aile önerilir: önce destek önceliği, eşitlikte en uzun bekleyen | Ş M4 | Y | REQ-061 | NOT IMPLEMENTED | BT |
 | REQ-077 | Görevli onaylayınca aile yerleşir ve listeden çıkar | Ş M4 | Y | REQ-076 | NOT IMPLEMENTED | VT |
@@ -97,24 +97,24 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-080 | Stok parti ve SKT'ye göre tutulur; SKT'si en yakın uygun parti önce önerilir (FEFO) | Ş M5 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-081 | Birimler: adet, paket, kg, litre | Ş M5 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-082 | Hareket türleri: giriş, dağıtım, iade, hasar, sayım farkı | Ş M5 | Y | REQ-231 | NOT IMPLEMENTED | BT |
+| REQ-080 | Stok parti ve SKT'ye göre tutulur; SKT'si en yakın uygun parti önce önerilir (FEFO) | Ş M5 | Y | — | PARTIALLY IMPLEMENTED | BT |
+| REQ-081 | Birimler: adet, paket, kg, litre | Ş M5 | Y | — | IMPLEMENTED | BT |
+| REQ-082 | Hareket türleri: giriş, dağıtım, iade, hasar, sayım farkı | Ş M5 | Y | REQ-231 | PARTIALLY IMPLEMENTED | BT |
 | REQ-083 | Dağıtıma ayrılmış ama teslim edilmemiş miktar ayrıca görünür | Ş M5 | Y | REQ-084 | NOT IMPLEMENTED | BT, MT |
 | REQ-084 | Ayırma: liste onayı → ayrıldı (kullanılabilirden düşer); teslim → dağıtım hareketi; iptal/gün sonu → ayırma kalkar | Ş M5 | Y | — | NOT IMPLEMENTED | BT, VT |
-| REQ-085 | SKT'si geçmiş parti dağıtıma çıkamaz, seçilemez, "hasar/fire" hareketiyle düşülür | Ş M5 | Y | REQ-080 | NOT IMPLEMENTED | BT |
+| REQ-085 | SKT'si geçmiş parti dağıtıma çıkamaz, seçilemez, "hasar/fire" hareketiyle düşülür | Ş M5 | Y | REQ-080 | PARTIALLY IMPLEMENTED | BT |
 | REQ-086 | Stok girişinde bağışçı seçilir / yeni bağışçı kaydedilir | Ş Ekran 9 | O | — | NOT IMPLEMENTED | VT |
 
 ## 7. M6 – Dağıtım
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-090 | Ürün ayarları: hesaplama türü (kişi/aile/bebek başı), hak miktarı, tekrar alma süresi, kritik seviye; tablodaki varsayılanlar | Ş M6 | Y | — | NOT IMPLEMENTED | BT |
+| REQ-090 | Ürün ayarları: hesaplama türü (kişi/aile/bebek başı), hak miktarı, tekrar alma süresi, kritik seviye; tablodaki varsayılanlar | Ş M6 | Y | — | PARTIALLY IMPLEMENTED | BT |
 | REQ-091 | Hak hesabı kişi başı / aile başı / bebek başı | Ş M6 | Y | REQ-090 | NOT IMPLEMENTED | BT |
 | REQ-092 | Tekrar alma süresi dolmadan yeni hak verilmez | Ş M6 | Y | REQ-090 | NOT IMPLEMENTED | BT |
 | REQ-093 | Dağıtım listesi o ürüne özel ihtiyacı olan aileler önde olacak şekilde sıralanır | Ş M6 | Y | REQ-062 | NOT IMPLEMENTED | BT |
 | REQ-094 | Gerekçe yazılarak istisna yapılabilir | Ş M6 | O | — | NOT IMPLEMENTED | BT |
-| REQ-095 | Kısmi teslimatta kalan miktar bekleyen hak olarak kalır | Ş M6 | Y | — | NOT IMPLEMENTED | BT |
+| REQ-095 | Kısmi teslimatta kalan miktar bekleyen hak olarak kalır | Ş M6 | Y | — | PARTIALLY IMPLEMENTED | BT |
 | REQ-096 | Teslim eden, teslim alan, miktar ve zaman kaydedilir | Ş M6 | Y | — | NOT IMPLEMENTED | VT |
 
 ## 8. M7 – Stok tahmini
@@ -154,7 +154,7 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | REQ-130 | Yapay zeka servisi interface ile tasarlanır; yeni servis tek sınıf eklemekle eklenir | Ş M10 | Y | — | NOT IMPLEMENTED | DK, BT |
 | REQ-131 | `HttpClient` ile `http://localhost:11434`; JSON çıktı modu; adres ve model adı ayar dosyasında; internet gerekmez | Ş M10 | Y | — | NOT IMPLEMENTED | BT |
 | REQ-132 | Talep sınıflandırma: tür, yardım önceliği ve gerekçe önerisi (JSON) | Ş M10 | Y | REQ-131 | NOT IMPLEMENTED | BT, KT |
-| REQ-133 | Sağlık talepleri öncelik almaz, doğrudan sağlık personeline gider, "Sağlık personeli değerlendirecek" işaretlenir | Ş M10 | Y | REQ-122 | NOT IMPLEMENTED | BT, KT |
+| REQ-133 | Sağlık talepleri öncelik almaz, doğrudan sağlık personeline gider, "Sağlık personeli değerlendirecek" işaretlenir | Ş M10 | Y | REQ-122 | PARTIALLY IMPLEMENTED | BT, KT |
 | REQ-134 | Ollama çalışmıyor / zaman aşımı / cevap okunamıyorsa talep "Sınıflandırılmamış" kalır, görevli elle devam eder | Ş M10 | Y | — | NOT IMPLEMENTED | BT, KT |
 | REQ-135 | Koordinatör için günlük durum özeti | Ş M10 | Y | REQ-131 | NOT IMPLEMENTED | BT, KT |
 | REQ-136 | Son karar görevlide: yapay zeka yalnızca öneri yapar, görevli onaylar/değiştirir | Ş M10 | Y | — | NOT IMPLEMENTED | MT |
@@ -190,7 +190,7 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
 | REQ-170 | İşlem geçmişi: kim oluşturdu, değiştirdi, iptal etti (ne zaman, neyi) | Ş M14 | Y | — | NOT IMPLEMENTED | VT |
-| REQ-171 | `RowVersion` ile iyimser eşzamanlılık: aynı çadır/stok iki kişiye verilemez; anlaşılır mesaj | Ş M14 | Y | — | NOT IMPLEMENTED | VT |
+| REQ-171 | `RowVersion` ile iyimser eşzamanlılık: aynı çadır/stok iki kişiye verilemez; anlaşılır mesaj | Ş M14 | Y | — | PARTIALLY IMPLEMENTED | VT |
 | REQ-172 | Program içinden yedek alma ve geri yükleme | Ş M14 | O | — | NOT IMPLEMENTED | VT, MT |
 | REQ-173 | Bağlantı kesilirse işlemin kaydedilip kaydedilmediği açıkça gösterilir | Ş M14 | O | — | NOT IMPLEMENTED | MT |
 | REQ-174 | Beklenmeyen hatalar `logs/` klasörüne loglanır | C 4.2 | O | — | NOT IMPLEMENTED | MT |
@@ -201,16 +201,16 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
 | REQ-180 | Silinebilir: ürün, çadır, bölge, kullanıcı, gönüllü; kullanılmışsa "Bu kayıt kullanıldığı için silinemez, pasif yapabilirsiniz." | Ş CRUD | Y | — | NOT IMPLEMENTED | VT |
-| REQ-181 | Pasif yapılır, fiziksel silinmez: kişi, aile, dağıtım, stok hareketi | Ş CRUD | Y | — | NOT IMPLEMENTED | VT |
+| REQ-181 | Pasif yapılır, fiziksel silinmez: kişi, aile, dağıtım, stok hareketi | Ş CRUD | Y | — | PARTIALLY IMPLEMENTED | VT |
 
 ## 17. Veritabanı ve OOP eşlemesi
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-190 | ~25 tablo (Ş listesi); Türkçe karaktersiz isimler; PK/FK, unique, indeks, cascade tasarımı | Ş Veritabanı | Y | — | NOT IMPLEMENTED | VT, DK |
-| REQ-230 | Kalıtım: soyut `Kisi` → `Afetzede`, `Gorevli`, `Gonullu` | Ş OOP | Y | — | NOT IMPLEMENTED | DK |
-| REQ-231 | Soyut `StokHareketi` ve türleri (polimorfik stok etkisi) | Ş OOP | Y | — | NOT IMPLEMENTED | BT |
-| REQ-232 | Generic Repository (`IRepository<T>`) | Ş OOP | Y | — | NOT IMPLEMENTED | VT |
+| REQ-190 | ~25 tablo (Ş listesi); Türkçe karaktersiz isimler; PK/FK, unique, indeks, cascade tasarımı | Ş Veritabanı | Y | — | IMPLEMENTED | VT, DK |
+| REQ-230 | Kalıtım: soyut `Kisi` → `Afetzede`, `Gorevli`, `Gonullu` | Ş OOP | Y | — | IMPLEMENTED | DK |
+| REQ-231 | Soyut `StokHareketi` ve türleri (polimorfik stok etkisi) | Ş OOP | Y | — | IMPLEMENTED | BT |
+| REQ-232 | Generic Repository (`IRepository<T>`) | Ş OOP | Y | — | IMPLEMENTED | VT |
 
 ## 18. Ekranlar (18 form)
 
@@ -239,13 +239,13 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-220 | Seed: 3 bölge, 30 çadır, 20 aile (bebekli, engelli, yaşlı dahil), 10 ürün, SKT'si yaklaşmış bir parti | Ş Demo | Y | REQ-004 | NOT IMPLEMENTED | VT |
-| REQ-221 | Seed kullanıcı içermez | Ş Demo | Y | — | NOT IMPLEMENTED | VT |
+| REQ-220 | Seed: 3 bölge, 30 çadır, 20 aile (bebekli, engelli, yaşlı dahil), 10 ürün, SKT'si yaklaşmış bir parti | Ş Demo | Y | REQ-004 | IMPLEMENTED | VT |
+| REQ-221 | Seed kullanıcı içermez | Ş Demo | Y | — | IMPLEMENTED | VT |
 | REQ-222 | 7 adımlı demo senaryosu uçtan uca çalışır | Ş Demo | Y | Tümü | NOT IMPLEMENTED | KT |
-| REQ-240 | xUnit birim testleri (C 9.1 listesindeki tüm kurallar) | C 9.1 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-241 | Veritabanı testleri ayrı LocalDB test veritabanında | C 9.1 | Y | — | NOT IMPLEMENTED | VT |
+| REQ-240 | xUnit birim testleri (C 9.1 listesindeki tüm kurallar) | C 9.1 | Y | — | PARTIALLY IMPLEMENTED | BT |
+| REQ-241 | Veritabanı testleri ayrı LocalDB test veritabanında | C 9.1 | Y | — | IMPLEMENTED | VT |
 | REQ-250 | Dokümanlar: README, SETUP, ARCHITECTURE, PROJECT_DECISIONS, TESTING, PROJECT_STATUS, SUNUM_NOTLARI, FINAL_AUDIT | C 7 | Y | — | PARTIALLY IMPLEMENTED | DK |
 
 ---
 
-**Özet:** Toplam 142 gereksinim · IMPLEMENTED 0 · PARTIALLY 7 · NOT IMPLEMENTED 135 · BLOCKED 0
+**Özet:** Toplam 142 gereksinim · IMPLEMENTED 13 · PARTIALLY 29 · NOT IMPLEMENTED 100 · BLOCKED 0

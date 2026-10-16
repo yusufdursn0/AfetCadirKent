@@ -44,7 +44,7 @@ Gerekçe: Şartnamedeki tablo listesi (Kişiler, Kullanıcılar, Gönüllüler a
 - `KullaniciRolleri` yok; kullanıcının tek rolü vardır (`Kullanicilar.RolId`).
 Toplam 27 tablo. Tablo isimleri Türkçe karaktersiz (`Cadirlar`, `KisiHareketleri`…).
 
-**K-023 – Numaralar.** Aile numarası `A-000001`, kişi numarası `K-000001` biçiminde, kimlik (identity) değerinden türetilir ve unique indekslidir. Kiosk girişi aile numarasıyla yapılır.
+**K-023 – Numaralar.** Aile numarası `A-000001`, kişi numarası `K-000001` biçiminde. Veritabanında Id'den hesaplanan **kalıcı (persisted) hesaplanmış kolon** olarak üretilir (`'A-' + RIGHT('000000' + CAST(Id AS varchar), 6)`), unique indekslidir; uygulama kodu numara üretmez, çakışma olamaz. Kiosk girişi aile numarasıyla yapılır.
 
 **K-024 – Doğum tarihi.** Kimliksiz kişilerde tam tarih bilinmeyebilir. `DogumTarihi` zorunlu; tahmini ise `DogumTarihiTahmini = true` ve tarih 1 Ocak olarak girilir. Yaş hesapları bu tarihten yapılır.
 
@@ -68,7 +68,7 @@ Toplam 27 tablo. Tablo isimleri Türkçe karaktersiz (`Cadirlar`, `KisiHareketle
 - Tek ebeveyn: aile kaydındaki işaret (görevli belirler).
 - 3 gündür yardım almadı: aile ≥ 3 gündür kayıtlı ve son 3 günde hiç teslim almamış.
 - Özel durumu yok: başka gerekçe yoksa.
-Görevli elle gerekçe ekleyip çıkarabilir (`AileGerekceleri.Kaynak = Elle`, açıklama zorunlu). Elle çıkarılan otomatik gerekçe yeniden hesaplamada geri gelmez (`Kaldirildi` işaretiyle saklanır).
+Otomatik gerekçeler **saklanmaz, her okumada güncel veriden hesaplanır** (yaş, aile büyüklüğü ve "3 gündür yardım almadı" zamanla değiştiği için; aileden ayırmada iki aile için yeniden hesap kendiliğinden olur). `AileGerekceleri` tablosu yalnızca görevlinin elle yaptığı değişiklikleri tutar: `ElleEklendi` / `ElleKaldirildi`, açıklama zorunlu, zaman ve kullanıcıyla. Geçerli değişiklik (`Gecerli = true`) hesaplanan sonuca uygulanır; geri alınan değişiklik silinmez, `Gecerli = false` olur.
 
 **K-041 – Gerekçe ↔ ürün.** Kurallar öncelikli malzemeleri **ürün kategorisi** olarak döndürür (Mama, Bez, Battaniye, Gıda, Hijyen, Giyim; "Tüm ürünler"). Seed sırasında `GerekceUrunleri` bu kategorilerdeki ürünlerle doldurulur; Ayarlar ekranındaki "gerekçe ayarları" bu eşleşmeleri düzenler ve dağıtım veritabanındaki eşleşmeyi kullanır. Destek önceliği ve yerleşim etkisi şartname tablosuna sabittir.
 
@@ -111,6 +111,27 @@ Tek çadır yetmiyorsa aynı bölgede iki çadırlık en az israflı kombinasyon
 
 **K-058 – Bağlantı kesintisi.** Kaydetme işlemleri try/catch ile sarılır; `SqlException`/bağlantı hatasında işlem transaction içinde olduğu için geri alınır ve kullanıcıya "İşlem kaydedilemedi, bağlantıyı kontrol edip tekrar deneyin" denir. Başarılı kayıtta "Kaydedildi" bildirimi verilir. Belirsiz durum (commit sırasında kopma) için kayıt yeniden okunarak kullanıcıya gerçek durum bildirilir.
 
+**K-059 – Yetki matrisi.** `ReferansVerisi.YetkiMatrisi` (migration ile `Yetkiler` tablosuna yazılır, 68 kayıt):
+| Rol | Modül: izinler |
+|---|---|
+| Koordinatör | Tüm modüller: görme, değiştirme, rapor |
+| Kayıt görevlisi | Kayıt, Çadır: G/D/R · Talep, Yakın bulma: G/D |
+| Depo sorumlusu | Depo, Dağıtım: G/D/R · Kayıt: G · Talep: G/D (malzeme talepleri depoya yönlenir) |
+| Sağlık personeli | Sağlık bilgisi: G/D · Talep: G/D (yalnız sağlık talepleri, Business filtreler) · Kayıt: G |
+| Saha görevlisi | Talep: G/D (yalnız kendine atananlar, Business filtreler) · Çadır: G |
+| Kiosk | Kiosk: G/D |
+Gerekçe: talepler "kayıt masasından" da gelir (kayıt görevlisi talep açar); yakın bulmayı "yetkili görevli" yapar (kayıt görevlisi + koordinatör); depo dağıtımda aileleri görmelidir.
+
+**K-060 – Demo verisi ayrıntıları.** Uygulama açılışında veritabanı boşsa yüklenir (`VeritabaniHazirlayici`); tarihler yükleme anına göre hesaplanır. İçerik: 3 bölge (A: sağlık noktasına yakın, 1. sıra erişilebilir; B: 1. sıra ısıtmalı; C: genel, C2-05 bakımda), 30 çadır, 20 aile / 56 kişi (bebekli, hamile, tekerlekli sandalyeli, kronik hasta, yaşlı, tek ebeveyn, kalabalık, refakatsiz çocuk; bir kısmı kimliksiz), 10 ürün (şartnamedeki 6 + konserve, kuru gıda, çocuk/yetişkin giyim), 3 bağışçı, 14 parti (bebek maması: SKT 5 gün içinde ve kritik seviyenin altında; bir konserve partisinin SKT'si geçmiş), son 3 günün su / son 2 günün ekmek dağıtımları (stok tahmini için), 3 duyuru (biri süresi dolmuş). A bölgesinin 1. sırası ve B'nin ısıtmalı çadırları demo senaryosu (bebekli + hamile aile) için boş bırakılır. Demo TC numaraları algoritmaya uygun üretilmiş kurgusal numaralardır. Gerekçe–ürün eşleşmeleri ürün kategorilerine göre kurulur.
+
+**K-061 – İstisna sınıflarının yeri.** `IsKuraliException` ve `DogrulamaException` entity'lerin kendi doğrulamalarında da kullanıldığı için Entities katmanındadır (`Entities.Ortak`). Business'a özgü istisnalar (`YetkisizIslemException`, `SilinemezException`, `EszamanlilikException`) Business katmanında `IsKuraliException`'dan türetilir.
+
+**K-062 – Veritabanı düzeyinde ek korumalar.** İş kuralları Business'ta uygulanır; ayrıca son savunma hattı olarak CHECK kısıtları: çadır doluluğu 0…kapasite, parti ayrılan ≤ miktar, dağıtım teslim ≤ hak, sağlık talebinde yardım önceliği boş, stok hareketi miktarı > 0. Tekil indeksler: TC (dolu olanlar), kişi başına tek aktif yerleşim, aile başına tek aktif bekleme kaydı, bir dağıtım listesinde aile başına tek satır.
+
+**K-063 – Veri oturumu.** Business servisleri her işlem için `IVeriOturumuFabrikasi.Ac()` ile kısa ömürlü bir `VeriOturumu` (unit of work) açar; aynı oturumdaki `Repo<T>()` çağrıları aynı DbContext'i paylaşır (repository'ler `Dictionary<Type, object>` içinde tutulur).
+
 ## E. Test
 
 **K-070** – Saf iş kuralları (normalizasyon, gerekçe, öneri, FEFO, hak, tahmin, talep durum makinesi, yapay zeka cevap ayrıştırma) veritabanısız birim testlerle; servisler ayrı LocalDB test veritabanı `AfetCadirKent_Test` üzerinde entegrasyon testleriyle test edilir. Ollama testlerinde sahte `HttpMessageHandler` kullanılır; gerçek Ollama gerekmez.
+
+**K-071 – Test veritabanı bağlantısı.** Test fixture'ı bağlantıyı `SqlConnectionStringBuilder` ile kurar: LocalDB, Windows kimlik doğrulaması, veritabanı `AfetCadirKent_Test`. Parola veya gizli bilgi içermez; sunucu `AFETCADIRKENT_TEST_SUNUCU` ortam değişkeniyle değiştirilebilir. Test oturumu başında bu veritabanı silinip yeniden kurulur; veri değiştiren testler transaction içinde çalışıp geri alınır.
