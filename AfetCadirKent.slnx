@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AfetCadirKent.Business/AfetCadirKent.Business.csproj" />
+    <Project Path="src/AfetCadirKent.DataAccess/AfetCadirKent.DataAccess.csproj" />
+    <Project Path="src/AfetCadirKent.Entities/AfetCadirKent.Entities.csproj" />
+    <Project Path="src/AfetCadirKent.UI/AfetCadirKent.UI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AfetCadirKent.Tests/AfetCadirKent.Tests.csproj" />
+  </Folder>
+</Solution>
