@@ -14,6 +14,9 @@ _Son güncelleme: 2026-10-16_
 | ⏸ | DevExpress kurulumu ve Ollama modeli (kullanıcı) | Bekliyor |
 | 5–10 | UI, ana akış, diğer formlar, altyapı, test, final denetim | Bekliyor |
 
+## Sıradaki adım
+**Aşama 2:** Entity'ler → DbContext ve konfigürasyonlar → ilk migration → seed verisi → veritabanı testleri. (Otonom mod: onay beklenmez, bkz. CLAUDE.md 1.2.1.)
+
 ## Tamamlananlar
 - **Aşama 0:** Föy ve Şartname PDF'leri okundu, CLAUDE.md ile karşılaştırıldı (çelişki yok; Föy içindeki "opsiyonel/zorunlu" tutarsızlığı K-001'de çözüldü). `REQUIREMENTS.md` (142 gereksinim), `PROJECT_DECISIONS.md`, `ARCHITECTURE.md`.
 - **Aşama 1:**
