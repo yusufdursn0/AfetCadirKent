@@ -8,14 +8,14 @@ _Son güncelleme: 2026-10-16_
 |---|---|---|
 | 0 | Şartname analizi, gereksinim envanteri, kararlar, mimari | ✅ Tamamlandı |
 | 1 | Solution iskeleti, projeler, `appsettings.example.json`, README taslağı | ✅ Tamamlandı |
-| 2 | Entity'ler, DbContext, migration, seed | ⏳ Sırada |
-| 3 | Business servisleri ve kurallar + birim testleri | Bekliyor |
+| 2 | Entity'ler, DbContext, migration, seed | ✅ Tamamlandı (P1) |
+| 3 | Business servisleri ve kurallar + birim testleri | ⏳ Sırada (P2–P5) |
 | 4 | Ollama yapay zeka servisi + testleri | Bekliyor |
 | ⏸ | DevExpress kurulumu ve Ollama modeli (kullanıcı) | Bekliyor |
 | 5–10 | UI, ana akış, diğer formlar, altyapı, test, final denetim | Bekliyor |
 
 ## Sıradaki adım
-**P1 – Aşama 2 (devam ediyor):** Entity'ler ✅ → DbContext ve konfigürasyonlar → ilk migration → demo verisi → veritabanı testleri. Bitince dur; P2 yeni oturumda.
+**P2 – Aşama 3a (yeni oturumda):** Business iskeleti (istisnalar, oturum/yetki altyapısı, işlem geçmişi yazıcısı) → mükerrer kontrol → kayıt servisi (aile/kişi ekleme, durum değiştirme, kişi hareketleri) → aileden ayırma → `IGerekceKurali` ve 10 kural + gerekçe servisi (elle ekleme/kaldırma) → birim ve veritabanı testleri. İlgili REQ: 040–053, 060–066.
 
 ## Takvim (teslim: Aralık başı)
 
@@ -47,6 +47,13 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
   - UI `Program.cs`: Serilog dosya logu, `appsettings.json` yoksa kurulum mesajı.
   - `README.md` taslağı ve `docs/SETUP.md`.
   - `dotnet build`: 0 uyarı, 0 hata.
+- **Aşama 2 (P1, 2026-10-16):**
+  - 27 tablo: entity'ler (soyut `Kisi` → `Afetzede`/`Gorevli`/`Gonullu`; soyut `StokHareketi` → 5 tür, TPH), Fluent konfigürasyonlar, CHECK kısıtları, filtreli tekil indeksler, RowVersion.
+  - Migration `IlkOlusturma`; roller (6), yetki matrisi (68), gerekçeler (10) migration ile gelir.
+  - `DemoVeriYukleyici` + `VeritabaniHazirlayici`: uygulama açılışında migration + boşsa demo verisi (K-060).
+  - Generic `IRepository<T>` / `Repository<T>`, `VeriOturumu` (unit of work), tasarım zamanı fabrikası (bağlantı dizesi ortam değişkeni veya yerel `appsettings.json`).
+  - Geliştirme veritabanı `AfetCadirKent` LocalDB'de oluşturuldu (şema + referans verisi; demo verisi ilk uygulama açılışında yüklenecek).
+  - 52 test (birim + `AfetCadirKent_Test` üzerinde veritabanı testleri), tamamı başarılı.
 
 ## Ortam
 - .NET SDK 10.0.402 (ve 9.0.317) → hedef .NET 10.
@@ -59,7 +66,7 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
 - Başlangıç mesajı geçici olarak standart `MessageBox` (K-016).
 
 ## Test durumu
-- Test projesi hazır, henüz test yok (testler Aşama 2–4'te).
+- 52 / 52 başarılı (bkz. `docs/TESTING.md`).
 
 ## Kalan gereksinimler
-- 135 NOT IMPLEMENTED, 7 PARTIALLY IMPLEMENTED (bkz. REQUIREMENTS.md).
+- IMPLEMENTED 13 · PARTIALLY 29 · NOT IMPLEMENTED 100 (bkz. REQUIREMENTS.md).
