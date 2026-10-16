@@ -20,7 +20,7 @@ public class DemoVeriTestleri(VeritabaniFixture fixture)
         await using var db = fixture.YeniContext();
         Assert.Equal(3, await db.Bolgeler.CountAsync(b => new[] { "A", "B", "C" }.Contains(b.Kod)));
         Assert.Equal(30, await db.Cadirlar.CountAsync(c => new[] { "A", "B", "C" }.Contains(c.Bolge!.Kod)));
-        Assert.Equal(20, await db.Aileler.CountAsync());
+        Assert.Equal(20, await DemoAileleri(db).CountAsync());
         Assert.Equal(10, await db.Urunler.CountAsync());
         Assert.Equal(0, await db.Kullanicilar.CountAsync()); // demo verisi kullanıcı içermez
         Assert.Equal(6, await db.Roller.CountAsync());
@@ -74,10 +74,15 @@ public class DemoVeriTestleri(VeritabaniFixture fixture)
             Assert.True(c.Doluluk <= c.Kapasite);
         });
 
-        var yerlesenAile = await db.Aileler.CountAsync(a => a.Uyeler.Any(u => u.Yerlesimler.Any(y => y.Bitis == null)));
-        var bekleyenAile = await db.BeklemeListesi.CountAsync(b => b.CikisZamani == null);
-        Assert.Equal(await db.Aileler.CountAsync(), yerlesenAile + bekleyenAile);
+        var demo = DemoAileleri(db);
+        var yerlesenAile = await demo.CountAsync(a => a.Uyeler.Any(u => u.Yerlesimler.Any(y => y.Bitis == null)));
+        var bekleyenAile = await db.BeklemeListesi.CountAsync(b => b.CikisZamani == null && demo.Any(a => a.Id == b.AileId));
+        Assert.Equal(await demo.CountAsync(), yerlesenAile + bekleyenAile);
     }
+
+    /// <summary>Demo verisindeki aileler (diğer testlerin eklediği aileler hariç).</summary>
+    private static IQueryable<Aile> DemoAileleri(AfetDbContext db) =>
+        db.Aileler.Where(a => a.KayitZamani < VeritabaniFixture.TohumlamaZamani);
 
     [Fact]
     public async Task GerekceUrunEslesmeleriKategorilereGoreKurulur()
