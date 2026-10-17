@@ -35,6 +35,17 @@ public abstract class StokHareketi : VarlikTemel, IFizikselSilinemez
 
     /// <summary>Hareketi partinin miktarlarına uygular.</summary>
     public abstract void PartiyeUygula(Parti parti);
+
+    /// <summary>
+    /// Hatalı girilmiş hareket pasif yapılırken etkisini partiden geri alır (çıkış geri eklenir, giriş düşülür).
+    /// </summary>
+    public virtual void PartidenGeriAl(Parti parti)
+    {
+        if (StokEtkisi > 0)
+            parti.MiktarDus(Miktar);
+        else
+            parti.MiktarEkle(Miktar);
+    }
 }
 
 public class GirisHareketi : StokHareketi
@@ -60,6 +71,10 @@ public class DagitimHareketi : StokHareketi
 
     /// <summary>Dağıtım daima önceden ayrılmış miktardan yapılır.</summary>
     public override void PartiyeUygula(Parti parti) => parti.AyrilaniTeslimEt(Miktar);
+
+    /// <summary>Teslim edilmiş malzeme aileye ulaşmıştır; geri dönen ürün iade hareketiyle girilir.</summary>
+    public override void PartidenGeriAl(Parti parti) =>
+        throw new IsKuraliException("Teslim edilmiş dağıtım geri alınamaz. Aile ürünü geri getirdiyse iade hareketi girin.");
 }
 
 public class IadeHareketi : StokHareketi

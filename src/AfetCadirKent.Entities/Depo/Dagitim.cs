@@ -95,4 +95,32 @@ public class StokAyirma : VarlikTemel
 
     /// <summary>Hâlâ ayrılmış duran (teslim edilmemiş, serbest bırakılmamış) miktar.</summary>
     public decimal AcikMiktar => Miktar - TeslimEdilenMiktar - SerbestBirakilanMiktar;
+
+    /// <summary>Ayrılmış miktarın bir kısmı teslim edildi; açık miktar kalmazsa ayırma kapanır.</summary>
+    public void TeslimEt(decimal miktar, DateTime zaman)
+    {
+        Dogrula.Pozitif(miktar, "Teslim miktarı");
+        if (Durum != AyirmaDurumu.Acik || miktar > AcikMiktar)
+            throw new IsKuraliException($"Ayrılmış miktar ({AcikMiktar}) teslim edilmek istenenden az.");
+        TeslimEdilenMiktar += miktar;
+        if (AcikMiktar == 0)
+            Kapat(zaman);
+    }
+
+    /// <summary>Teslim iptali veya gün sonu: açık miktar serbest bırakılır, ayırma kapanır. Serbest bırakılan miktarı döndürür.</summary>
+    public decimal SerbestBirak(DateTime zaman)
+    {
+        var acik = Durum == AyirmaDurumu.Acik ? AcikMiktar : 0;
+        SerbestBirakilanMiktar += acik;
+        Kapat(zaman);
+        return acik;
+    }
+
+    private void Kapat(DateTime zaman)
+    {
+        if (Durum == AyirmaDurumu.Kapandi)
+            return;
+        Durum = AyirmaDurumu.Kapandi;
+        KapanisZamani = zaman;
+    }
 }
