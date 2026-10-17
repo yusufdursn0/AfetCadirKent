@@ -248,7 +248,7 @@ public class StokServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, Ti
         var hareketler = await sorgu.OrderByDescending(h => h.Zaman).ThenByDescending(h => h.Id).ToListAsync(iptal);
 
         var dagitimIdleri = hareketler.OfType<DagitimHareketi>().Select(h => h.Id).ToList();
-        var refakatsizGorebilir = oturum.Rol == RolTuru.Koordinator;
+        var refakatsizGorebilir = oturum.RefakatsizCocukGorebilir();
         var dagitimBilgisi = await veri.Repo<StokHareketi>().Sorgu().OfType<DagitimHareketi>()
             .Where(h => dagitimIdleri.Contains(h.Id))
             .Select(h => new

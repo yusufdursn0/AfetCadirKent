@@ -32,8 +32,9 @@ public class BeklemeListesiServisi(
     {
         oturum.IzinGerekli(Modul.Cadir, Izin.Degistirme);
         await using var veri = veriFabrikasi.Ac();
-        var aile = await veri.Repo<Aile>().Sorgu().FirstOrDefaultAsync(a => a.Id == aileId && a.Aktif, iptal)
+        var aile = await veri.Repo<Aile>().Sorgu().Include(a => a.Uyeler).FirstOrDefaultAsync(a => a.Id == aileId && a.Aktif, iptal)
             ?? throw new KayitBulunamadiException("Aile");
+        oturum.AileGorunurOlmali(aile);
 
         if ((await Yerlestirici.YerlesmemisUyelerAsync(veri, aileId, iptal)).Count == 0)
             throw new IsKuraliException($"{aile.AileNo} ailesinin çadıra yerleşmemiş üyesi yok.");
@@ -97,9 +98,7 @@ public class BeklemeListesiServisi(
     {
         oturum.IzinGerekli(Modul.Cadir, Izin.Degistirme);
         await using var veri = veriFabrikasi.Ac();
-        var kayit = await veri.Repo<BeklemeListesiKaydi>().Sorgu().Include(b => b.Aile)
-            .FirstOrDefaultAsync(b => b.Id == kayitId && b.CikisZamani == null, iptal)
-            ?? throw new KayitBulunamadiException("Bekleme kaydı");
+        var kayit = await BekleyenKayitAsync(veri, kayitId, iptal);
         var cadir = await veri.Repo<Cadir>().Sorgu().Include(c => c.Bolge).FirstOrDefaultAsync(c => c.Id == cadirId, iptal)
             ?? throw new KayitBulunamadiException("Çadır");
 
@@ -114,9 +113,7 @@ public class BeklemeListesiServisi(
         oturum.IzinGerekli(Modul.Cadir, Izin.Degistirme);
         var temiz = Dogrula.ZorunluMetin(aciklama, "Açıklama", 500);
         await using var veri = veriFabrikasi.Ac();
-        var kayit = await veri.Repo<BeklemeListesiKaydi>().Sorgu().Include(b => b.Aile)
-            .FirstOrDefaultAsync(b => b.Id == kayitId && b.CikisZamani == null, iptal)
-            ?? throw new KayitBulunamadiException("Bekleme kaydı");
+        var kayit = await BekleyenKayitAsync(veri, kayitId, iptal);
 
         var simdi = zaman.Simdi();
         kayit.CikisZamani = simdi;
@@ -127,9 +124,18 @@ public class BeklemeListesiServisi(
     }
 
     /// <summary>Bekleyen aileler, destek önceliği ve yerleşmemiş kişi sayısıyla (sırasız).</summary>
+    private async Task<BeklemeListesiKaydi> BekleyenKayitAsync(IVeriOturumu veri, int kayitId, CancellationToken iptal)
+    {
+        var kayit = await veri.Repo<BeklemeListesiKaydi>().Sorgu().Include(b => b.Aile!.Uyeler)
+            .FirstOrDefaultAsync(b => b.Id == kayitId && b.CikisZamani == null, iptal)
+            ?? throw new KayitBulunamadiException("Bekleme kaydı");
+        oturum.AileGorunurOlmali(kayit.Aile!, "Bekleme kaydı");
+        return kayit;
+    }
+
     private async Task<List<BekleyenAile>> BekleyenleriGetirAsync(IVeriOturumu veri, CancellationToken iptal)
     {
-        var refakatsizGorebilir = oturum.Rol == RolTuru.Koordinator;
+        var refakatsizGorebilir = oturum.RefakatsizCocukGorebilir();
         var kayitlar = await veri.Repo<BeklemeListesiKaydi>().Sorgu()
             .Where(b => b.CikisZamani == null && b.Aile!.Aktif)
             .Select(b => new
@@ -138,7 +144,7 @@ public class BeklemeListesiServisi(
                 KisiSayisi = b.Aile.Uyeler.Count(k => k.Aktif
                     && (k.Durum == KisiDurumu.Burada || k.Durum == KisiDurumu.Hastanede)
                     && !k.Yerlesimler.Any(y => y.Bitis == null)),
-                YalnizRefakatsiz = b.Aile.Uyeler.All(k => k.RefakatsizCocuk),
+                YalnizRefakatsiz = b.Aile.Uyeler.Any() && b.Aile.Uyeler.All(k => k.RefakatsizCocuk),
             })
             .ToListAsync(iptal);
         kayitlar = kayitlar.Where(k => refakatsizGorebilir || !k.YalnizRefakatsiz).ToList();

@@ -52,9 +52,7 @@ public class DagitimServisi(
     private int? KullaniciId => oturum.Kullanici is { Id: > 0 } k ? k.Id : null;
 
     /// <summary>Refakatsiz çocuk kaydını yalnızca Koordinatör görür (şartname M2, K-068).</summary>
-    private bool RefakatsizGorebilir => oturum.Rol == RolTuru.Koordinator;
-
-    private static bool GizliAileMi(Aile aile) => aile.Uyeler.Count > 0 && aile.Uyeler.All(u => u.RefakatsizCocuk);
+    private bool RefakatsizGorebilir => oturum.RefakatsizCocukGorebilir();
 
     // ---------------------------------------------------------------- Listeleme
 
@@ -102,13 +100,13 @@ public class DagitimServisi(
         var satirlar = d.Detaylar.Select(x =>
         {
             var aile = x.Aile!;
-            var gizli = !RefakatsizGorebilir && GizliAileMi(aile);
+            var gizli = oturum.GizliMi(aile);
             return new DagitimSatiri
             {
                 DetayId = x.Id, AileId = aile.Id,
                 AileNo = gizli ? "—" : aile.AileNo,
                 AileAdi = gizli ? Gosterim.GizliKayit : aile.AileAdi,
-                KoordinatorTakibinde = GizliAileMi(aile),
+                KoordinatorTakibinde = aile.YalnizRefakatsizMi(),
                 HakSahibiKisiSayisi = aile.Uyeler.Count(u => u.HakSahibiMi),
                 HakMiktari = x.HakMiktari, TeslimEdilenMiktar = x.TeslimEdilenMiktar,
                 AyrilanMiktar = x.Ayirmalar.Where(a => a.Durum == AyirmaDurumu.Acik).Sum(a => a.AcikMiktar),
@@ -208,7 +206,7 @@ public class DagitimServisi(
         var listedekiler = dagitim.Detaylar.Where(x => x.Aktif).Select(x => x.AileId).ToHashSet();
 
         return (await HakDurumlari.HesaplaAsync(veri, dagitim.Urun!, zaman.Bugun(), null, iptal)).Values
-            .Where(h => !listedekiler.Contains(h.Aile.Id) && h.IstisnaHakki > 0 && (RefakatsizGorebilir || !GizliAileMi(h.Aile)))
+            .Where(h => !listedekiler.Contains(h.Aile.Id) && h.IstisnaHakki > 0 && !oturum.GizliMi(h.Aile))
             .Select(h => new EklenebilirAile(h.Aile.Id, h.Aile.AileNo, h.Aile.AileAdi,
                 h.ListeHakki > 0 ? h.ListeHakki : h.IstisnaHakki, h.ListeHakki == 0, h.SonrakiHakTarihi))
             .OrderBy(a => a.IstisnaGerekir).ThenBy(a => a.AileNo)
@@ -229,7 +227,7 @@ public class DagitimServisi(
 
         var durum = (await HakDurumlari.HesaplaAsync(veri, urun, zaman.Bugun(), [aileId], iptal)).GetValueOrDefault(aileId)
             ?? throw new KayitBulunamadiException("Aile");
-        if (!RefakatsizGorebilir && GizliAileMi(durum.Aile))
+        if (oturum.GizliMi(durum.Aile))
             throw new KayitBulunamadiException("Aile");
         if (durum.IstisnaHakki <= 0)
             throw new IsKuraliException($"Ailenin '{urun.Ad}' için hakkı yok ({urun.HesaplamaTuru.Metin().ToLowerInvariant()} hesaplamada hak sahibi üye yok).");
@@ -262,7 +260,7 @@ public class DagitimServisi(
         await using var veri = veriFabrikasi.Ac();
         var detay = await veri.Repo<DagitimDetay>().Sorgu().Include(x => x.Dagitim!.Urun).Include(x => x.Aile!.Uyeler)
             .FirstOrDefaultAsync(x => x.Id == detayId && x.Aktif, iptal) ?? throw new KayitBulunamadiException("Liste satırı");
-        if (!RefakatsizGorebilir && GizliAileMi(detay.Aile!))
+        if (oturum.GizliMi(detay.Aile!))
             throw new KayitBulunamadiException("Liste satırı");
         if (detay.Dagitim!.Durum != DagitimDurumu.Taslak)
             throw new IsKuraliException("Onaylanmış listeden satır çıkarılamaz. Aile gelmeyecekse teslimi iptal edin.");
@@ -331,7 +329,7 @@ public class DagitimServisi(
         var detay = await OnayliSatirAsync(veri, detayId, iptal);
         var aile = detay.Aile!;
         var urun = detay.Dagitim!.Urun!;
-        if (!RefakatsizGorebilir && GizliAileMi(aile))
+        if (oturum.GizliMi(aile))
             throw new YetkisizIslemException("Bu ailenin teslimini Koordinatör yapar.");
         if (miktar > detay.BekleyenHak)
             throw new IsKuraliException($"Teslim miktarı bekleyen haktan ({detay.BekleyenHak:0.##}) fazla olamaz.");
@@ -384,7 +382,7 @@ public class DagitimServisi(
         var temizAciklama = Dogrula.ZorunluMetin(aciklama, "Açıklama", 500);
         await using var veri = veriFabrikasi.Ac();
         var detay = await OnayliSatirAsync(veri, detayId, iptal);
-        if (!RefakatsizGorebilir && GizliAileMi(detay.Aile!))
+        if (oturum.GizliMi(detay.Aile!))
             throw new KayitBulunamadiException("Liste satırı");
 
         var simdi = zaman.Simdi();
