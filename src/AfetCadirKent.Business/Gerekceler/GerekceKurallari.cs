@@ -3,8 +3,7 @@ namespace AfetCadirKent.Business.Gerekceler;
 // Şartname M3 tablosundaki 10 gerekçe. Her sınıf yalnızca kendi tespit mantığını içerir.
 
 public sealed class BebekKurali() : GerekceKuraliTemel(
-    GerekceKodu.Bebek, "0–2 yaş bebek", DestekOnceligi.Yuksek, YerlesimEtkisi.SicakCadir,
-    [UrunKategorisi.Mama, UrunKategorisi.Bez, UrunKategorisi.Battaniye])
+    GerekceKodu.Bebek, "0–2 yaş bebek", DestekOnceligi.Yuksek, YerlesimEtkisi.SicakCadir)
 {
     public override bool UygulanirMi(AileBaglami b) => b.Uyeler.Any(u => u.BebekMi(b.Bugun));
 
@@ -13,8 +12,7 @@ public sealed class BebekKurali() : GerekceKuraliTemel(
 }
 
 public sealed class HamileKurali() : GerekceKuraliTemel(
-    GerekceKodu.Hamile, "Hamile", DestekOnceligi.Yuksek, YerlesimEtkisi.SaglikNoktasinaYakin,
-    [UrunKategorisi.Gida, UrunKategorisi.Hijyen])
+    GerekceKodu.Hamile, "Hamile", DestekOnceligi.Yuksek, YerlesimEtkisi.SaglikNoktasinaYakin)
 {
     public override bool UygulanirMi(AileBaglami b) => b.Uyeler.Any(u => u.Hamile);
 
@@ -40,15 +38,13 @@ public sealed class KronikHastaKurali() : GerekceKuraliTemel(
 }
 
 public sealed class RefakatsizCocukKurali() : GerekceKuraliTemel(
-    GerekceKodu.RefakatsizCocuk, "Refakatsiz çocuk", DestekOnceligi.Yuksek, YerlesimEtkisi.KoordinatorTakibi,
-    [UrunKategorisi.Gida, UrunKategorisi.Giyim])
+    GerekceKodu.RefakatsizCocuk, "Refakatsiz çocuk", DestekOnceligi.Yuksek, YerlesimEtkisi.KoordinatorTakibi)
 {
     public override bool UygulanirMi(AileBaglami b) => b.Uyeler.Any(u => u.RefakatsizCocuk);
 }
 
 public sealed class YasliKurali() : GerekceKuraliTemel(
-    GerekceKodu.Yasli, "65 yaş üstü", DestekOnceligi.Orta, YerlesimEtkisi.ErisilebilirCadir,
-    [UrunKategorisi.Battaniye])
+    GerekceKodu.Yasli, "65 yaş üstü", DestekOnceligi.Orta, YerlesimEtkisi.ErisilebilirCadir)
 {
     public override bool UygulanirMi(AileBaglami b) => b.Uyeler.Any(u => u.YasliMi(b.Bugun));
 
@@ -57,15 +53,13 @@ public sealed class YasliKurali() : GerekceKuraliTemel(
 }
 
 public sealed class TekEbeveynKurali() : GerekceKuraliTemel(
-    GerekceKodu.TekEbeveyn, "Tek ebeveyn", DestekOnceligi.Orta, YerlesimEtkisi.GorevliTakibi,
-    [UrunKategorisi.Hijyen])
+    GerekceKodu.TekEbeveyn, "Tek ebeveyn", DestekOnceligi.Orta, YerlesimEtkisi.GorevliTakibi)
 {
     public override bool UygulanirMi(AileBaglami b) => b.Aile.TekEbeveyn;
 }
 
 public sealed class KalabalikAileKurali() : GerekceKuraliTemel(
-    GerekceKodu.KalabalikAile, "5 kişiden kalabalık", DestekOnceligi.Orta, YerlesimEtkisi.BuyukCadir,
-    [UrunKategorisi.Gida])
+    GerekceKodu.KalabalikAile, "5 kişiden kalabalık", DestekOnceligi.Orta, YerlesimEtkisi.BuyukCadir)
 {
     public const int KisiSiniri = 5;
 

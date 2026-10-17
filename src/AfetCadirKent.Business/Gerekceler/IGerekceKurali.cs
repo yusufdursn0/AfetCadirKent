@@ -1,3 +1,5 @@
+using AfetCadirKent.DataAccess.Konfigurasyonlar;
+
 namespace AfetCadirKent.Business.Gerekceler;
 
 /// <summary>Bir ailenin gerekçe değerlendirmesi için gereken bilgiler.</summary>
@@ -33,16 +35,20 @@ public interface IGerekceKurali
     string Aciklama(AileBaglami baglam);
 }
 
-/// <summary>Kuralların ortak tabanı: sabit özellikler kurucuda verilir, tespit mantığı alt sınıftadır.</summary>
+/// <summary>
+/// Kuralların ortak tabanı: sabit özellikler kurucuda verilir, tespit mantığı alt sınıftadır.
+/// Öncelikli kategoriler tek kaynaktan (<see cref="ReferansVerisi.OncelikliKategoriler"/>) okunur;
+/// demo verisi ve yeni ürün eşleşmeleri de aynı kaynağı kullanır.
+/// </summary>
 public abstract class GerekceKuraliTemel(
-    GerekceKodu kod, string ad, DestekOnceligi oncelik, YerlesimEtkisi etki,
-    UrunKategorisi[]? kategoriler = null, bool tumUrunler = false) : IGerekceKurali
+    GerekceKodu kod, string ad, DestekOnceligi oncelik, YerlesimEtkisi etki, bool tumUrunler = false) : IGerekceKurali
 {
     public GerekceKodu Kod { get; } = kod;
     public string Ad { get; } = ad;
     public DestekOnceligi DestekOnceligi { get; } = oncelik;
     public YerlesimEtkisi YerlesimEtkisi { get; } = etki;
-    public IReadOnlyCollection<UrunKategorisi> OncelikliKategoriler { get; } = kategoriler ?? [];
+    public IReadOnlyCollection<UrunKategorisi> OncelikliKategoriler { get; } =
+        ReferansVerisi.OncelikliKategoriler.GetValueOrDefault(kod) ?? [];
     public bool TumUrunler { get; } = tumUrunler;
 
     public abstract bool UygulanirMi(AileBaglami baglam);
