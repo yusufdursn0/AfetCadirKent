@@ -51,6 +51,9 @@ public static class ServisYardimcilari
 /// <summary>Enum değerlerinin ekranda gösterilen Türkçe karşılıkları.</summary>
 public static class Gosterim
 {
+    /// <summary>Refakatsiz çocuk kayıtları Koordinatör dışındaki rollere bu metinle gösterilir (K-068).</summary>
+    public const string GizliKayit = "Koordinatör takibinde";
+
     public static string Metin(this DestekOnceligi oncelik) => oncelik switch
     {
         DestekOnceligi.Yuksek => "Yüksek",
@@ -76,5 +79,31 @@ public static class Gosterim
         YerlesimEtkisi.GorevliTakibi => "Görevli takibi",
         YerlesimEtkisi.BuyukCadir => "Büyük çadır",
         _ => "—",
+    };
+
+    public static string Metin(this HesaplamaTuru tur) => tur switch
+    {
+        HesaplamaTuru.KisiBasi => "Kişi başı",
+        HesaplamaTuru.AileBasi => "Aile başı",
+        HesaplamaTuru.BebekBasi => "Bebek başı",
+        _ => tur.ToString(),
+    };
+
+    public static string Metin(this Birim birim) => birim switch
+    {
+        Birim.Adet => "adet",
+        Birim.Paket => "paket",
+        Birim.Kg => "kg",
+        Birim.Litre => "lt",
+        _ => birim.ToString(),
+    };
+
+    public static string Metin(this DagitimDurumu durum) => durum switch
+    {
+        DagitimDurumu.Taslak => "Taslak",
+        DagitimDurumu.Onaylandi => "Onaylandı",
+        DagitimDurumu.Kapandi => "Kapandı",
+        DagitimDurumu.Iptal => "İptal",
+        _ => durum.ToString(),
     };
 }
