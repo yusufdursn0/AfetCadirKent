@@ -82,6 +82,10 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
   - Refakatsiz çocuk görünürlüğü `RefakatsizGizlilik` yardımcısında toplandı; gerekçe, bekleme listesi, aile güncelleme/kişi ekleme ve aileden ayırmadaki açıklar kapatıldı (K-068).
   - README (hazır/planlanan ayrımı, veritabanı adımı) ve SETUP (dotnet-ef, ortam değişkenleri, test veritabanı) güncellendi.
   - 170 test, tamamı başarılı.
+- **Denetim düzeltmeleri (2026-10-17, iyi olur maddeleri 12, 14):**
+  - Tekrarlanan kod toplandı: tek transaction'da "kaydet + işlem geçmişine yaz" yardımcısı (`KaydetVeGecmiseYazAsync`, 11 kopya kaldırıldı), `IOturum.KullaniciId`, tek yaş hesabı (`Afetzede.YasHesapla`). Davranış değişmedi, 170 test geçiyor.
+  - Test kapsamı ölçüldü (`tests/kapsam.runsettings`): satır %91,2, dal %76,7 (ayrıntı `docs/TESTING.md` → Kapsam).
+- **Ertelenen denetim maddeleri:** 10 (yerleşimde kişi seçimi, bekleme listesinden iki çadıra) → Aşama 6; 11 (büyük veri için sayfalama/son satır sorgusu) → gerekirse; 13 (demo verisi ayarı) → Aşama 5.
 - **Açık kararlar (kullanıcı):** sağlık bilgisi (hamile/kronik hasta) iznini kim kullanır; pasif kişi/aileyi yeniden aktif yapma eklensin mi (denetim maddeleri 6 ve 7).
 
 ## Ortam
