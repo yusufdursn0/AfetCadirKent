@@ -1,3 +1,4 @@
+using AfetCadirKent.Business.CadirYonetimi;
 using AfetCadirKent.Business.Gerekceler;
 using AfetCadirKent.Business.Kayit;
 using AfetCadirKent.Business.Ortak;
@@ -29,6 +30,20 @@ public static class TestYardimcilari
 
     public static GerekceServisi GerekceServisi(this VeritabaniFixture fixture, RolTuru rol) =>
         new(fixture.OturumFabrikasi(), OturumAc(rol), TimeProvider.System, GerekceDegerlendirici.Varsayilan());
+
+    public static CadirServisi CadirServisi(this VeritabaniFixture fixture, RolTuru rol) =>
+        new(fixture.OturumFabrikasi(), OturumAc(rol), TimeProvider.System, GerekceDegerlendirici.Varsayilan());
+
+    public static BeklemeListesiServisi BeklemeListesiServisi(this VeritabaniFixture fixture, RolTuru rol)
+    {
+        var oturum = OturumAc(rol);
+        var cadir = new CadirServisi(fixture.OturumFabrikasi(), oturum, TimeProvider.System, GerekceDegerlendirici.Varsayilan());
+        return new BeklemeListesiServisi(fixture.OturumFabrikasi(), oturum, TimeProvider.System, GerekceDegerlendirici.Varsayilan(), cadir);
+    }
+
+    /// <summary>Testler arasında çakışmayan 5 harfli bölge kodu.</summary>
+    public static string BenzersizBolgeKodu() =>
+        "T" + string.Concat(Guid.NewGuid().ToString("N")[..4].Select(c => (char)('A' + c % 26)));
 
     /// <summary>Testlerde tekrar etmeyen geçerli TC üretir.</summary>
     public static string YeniTc()
