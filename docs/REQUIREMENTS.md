@@ -97,35 +97,35 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-080 | Stok parti ve SKT'ye göre tutulur; SKT'si en yakın uygun parti önce önerilir (FEFO) | Ş M5 | Y | — | PARTIALLY IMPLEMENTED | BT |
+| REQ-080 | Stok parti ve SKT'ye göre tutulur; SKT'si en yakın uygun parti önce önerilir (FEFO) | Ş M5 | Y | — | IMPLEMENTED | BT |
 | REQ-081 | Birimler: adet, paket, kg, litre | Ş M5 | Y | — | IMPLEMENTED | BT |
-| REQ-082 | Hareket türleri: giriş, dağıtım, iade, hasar, sayım farkı | Ş M5 | Y | REQ-231 | PARTIALLY IMPLEMENTED | BT |
-| REQ-083 | Dağıtıma ayrılmış ama teslim edilmemiş miktar ayrıca görünür | Ş M5 | Y | REQ-084 | NOT IMPLEMENTED | BT, MT |
-| REQ-084 | Ayırma: liste onayı → ayrıldı (kullanılabilirden düşer); teslim → dağıtım hareketi; iptal/gün sonu → ayırma kalkar | Ş M5 | Y | — | NOT IMPLEMENTED | BT, VT |
-| REQ-085 | SKT'si geçmiş parti dağıtıma çıkamaz, seçilemez, "hasar/fire" hareketiyle düşülür | Ş M5 | Y | REQ-080 | PARTIALLY IMPLEMENTED | BT |
-| REQ-086 | Stok girişinde bağışçı seçilir / yeni bağışçı kaydedilir | Ş Ekran 9 | O | — | NOT IMPLEMENTED | VT |
+| REQ-082 | Hareket türleri: giriş, dağıtım, iade, hasar, sayım farkı | Ş M5 | Y | REQ-231 | IMPLEMENTED | BT |
+| REQ-083 | Dağıtıma ayrılmış ama teslim edilmemiş miktar ayrıca görünür | Ş M5 | Y | REQ-084 | PARTIALLY IMPLEMENTED | BT, MT |
+| REQ-084 | Ayırma: liste onayı → ayrıldı (kullanılabilirden düşer); teslim → dağıtım hareketi; iptal/gün sonu → ayırma kalkar | Ş M5 | Y | — | IMPLEMENTED | BT, VT |
+| REQ-085 | SKT'si geçmiş parti dağıtıma çıkamaz, seçilemez, "hasar/fire" hareketiyle düşülür | Ş M5 | Y | REQ-080 | IMPLEMENTED | BT |
+| REQ-086 | Stok girişinde bağışçı seçilir / yeni bağışçı kaydedilir | Ş Ekran 9 | O | — | PARTIALLY IMPLEMENTED | VT |
 
 ## 7. M6 – Dağıtım
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-090 | Ürün ayarları: hesaplama türü (kişi/aile/bebek başı), hak miktarı, tekrar alma süresi, kritik seviye; tablodaki varsayılanlar | Ş M6 | Y | — | PARTIALLY IMPLEMENTED | BT |
-| REQ-091 | Hak hesabı kişi başı / aile başı / bebek başı | Ş M6 | Y | REQ-090 | NOT IMPLEMENTED | BT |
-| REQ-092 | Tekrar alma süresi dolmadan yeni hak verilmez | Ş M6 | Y | REQ-090 | NOT IMPLEMENTED | BT |
-| REQ-093 | Dağıtım listesi o ürüne özel ihtiyacı olan aileler önde olacak şekilde sıralanır | Ş M6 | Y | REQ-062 | NOT IMPLEMENTED | BT |
-| REQ-094 | Gerekçe yazılarak istisna yapılabilir | Ş M6 | O | — | NOT IMPLEMENTED | BT |
-| REQ-095 | Kısmi teslimatta kalan miktar bekleyen hak olarak kalır | Ş M6 | Y | — | PARTIALLY IMPLEMENTED | BT |
-| REQ-096 | Teslim eden, teslim alan, miktar ve zaman kaydedilir | Ş M6 | Y | — | NOT IMPLEMENTED | VT |
+| REQ-090 | Ürün ayarları: hesaplama türü (kişi/aile/bebek başı), hak miktarı, tekrar alma süresi, kritik seviye; tablodaki varsayılanlar | Ş M6 | Y | — | IMPLEMENTED | BT |
+| REQ-091 | Hak hesabı kişi başı / aile başı / bebek başı | Ş M6 | Y | REQ-090 | IMPLEMENTED | BT |
+| REQ-092 | Tekrar alma süresi dolmadan yeni hak verilmez | Ş M6 | Y | REQ-090 | IMPLEMENTED | BT |
+| REQ-093 | Dağıtım listesi o ürüne özel ihtiyacı olan aileler önde olacak şekilde sıralanır | Ş M6 | Y | REQ-062 | IMPLEMENTED | BT |
+| REQ-094 | Gerekçe yazılarak istisna yapılabilir | Ş M6 | O | — | IMPLEMENTED | BT |
+| REQ-095 | Kısmi teslimatta kalan miktar bekleyen hak olarak kalır | Ş M6 | Y | — | IMPLEMENTED | BT |
+| REQ-096 | Teslim eden, teslim alan, miktar ve zaman kaydedilir | Ş M6 | Y | — | IMPLEMENTED | VT |
 
 ## 8. M7 – Stok tahmini
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-100 | Yeterlilik süresi = kullanılabilir stok ÷ günlük ortalama tüketim | Ş M7 | O | REQ-084 | NOT IMPLEMENTED | BT |
-| REQ-101 | Kişi başı tüketime göre ikinci tahmin | Ş M7 | O | REQ-091 | NOT IMPLEMENTED | BT |
-| REQ-102 | Hesabın dayandığı dönem gösterilir; veri yoksa "hesaplanamıyor" | Ş M7 | O | — | NOT IMPLEMENTED | BT |
-| REQ-103 | SKT'si yaklaşan ürünler için uyarı | Ş M7 | O | — | NOT IMPLEMENTED | BT |
-| REQ-104 | Kritik seviyenin altındaki ürünler için uyarı | Ş M6, M13 | O | REQ-090 | NOT IMPLEMENTED | BT |
+| REQ-100 | Yeterlilik süresi = kullanılabilir stok ÷ günlük ortalama tüketim | Ş M7 | O | REQ-084 | IMPLEMENTED | BT |
+| REQ-101 | Kişi başı tüketime göre ikinci tahmin | Ş M7 | O | REQ-091 | IMPLEMENTED | BT |
+| REQ-102 | Hesabın dayandığı dönem gösterilir; veri yoksa "hesaplanamıyor" | Ş M7 | O | — | IMPLEMENTED | BT |
+| REQ-103 | SKT'si yaklaşan ürünler için uyarı | Ş M7 | O | — | IMPLEMENTED | BT |
+| REQ-104 | Kritik seviyenin altındaki ürünler için uyarı | Ş M6, M13 | O | REQ-090 | IMPLEMENTED | BT |
 
 ## 9. M8 – Yakın bulma
 
@@ -201,7 +201,7 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
 | REQ-180 | Silinebilir: ürün, çadır, bölge, kullanıcı, gönüllü; kullanılmışsa "Bu kayıt kullanıldığı için silinemez, pasif yapabilirsiniz." | Ş CRUD | Y | — | PARTIALLY IMPLEMENTED | VT |
-| REQ-181 | Pasif yapılır, fiziksel silinmez: kişi, aile, dağıtım, stok hareketi | Ş CRUD | Y | — | PARTIALLY IMPLEMENTED | VT |
+| REQ-181 | Pasif yapılır, fiziksel silinmez: kişi, aile, dağıtım, stok hareketi | Ş CRUD | Y | — | IMPLEMENTED | VT |
 
 ## 17. Veritabanı ve OOP eşlemesi
 
@@ -248,4 +248,4 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 ---
 
-**Özet:** Toplam 142 gereksinim · IMPLEMENTED 34 · PARTIALLY 36 · NOT IMPLEMENTED 72 · BLOCKED 0
+**Özet:** Toplam 142 gereksinim · IMPLEMENTED 51 · PARTIALLY 32 · NOT IMPLEMENTED 59 · BLOCKED 0

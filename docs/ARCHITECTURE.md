@@ -20,7 +20,7 @@ Bağımlılık yönü: **UI → Business → DataAccess → Entities**. UI, DbCo
 |---|---|---|
 | Entities | Veri ve kapsüllenmiş doğrulama | `Aile`, `Afetzede`, `Cadir`, `Parti`, `StokHareketi` |
 | DataAccess | Kalıcılık, eşleme, seed | `AfetDbContext`, `CadirConfiguration`, `Repository<T>` |
-| Business | İş kuralları, yetki, işlem geçmişi, yapay zeka | `KayitServisi`, `CadirOneriMotoru`, `OllamaYapayZekaServisi` |
+| Business | İş kuralları, yetki, işlem geçmişi, yapay zeka | `KayitServisi`, `CadirOneriMotoru`, `FefoSecici`, `DagitimServisi`, `OllamaYapayZekaServisi` |
 | UI | Gösterim, girdi alma, mesaj | `AnaForm`, `AileKayitForm`, `CadirPlaniForm` |
 
 ## 2. Veri modeli (27 tablo)
@@ -123,8 +123,8 @@ ER görseli rapor için Aşama 10'da bu tablodan üretilecektir.
 | Generic | `IRepository<T> where T : class`, `Repository<T>`, `SonucListesi<T>` |
 | Koleksiyonlar | `List<IGerekceKurali>`, `Dictionary<UrunKategorisi, bool>` (malzeme ihtiyaçları), `Dictionary<Modul, IzinSeti>` (yetki önbelleği) |
 | İstisna yönetimi | `IsKuraliException` (taban, Entities) → `DogrulamaException` (Entities), `YetkisizIslemException`, `SilinemezException`, `EszamanlilikException` (Business); UI'da merkezi hata yakalama + Serilog |
-| Kapsülleme örnekleri (kodda) | `Cadir.Doluluk` yalnızca `Yerlestir/Bosalt` ile değişir; `Parti.Miktar/AyrilanMiktar` yalnızca `Ayir/AyirmaKaldir/AyrilaniTeslimEt` ile; `Afetzede.TcKimlikNo` setter'ı algoritmayla doğrular; `Gorevli.ParolaHash` dışarıdan yazılamaz |
-| Polimorfizm örnekleri (kodda) | `StokHareketi.PartiyeUygula` her alt sınıfta farklı; `Kisi.KisiTuru` |
+| Kapsülleme örnekleri (kodda) | `Cadir.Doluluk` yalnızca `Yerlestir/Bosalt` ile değişir; `Parti.Miktar/AyrilanMiktar` yalnızca `Ayir/AyirmaKaldir/AyrilaniTeslimEt` ile; `StokAyirma` yalnızca `TeslimEt/SerbestBirak` ile; `DagitimDetay.TeslimEdilenMiktar` yalnızca `TeslimKaydet` ile; `Afetzede.TcKimlikNo` setter'ı algoritmayla doğrular; `Gorevli.ParolaHash` dışarıdan yazılamaz |
+| Polimorfizm örnekleri (kodda) | `StokHareketi.PartiyeUygula` ve `PartidenGeriAl` her alt sınıfta farklı (dağıtım hareketi geri alınamaz); `Kisi.KisiTuru` |
 | Generic ve koleksiyon örnekleri (kodda) | `IRepository<T>`, `Repository<T>`, `VeriOturumu.Repo<T>()` (`Dictionary<Type, object>` önbelleği), `ReferansVerisi.YetkiMatrisi` (`Dictionary<RolTuru, Dictionary<Modul, Izin[]>>`), `TurkceMetin` dönüşüm tablosu |
 
 ## 4. Business servis sözleşmeleri (taslak)
@@ -138,9 +138,9 @@ ER görseli rapor için Aşama 10'da bu tablodan üretilecektir.
 | `IGerekceServisi` ✅ | `DegerlendirAsync(aileId)` / toplu `DegerlendirAsync(aileIdler)` → `AileOncelikSonucu` (destek önceliği + gerekçeler + malzeme ihtiyaçları + ekran metinleri), `ElleDegistirAsync(kod, tür, açıklama)`, `ElleDegisikligiGeriAlAsync`, `DegisiklikGecmisiAsync` |
 | `ICadirServisi` ✅ | `BolgeleriListeleAsync`, `BolgeKaydetAsync`, `BolgeSilAsync`, `BolgeAktiflikDegistirAsync`, `CadirPlaniAsync`, `CadirEkleAsync`, `CadirGuncelleAsync`, `CadirSilAsync`, `CadirAktiflikDegistirAsync`, `OneriGetirAsync` → `YerlesimOnerisiSonucu`, `YerlestirAsync(atamalar)`, `CadirDegistirAsync` |
 | `IBeklemeListesiServisi` ✅ | `EkleAsync`, `ListeleAsync`, `CadirIcinOneriAsync`, `YerAcilanCadirlarAsync`, `OnaylaVeYerlestirAsync`, `ListedenCikarAsync` |
-| `IStokServisi` | Ürün CRUD, `StokGirisi`, `Hareket(iade/hasar/sayım)`, `StokDurumu`, `SktGecenleriFireyeDus` |
-| `IDagitimServisi` | `ListeOlustur(urunId)`, `ListeyiOnayla` (ayırma), `TeslimEt(miktar)`, `TeslimIptal`, `GunSonuKapat` |
-| `IStokTahminServisi` | `Tahmin(urunId)` → yeterlilik, kişi başı tahmin, dönem, uyarılar |
+| `IUrunServisi` ✅ | `UrunleriListeleAsync`, `UrunKaydetAsync(id?, UrunBilgisi)` (ürün ayarları dahil), `UrunSilAsync`, `UrunAktiflikDegistirAsync`, `BagiscilariListeleAsync`, `BagisciKaydetAsync`, `BagisciAktiflikDegistirAsync` |
+| `IStokServisi` ✅ | `StokGirisiAsync` (parti + giriş), `IadeAsync`, `HasarAsync`, `SayimAsync(sayılan miktar)`, `HareketPasifYapAsync`, `SktGecenleriFireyeDusAsync`, `StokDurumuAsync` → `UrunStokDurumu` (fiziksel / ayrılan / kullanılabilir / SKT geçmiş, FEFO sıralı partiler), `HareketleriListeleAsync(filtre)`, `UyarilariGetirAsync`, `TahminleriGetirAsync` → `StokTahmini` |
+| `IDagitimServisi` ✅ | `ListeleriGetirAsync`, `ListeGetirAsync` → `DagitimListesi`, `ListeOlusturAsync(urunId)`, `EklenebilirAilelerAsync`, `AileEkleAsync(gerekçe → istisna)`, `SatirCikarAsync`, `OnaylaAsync` (FEFO ayırma), `TeslimEtAsync(miktar, teslim alan)`, `TeslimIptalAsync`, `ListeIptalAsync`, `GunSonuAsync`, `OncekiGunleriKapatAsync` |
 | `ITalepServisi` | `Olustur`, `Siniflandir` (YZ), `Ata`, `DurumDegistir(sonuc)`, `Listele` (rol filtreli) |
 | `IYakinBulmaServisi` | `Ara`, başvuru CRUD, durum geçişleri |
 | `IGonulluServisi` | Gönüllü CRUD, vardiya, görev ataması |
@@ -151,7 +151,7 @@ ER görseli rapor için Aşama 10'da bu tablodan üretilecektir.
 | `IYedekServisi` | `YedekAl(yol)`, `GeriYukle(yol)` |
 | `IIslemGecmisiServisi` | `Kaydet`, `Listele(filtre)` |
 
-Her değiştirici işlem: yetki kontrolü → doğrulama → işlem (transaction) → işlem geçmişi kaydı. Kurallar saf sınıflarda (`TurkceMetin`, `TcKimlikDogrulayici`, `CadirOneriMotoru`, `FefoPartiSecici`, `HakHesaplayici`, `StokTahminci`, `TalepDurumMakinesi`) tutulur ve veritabanısız test edilir.
+Her değiştirici işlem: yetki kontrolü → doğrulama → işlem (transaction) → işlem geçmişi kaydı. Kurallar saf sınıflarda (`TurkceMetin`, `TcKimlikDogrulayici`, `CadirOneriMotoru`, `FefoSecici`, `HakHesaplayici`, `StokTahminMotoru`, `TalepDurumMakinesi`) tutulur ve veritabanısız test edilir.
 
 ## 5. Yapay zeka (Ollama) entegrasyonu
 
