@@ -203,6 +203,30 @@ public class DepoServisTestleri(VeritabaniFixture fixture)
     }
 
     [Fact]
+    public async Task AyniStokEsZamanliIkiKisiyeAyrilamaz_IkinciyeAnlasilirMesaj()
+    {
+        var urun = await fixture.TestUrunuAsync();
+        var parti = await GirisAsync(urun.Id, 10, null);
+        var bugun = DateOnly.FromDateTime(DateTime.Today);
+        var fabrika = fixture.OturumFabrikasi();
+
+        await using var birinci = fabrika.Ac();
+        await using var ikinci = fabrika.Ac();
+        var p1 = await birinci.Repo<Parti>().BulAsync(parti.Id);
+        var p2 = await ikinci.Repo<Parti>().BulAsync(parti.Id);
+        p1!.Ayir(8, bugun);
+        p2!.Ayir(8, bugun); // ikisi de 10 birimlik eski değeri gördü
+
+        await birinci.GuvenliKaydetAsync();
+        var hata = await Assert.ThrowsAsync<EszamanlilikException>(() => ikinci.GuvenliKaydetAsync());
+        Assert.Contains("başka bir kullanıcı", hata.Message);
+        Assert.Equal(8, (await PartiOkuAsync(parti.Id)).AyrilanMiktar);
+
+        p1.AyirmaKaldir(8);
+        await birinci.GuvenliKaydetAsync();
+    }
+
+    [Fact]
     public async Task Yetki_DepoDisindakiRollerStokGoremezVeDegistiremez()
     {
         var urun = await fixture.TestUrunuAsync();
