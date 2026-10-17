@@ -119,7 +119,7 @@ public class CadirServisi(
             .OrderBy(c => c.Bolge!.Kod).ThenBy(c => c.Sira).ThenBy(c => c.Numara)
             .ToListAsync(iptal);
 
-        var refakatsizGorebilir = oturum.Rol == RolTuru.Koordinator;
+        var refakatsizGorebilir = oturum.RefakatsizCocukGorebilir();
         var cadirIdleri = cadirlar.Select(c => c.Id).ToList();
         var aileler = (await veri.Repo<Yerlesim>().Sorgu()
                 .Where(y => y.Bitis == null && cadirIdleri.Contains(y.CadirId)
@@ -272,8 +272,7 @@ public class CadirServisi(
             .ToListAsync(iptal);
         if (yerlesimler.Count != idler.Count)
             throw new IsKuraliException("Seçilen kişilerin hepsi şu an bir çadırda yerleşik olmalıdır. Yerleşmemiş kişiler için çadır önerisini kullanın.");
-        if (oturum.Rol != RolTuru.Koordinator && yerlesimler.Any(y => y.Kisi!.RefakatsizCocuk))
-            throw new KayitBulunamadiException("Kişi");
+        oturum.KisilerGorunurOlmali(yerlesimler.Select(y => y.Kisi!));
 
         var yeniCadir = await veri.Repo<Cadir>().Sorgu().Include(c => c.Bolge).FirstOrDefaultAsync(c => c.Id == yeniCadirId, iptal)
             ?? throw new KayitBulunamadiException("Çadır");
@@ -303,8 +302,7 @@ public class CadirServisi(
     {
         var aile = await veri.Repo<Aile>().Sorgu().Include(a => a.Uyeler)
             .FirstOrDefaultAsync(a => a.Id == aileId && a.Aktif, iptal) ?? throw new KayitBulunamadiException("Aile");
-        if (oturum.Rol != RolTuru.Koordinator && aile.Uyeler.Count > 0 && aile.Uyeler.All(u => u.RefakatsizCocuk))
-            throw new KayitBulunamadiException("Aile");
+        oturum.AileGorunurOlmali(aile);
         return aile;
     }
 }

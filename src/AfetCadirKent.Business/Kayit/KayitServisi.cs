@@ -42,9 +42,6 @@ public interface IKayitServisi
 
 public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, TimeProvider zaman) : IKayitServisi
 {
-    /// <summary>Refakatsiz çocuk kaydını yalnızca Koordinatör görür (şartname M2).</summary>
-    private bool RefakatsizGorebilir => oturum.Rol == RolTuru.Koordinator;
-
     private bool SaglikBilgisiGorebilir => oturum.IzinVarMi(Modul.SaglikBilgisi, Izin.Gorme);
 
     private int? KullaniciId => oturum.Kullanici is { Id: > 0 } k ? k.Id : null;
@@ -76,7 +73,7 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
             .Where(k => k.AramaAdi == aramaAdi && k.Aktif)
             .ToListAsync(iptal);
         var olasi = MukerrerKontrol.OlasiEslesmeler(kisi.Ad, kisi.Soyad, kisi.DogumTarihi, adaylar, zaman.Bugun())
-            .Where(k => RefakatsizGorebilir || !k.RefakatsizCocuk)
+            .Where(k => oturum.RefakatsizCocukGorebilir() || !k.RefakatsizCocuk)
             .ToList();
 
         return new MukerrerSonucu(tcSahibi, olasi);
@@ -245,10 +242,10 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
             throw new DogrulamaException("Yeni aileye geçecek en az bir kişi seçilmelidir.");
 
         await using var veri = veriFabrikasi.Ac();
-        var kaynak = await veri.Repo<Aile>().Sorgu().Include(a => a.Uyeler)
-            .FirstOrDefaultAsync(a => a.Id == kaynakAileId && a.Aktif, iptal) ?? throw new KayitBulunamadiException("Aile");
+        var kaynak = await AktifAileAsync(veri, kaynakAileId, iptal);
 
         var tasinanlar = kaynak.Uyeler.Where(u => secilenler.Contains(u.Id)).ToList();
+        oturum.KisilerGorunurOlmali(tasinanlar);
         if (tasinanlar.Count != secilenler.Count)
             throw new IsKuraliException("Seçilen kişilerin tamamı bu aileye ait olmalıdır.");
         if (tasinanlar.Any(u => !u.CadirKenttemi))
@@ -328,8 +325,7 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
         oturum.IzinGerekli(Modul.Kayit, Izin.Degistirme);
         var temizAciklama = Dogrula.ZorunluMetin(aciklama, "Açıklama", 500);
         await using var veri = veriFabrikasi.Ac();
-        var aile = await veri.Repo<Aile>().Sorgu().Include(a => a.Uyeler)
-            .FirstOrDefaultAsync(a => a.Id == aileId && a.Aktif, iptal) ?? throw new KayitBulunamadiException("Aile");
+        var aile = await AktifAileAsync(veri, aileId, iptal);
         if (aile.CadirKenttekiUyeler.Any())
             throw new IsKuraliException("Ailede çadır kentte bulunan kişiler var. Önce kişilerin durumunu değiştirin veya kişileri pasif yapın.");
 
@@ -432,18 +428,18 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
 
     // ---------------------------------------------------------------- Yardımcılar
 
-    private IQueryable<Afetzede> GorunurKisiler(IVeriOturumu veri)
-    {
-        var sorgu = veri.Repo<Afetzede>().Sorgu();
-        return RefakatsizGorebilir ? sorgu : sorgu.Where(k => !k.RefakatsizCocuk);
-    }
+    private IQueryable<Afetzede> GorunurKisiler(IVeriOturumu veri) => veri.Repo<Afetzede>().Sorgu().GorunurKisiler(oturum);
 
     private async Task<Afetzede> GorunurKisiAsync(IVeriOturumu veri, int kisiId, CancellationToken iptal) =>
         await GorunurKisiler(veri).FirstOrDefaultAsync(k => k.Id == kisiId, iptal) ?? throw new KayitBulunamadiException("Kişi");
 
-    private static async Task<Aile> AktifAileAsync(IVeriOturumu veri, int aileId, CancellationToken iptal) =>
-        await veri.Repo<Aile>().Sorgu().FirstOrDefaultAsync(a => a.Id == aileId && a.Aktif, iptal)
-        ?? throw new KayitBulunamadiException("Aile");
+    private async Task<Aile> AktifAileAsync(IVeriOturumu veri, int aileId, CancellationToken iptal)
+    {
+        var aile = await veri.Repo<Aile>().Sorgu().Include(a => a.Uyeler).FirstOrDefaultAsync(a => a.Id == aileId && a.Aktif, iptal)
+            ?? throw new KayitBulunamadiException("Aile");
+        oturum.AileGorunurOlmali(aile);
+        return aile;
+    }
 
     /// <summary>Kişinin aktif yerleşimini kapatır ve çadırda yeri boşaltır. Yerleşim yoksa null.</summary>
     private static async Task<Cadir?> AktifYerlesimiKapatAsync(IVeriOturumu veri, Afetzede kisi, DateTime simdi, CancellationToken iptal)
@@ -497,7 +493,7 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
     /// <summary>Takip edilmeyen sonuçlardan, yetkisi olmayan role sağlık notunu ve refakatsiz çocukları çıkarır.</summary>
     private void UyeleriSuz(Aile aile)
     {
-        if (!RefakatsizGorebilir)
+        if (!oturum.RefakatsizCocukGorebilir())
             aile.Uyeler.RemoveAll(u => u.RefakatsizCocuk);
         SaglikBilgisiniSuz(aile.Uyeler);
     }

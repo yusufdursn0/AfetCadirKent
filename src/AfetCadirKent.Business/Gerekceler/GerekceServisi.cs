@@ -34,7 +34,9 @@ public class GerekceServisi(
     {
         oturum.IzinGerekli(Modul.Kayit, Izin.Gorme);
         await using var veri = veriFabrikasi.Ac();
-        return await DegerlendirAsync(veri, aileIdler, zaman.Simdi(), degerlendirici, iptal);
+        var gorunurIdler = await veri.Repo<Aile>().Sorgu().GorunurAileler(oturum)
+            .Where(a => aileIdler.Contains(a.Id)).Select(a => a.Id).ToListAsync(iptal);
+        return await DegerlendirAsync(veri, gorunurIdler, zaman.Simdi(), degerlendirici, iptal);
     }
 
     /// <summary>
@@ -151,6 +153,7 @@ public class GerekceServisi(
     {
         oturum.IzinGerekli(Modul.Kayit, Izin.Gorme);
         await using var veri = veriFabrikasi.Ac();
+        await AktifAileGetirAsync(veri, aileId, iptal);
         return await veri.Repo<AileGerekcesi>().Sorgu()
             .Include(g => g.Gerekce).Include(g => g.Kullanici)
             .Where(g => g.AileId == aileId)
@@ -161,9 +164,13 @@ public class GerekceServisi(
 
     private string GerekceAdi(GerekceKodu kod) => degerlendirici.Kurallar.First(k => k.Kod == kod).Ad;
 
-    private static async Task<Aile> AktifAileGetirAsync(IVeriOturumu veri, int aileId, CancellationToken iptal) =>
-        await veri.Repo<Aile>().Sorgu().FirstOrDefaultAsync(a => a.Id == aileId && a.Aktif, iptal)
-        ?? throw new KayitBulunamadiException("Aile");
+    private async Task<Aile> AktifAileGetirAsync(IVeriOturumu veri, int aileId, CancellationToken iptal)
+    {
+        var aile = await veri.Repo<Aile>().Sorgu().Include(a => a.Uyeler).AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Id == aileId && a.Aktif, iptal) ?? throw new KayitBulunamadiException("Aile");
+        oturum.AileGorunurOlmali(aile);
+        return aile;
+    }
 
     private static async Task<int> OncekileriGecersizYapAsync(IVeriOturumu veri, int aileId, GerekceKodu kod, CancellationToken iptal)
     {
