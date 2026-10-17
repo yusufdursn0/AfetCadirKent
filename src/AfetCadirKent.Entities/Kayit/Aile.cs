@@ -4,6 +4,7 @@ namespace AfetCadirKent.Entities.Kayit;
 public class Aile : VarlikTemel, IFizikselSilinemez
 {
     private string _aileAdi = string.Empty;
+    private string? _notlar;
 
     /// <summary>Sistemin verdiği benzersiz aile numarası (A-000001). Kiosk girişinde kullanılır.</summary>
     public string AileNo { get; private set; } = null!;
@@ -18,7 +19,11 @@ public class Aile : VarlikTemel, IFizikselSilinemez
     /// <summary>Tek ebeveyn gerekçesi için görevlinin işaretlediği bilgi.</summary>
     public bool TekEbeveyn { get; set; }
 
-    public string? Notlar { get; set; }
+    public string? Notlar
+    {
+        get => _notlar;
+        set => _notlar = Dogrula.IstegeBagliMetin(value, "Aile notu", 1000);
+    }
     public DateTime KayitZamani { get; set; }
     public bool Aktif { get; set; } = true;
     public byte[] RowVersion { get; set; } = [];

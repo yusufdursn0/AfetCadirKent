@@ -221,6 +221,38 @@ public class KayitServisiTestleri(VeritabaniFixture fixture)
     }
 
     [Fact]
+    public async Task UzunMetinler_KullaniciyaAnlasilirMesaj_SistemMetniSutunaSigar()
+    {
+        var soyad = BenzersizSoyad();
+        var uzunNot = new string('n', 1001);
+        await Assert.ThrowsAsync<DogrulamaException>(() =>
+            Servis().AileOlusturAsync($"{soyad} Ailesi", false, [Kisi("Uzun", soyad, 30)], uzunNot));
+
+        // 500 karakterlik açıklama + sistemin eklediği ön ek, 500'lük hareket sütununa kısaltılarak yazılır.
+        var aile = await Servis().AileOlusturAsync($"{soyad} Ailesi", false, [Kisi("Uzun", soyad, 30), Kisi("Kalan", soyad, 32)]);
+        var bolge = await fixture.CadirServisi(RolTuru.KayitGorevlisi).BolgeKaydetAsync(null, BenzersizBolgeKodu(), "Uzun metin", null);
+        var cadir = await fixture.CadirServisi(RolTuru.KayitGorevlisi).CadirEkleAsync(
+            new() { BolgeId = bolge.Id, Sira = 1, Numara = 1, Kapasite = 4 });
+        await fixture.CadirServisi(RolTuru.KayitGorevlisi).YerlestirAsync(aile.Id, [new(cadir.Id, "?", 2)]);
+
+        await Servis().KisiPasifYapAsync(aile.Uyeler[0].Id, new string('a', 500));
+        await using var db = fixture.YeniContext();
+        var hareket = await db.KisiHareketleri.Where(h => h.KisiId == aile.Uyeler[0].Id && h.Tur == KisiHareketTuru.Ayrilis).SingleAsync();
+        Assert.Equal(500, hareket.Aciklama!.Length);
+        Assert.EndsWith("…", hareket.Aciklama);
+    }
+
+    [Fact]
+    public async Task VeritabaniUzunlukHatasiAnlasilirMesajaCevrilir()
+    {
+        await using var veri = fixture.OturumFabrikasi().Ac();
+        veri.Repo<Bolge>().Ekle(new Bolge { Kod = BenzersizBolgeKodu(), Ad = "Test", Aciklama = new string('x', 600) });
+
+        var hata = await Assert.ThrowsAsync<DogrulamaException>(() => veri.GuvenliKaydetAsync());
+        Assert.Contains("uzunluğu aşıyor", hata.Message);
+    }
+
+    [Fact]
     public async Task GerekceElleKaldirilirGeriAlinirVeGecmisTutulur()
     {
         var soyad = BenzersizSoyad();
