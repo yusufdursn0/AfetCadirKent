@@ -14,13 +14,28 @@ public static class ServisYardimcilari
         veri.Repo<IslemKaydi>().Ekle(new IslemKaydi
         {
             Zaman = zaman,
-            KullaniciId = kullanici is { Id: > 0 } ? kullanici.Id : null,
+            KullaniciId = oturum.KullaniciId,
             KullaniciAdi = kullanici?.KullaniciAdi ?? "sistem",
             IslemTuru = tur,
             VarlikAdi = varlikAdi,
             VarlikId = varlikId,
             Aciklama = aciklama.Kisalt(2000),
         });
+    }
+
+    /// <summary>
+    /// Bekleyen değişiklikleri ve işlem geçmişi kaydını tek transaction içinde yazar. İki adımlıdır: önce kayıt yazılır
+    /// (Id ve aile/kişi numarası gibi veritabanında üretilen değerler oluşur), sonra bu değerleri kullanan işlem geçmişi.
+    /// Açıklama bu yüzden ilk kayıttan sonra hesaplanır.
+    /// </summary>
+    public static async Task KaydetVeGecmiseYazAsync(this IVeriOturumu veri, IOturum oturum, DateTime zaman,
+        IslemTuru tur, string varlikAdi, Func<int?> varlikId, Func<string> aciklama, CancellationToken iptal = default)
+    {
+        await using var islem = await veri.IslemBaslatAsync(iptal);
+        await veri.GuvenliKaydetAsync(iptal);
+        veri.IslemKaydet(oturum, zaman, tur, varlikAdi, varlikId(), aciklama());
+        await veri.GuvenliKaydetAsync(iptal);
+        await islem.CommitAsync(iptal);
     }
 
     /// <summary>

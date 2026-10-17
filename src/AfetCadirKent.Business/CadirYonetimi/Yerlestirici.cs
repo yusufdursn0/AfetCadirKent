@@ -37,7 +37,7 @@ internal static class Yerlestirici
             .Where(c => cadirIdleri.Contains(c.Id))
             .ToDictionaryAsync(c => c.Id, iptal);
 
-        var kullaniciId = oturum.Kullanici is { Id: > 0 } k ? k.Id : (int?)null;
+        var kullaniciId = oturum.KullaniciId;
         var sira = 0;
         var ozet = new List<string>();
         foreach (var atama in atamalar)

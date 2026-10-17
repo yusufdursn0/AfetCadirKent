@@ -7,6 +7,10 @@ namespace AfetCadirKent.Business.Ortak;
 public interface IOturum
 {
     Gorevli? Kullanici { get; }
+
+    /// <summary>Kayıtlara yazılacak kullanıcı Id'si; veritabanına kaydedilmemiş kullanıcı (ör. test oturumu) için null.</summary>
+    int? KullaniciId { get; }
+
     RolTuru? Rol { get; }
     bool AcikMi { get; }
     bool IzinVarMi(Modul modul, Izin izin);
@@ -20,6 +24,7 @@ public class Oturum : IOturum
     private readonly HashSet<(Modul Modul, Izin Izin)> _izinler = [];
 
     public Gorevli? Kullanici { get; private set; }
+    public int? KullaniciId => Kullanici is { Id: > 0 } k ? k.Id : null;
     public RolTuru? Rol { get; private set; }
     public bool AcikMi => Kullanici is not null;
 

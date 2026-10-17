@@ -63,17 +63,15 @@ public class UrunServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, Ti
             throw new IsKuraliException($"'{urun.Ad}' adlı bir ürün zaten var.");
 
         var yeni = $"{urun.HesaplamaTuru.Metin()} {urun.HakMiktari:0.##}, {urun.TekrarAlmaGunu} gün, kritik {urun.KritikSeviye:0.##}";
-        await using var islem = await veri.IslemBaslatAsync(iptal);
         if (id is null)
             repo.Ekle(urun);
         var eslesmeler = kategoriDegisti ? await EslesmeleriKurAsync(veri, urun, iptal) : null;
-        await veri.GuvenliKaydetAsync(iptal);
 
         var eslesmeMetni = eslesmeler is null ? "" : $" Öncelikli olduğu gerekçeler: {(eslesmeler.Count == 0 ? "yok" : string.Join(", ", eslesmeler))}.";
-        veri.IslemKaydet(oturum, zaman.Simdi(), id is null ? IslemTuru.Olusturma : IslemTuru.Guncelleme, nameof(Urun), urun.Id,
-            (id is null ? $"Ürün '{urun.Ad}' eklendi ({yeni})." : $"Ürün '{urun.Ad}' güncellendi. Ayarlar: {eski} → {yeni}.") + eslesmeMetni);
-        await veri.GuvenliKaydetAsync(iptal);
-        await islem.CommitAsync(iptal);
+        await veri.KaydetVeGecmiseYazAsync(oturum, zaman.Simdi(), id is null ? IslemTuru.Olusturma : IslemTuru.Guncelleme,
+            nameof(Urun), () => urun.Id,
+            () => (id is null ? $"Ürün '{urun.Ad}' eklendi ({yeni})." : $"Ürün '{urun.Ad}' güncellendi. Ayarlar: {eski} → {yeni}.") + eslesmeMetni,
+            iptal);
         return urun;
     }
 
@@ -151,14 +149,10 @@ public class UrunServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, Ti
         if (await repo.VarMiAsync(b => b.Ad == bagisci.Ad && b.Id != bagisci.Id, iptal))
             throw new IsKuraliException($"'{bagisci.Ad}' adlı bir bağışçı zaten kayıtlı. Listeden seçebilirsiniz.");
 
-        await using var islem = await veri.IslemBaslatAsync(iptal);
         if (id is null)
             repo.Ekle(bagisci);
-        await veri.GuvenliKaydetAsync(iptal);
-        veri.IslemKaydet(oturum, zaman.Simdi(), id is null ? IslemTuru.Olusturma : IslemTuru.Guncelleme, nameof(Bagisci), bagisci.Id,
-            $"Bağışçı '{bagisci.Ad}' {(id is null ? "eklendi" : "güncellendi")}.");
-        await veri.GuvenliKaydetAsync(iptal);
-        await islem.CommitAsync(iptal);
+        await veri.KaydetVeGecmiseYazAsync(oturum, zaman.Simdi(), id is null ? IslemTuru.Olusturma : IslemTuru.Guncelleme,
+            nameof(Bagisci), () => bagisci.Id, () => $"Bağışçı '{bagisci.Ad}' {(id is null ? "eklendi" : "güncellendi")}.", iptal);
         return bagisci;
     }
 

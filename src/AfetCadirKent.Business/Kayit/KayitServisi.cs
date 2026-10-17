@@ -44,8 +44,6 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
 {
     private bool SaglikBilgisiGorebilir => oturum.IzinVarMi(Modul.SaglikBilgisi, Izin.Gorme);
 
-    private int? KullaniciId => oturum.Kullanici is { Id: > 0 } k ? k.Id : null;
-
     // ---------------------------------------------------------------- Mükerrer kontrol
 
     public async Task<MukerrerSonucu> MukerrerKontrolAsync(KisiBilgisi kisi, int? haricKisiId = null, CancellationToken iptal = default)
@@ -111,15 +109,11 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
             aile.Uyeler.Add(YeniKisi(bilgi, simdi));
         }
 
-        // Numaralar veritabanında üretildiği için iki adımda kaydedilir; yarım kayıt kalmasın diye tek transaction.
-        await using var islem = await veri.IslemBaslatAsync(iptal);
+        // Aile ve kişi numaraları veritabanında üretilir; işlem geçmişi metni onları kullandığı için iki adımda, tek transaction.
         veri.Repo<Aile>().Ekle(aile);
-        await veri.GuvenliKaydetAsync(iptal);
-
-        veri.IslemKaydet(oturum, simdi, IslemTuru.Olusturma, nameof(Aile), aile.Id,
-            $"{aile.AileNo} {aile.AileAdi} kaydedildi ({aile.Uyeler.Count} kişi: {string.Join(", ", aile.Uyeler.Select(u => u.KisiNo))}).");
-        await veri.GuvenliKaydetAsync(iptal);
-        await islem.CommitAsync(iptal);
+        await veri.KaydetVeGecmiseYazAsync(oturum, simdi, IslemTuru.Olusturma, nameof(Aile), () => aile.Id,
+            () => $"{aile.AileNo} {aile.AileAdi} kaydedildi ({aile.Uyeler.Count} kişi: {string.Join(", ", aile.Uyeler.Select(u => u.KisiNo))}).",
+            iptal);
         return aile;
     }
 
@@ -149,14 +143,9 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
         var simdi = zaman.Simdi();
         var yeni = YeniKisi(kisi, simdi);
 
-        await using var islem = await veri.IslemBaslatAsync(iptal);
         aile.Uyeler.Add(yeni);
-        await veri.GuvenliKaydetAsync(iptal);
-
-        veri.IslemKaydet(oturum, simdi, IslemTuru.Olusturma, nameof(Afetzede), yeni.Id,
-            $"{yeni.KisiNo} {yeni.AdSoyad}, {aile.AileNo} ailesine sonradan eklendi.");
-        await veri.GuvenliKaydetAsync(iptal);
-        await islem.CommitAsync(iptal);
+        await veri.KaydetVeGecmiseYazAsync(oturum, simdi, IslemTuru.Olusturma, nameof(Afetzede), () => yeni.Id,
+            () => $"{yeni.KisiNo} {yeni.AdSoyad}, {aile.AileNo} ailesine sonradan eklendi.", iptal);
         return yeni;
     }
 
@@ -204,7 +193,7 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
         var simdi = zaman.Simdi();
         var hareket = new KisiHareketi
         {
-            Kisi = kisi, Tur = hareketTuru, Zaman = simdi, KullaniciId = KullaniciId,
+            Kisi = kisi, Tur = hareketTuru, Zaman = simdi, KullaniciId = oturum.KullaniciId,
             Aciklama = Dogrula.IstegeBagliMetin(aciklama, "Açıklama", 500),
         };
 
@@ -267,28 +256,24 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
             kisi.Aile = yeni;
             veri.Repo<KisiHareketi>().Ekle(new KisiHareketi
             {
-                Kisi = kisi, Tur = KisiHareketTuru.AileDegisikligi, Zaman = simdi, KullaniciId = KullaniciId,
+                Kisi = kisi, Tur = KisiHareketTuru.AileDegisikligi, Zaman = simdi, KullaniciId = oturum.KullaniciId,
                 EskiAileId = kaynak.Id, YeniAile = yeni, Aciklama = temizAciklama,
             });
         }
 
         veri.Repo<AileGecmisi>().Ekle(new AileGecmisi
         {
-            Tur = AileGecmisiTuru.Ayirma, KaynakAile = kaynak, HedefAile = yeni, Zaman = simdi, KullaniciId = KullaniciId,
+            Tur = AileGecmisiTuru.Ayirma, KaynakAile = kaynak, HedefAile = yeni, Zaman = simdi, KullaniciId = oturum.KullaniciId,
             Aciklama = temizAciklama, TasinanKisiler = string.Join(", ", tasinanlar.Select(k => k.KisiNo)),
         });
 
         // Kaynak ailenin RowVersion'ı kontrol edilsin: aynı aile eşzamanlı ikinci kez ayrılamaz.
         veri.Repo<Aile>().Guncelle(kaynak);
 
-        await using var islem = await veri.IslemBaslatAsync(iptal);
-        await veri.GuvenliKaydetAsync(iptal);
-
         // Gerekçe ve dağıtım hakları kayıtlı veriden her okumada hesaplandığı için iki aile için de kendiliğinden yenilenir.
-        veri.IslemKaydet(oturum, simdi, IslemTuru.Olusturma, nameof(Aile), yeni.Id,
-            $"{kaynak.AileNo} ailesinden {string.Join(", ", tasinanlar.Select(k => k.KisiNo))} ayrılarak {yeni.AileNo} oluşturuldu. Gerekçe: {temizAciklama}");
-        await veri.GuvenliKaydetAsync(iptal);
-        await islem.CommitAsync(iptal);
+        await veri.KaydetVeGecmiseYazAsync(oturum, simdi, IslemTuru.Olusturma, nameof(Aile), () => yeni.Id,
+            () => $"{kaynak.AileNo} ailesinden {string.Join(", ", tasinanlar.Select(k => k.KisiNo))} ayrılarak {yeni.AileNo} oluşturuldu. Gerekçe: {temizAciklama}",
+            iptal);
         return yeni;
     }
 
@@ -309,7 +294,7 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
         {
             veri.Repo<KisiHareketi>().Ekle(new KisiHareketi
             {
-                Kisi = kisi, Tur = KisiHareketTuru.Ayrilis, EskiCadirId = cadir.Id, Zaman = simdi, KullaniciId = KullaniciId,
+                Kisi = kisi, Tur = KisiHareketTuru.Ayrilis, EskiCadirId = cadir.Id, Zaman = simdi, KullaniciId = oturum.KullaniciId,
                 Aciklama = $"Kayıt pasif yapıldı: {temizAciklama}".Kisalt(500),
             });
         }
@@ -460,7 +445,7 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
         BilgileriUygula(kisi, bilgi, saglikNotuDahil: true);
         kisi.Hareketler.Add(new KisiHareketi
         {
-            Tur = KisiHareketTuru.Gelis, Zaman = simdi, KullaniciId = KullaniciId, Aciklama = "Çadır kente kayıt",
+            Tur = KisiHareketTuru.Gelis, Zaman = simdi, KullaniciId = oturum.KullaniciId, Aciklama = "Çadır kente kayıt",
         });
         return kisi;
     }

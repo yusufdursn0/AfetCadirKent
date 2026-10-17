@@ -49,8 +49,6 @@ public interface IDagitimServisi
 public class DagitimServisi(
     IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, TimeProvider zaman, GerekceDegerlendirici degerlendirici) : IDagitimServisi
 {
-    private int? KullaniciId => oturum.Kullanici is { Id: > 0 } k ? k.Id : null;
-
     /// <summary>Refakatsiz çocuk kaydını yalnızca Koordinatör görür (şartname M2, K-068).</summary>
     private bool RefakatsizGorebilir => oturum.RefakatsizCocukGorebilir();
 
@@ -166,7 +164,7 @@ public class DagitimServisi(
         var oncelikler = await GerekceServisi.DegerlendirAsync(veri, adaylar.Select(a => a.Aile.Id).ToList(), simdi, degerlendirici, iptal);
         var dagitim = new Dagitim
         {
-            UrunId = urun.Id, Tarih = bugun, Durum = DagitimDurumu.Taslak, OlusturmaZamani = simdi, OlusturanKullaniciId = KullaniciId,
+            UrunId = urun.Id, Tarih = bugun, Durum = DagitimDurumu.Taslak, OlusturmaZamani = simdi, OlusturanKullaniciId = oturum.KullaniciId,
             Aciklama = Dogrula.IstegeBagliMetin(aciklama, "Açıklama", 500),
         };
         foreach (var aday in adaylar)
@@ -176,23 +174,17 @@ public class DagitimServisi(
             dagitim.Detaylar.Add(detay);
         }
 
-        await using (var islem = await veri.IslemBaslatAsync(iptal))
+        veri.Repo<Dagitim>().Ekle(dagitim);
+        try
         {
-            veri.Repo<Dagitim>().Ekle(dagitim);
-            try
-            {
-                await veri.GuvenliKaydetAsync(iptal);
-            }
-            catch (IsKuraliException ex) when (ex.InnerException is DbUpdateException)
-            {
-                // Başka bir görevli aynı anda bu ürün için liste hazırladı (tek açık liste indeksi).
-                throw new IsKuraliException($"'{urun.Ad}' için az önce başka bir görevli dağıtım listesi hazırladı. Listeyi yenileyip onu kullanın.", ex);
-            }
-
-            veri.IslemKaydet(oturum, simdi, IslemTuru.Olusturma, nameof(Dagitim), dagitim.Id,
-                $"{urun.Ad} dağıtım listesi hazırlandı: {adaylar.Count} aile, toplam {adaylar.Sum(a => a.ListeHakki):0.##} {urun.Birim.Metin()}.");
-            await veri.GuvenliKaydetAsync(iptal);
-            await islem.CommitAsync(iptal);
+            await veri.KaydetVeGecmiseYazAsync(oturum, simdi, IslemTuru.Olusturma, nameof(Dagitim), () => dagitim.Id,
+                () => $"{urun.Ad} dağıtım listesi hazırlandı: {adaylar.Count} aile, toplam {adaylar.Sum(a => a.ListeHakki):0.##} {urun.Birim.Metin()}.",
+                iptal);
+        }
+        catch (IsKuraliException ex) when (ex.InnerException is DbUpdateException)
+        {
+            // Başka bir görevli aynı anda bu ürün için liste hazırladı (tek açık liste indeksi).
+            throw new IsKuraliException($"'{urun.Ad}' için az önce başka bir görevli dağıtım listesi hazırladı. Listeyi yenileyip onu kullanın.", ex);
         }
 
         return await ListeOkuAsync(veri, dagitim.Id, iptal);
@@ -297,7 +289,7 @@ public class DagitimServisi(
 
         dagitim.Durum = DagitimDurumu.Onaylandi;
         dagitim.OnayZamani = simdi;
-        dagitim.OnaylayanKullaniciId = KullaniciId;
+        dagitim.OnaylayanKullaniciId = oturum.KullaniciId;
         var kullanilan = satirlar.SelectMany(x => x.Ayirmalar).GroupBy(a => a.Parti!.PartiNo)
             .Select(g => $"{g.Key}: {g.Sum(a => a.Miktar):0.##}");
         veri.IslemKaydet(oturum, simdi, IslemTuru.Guncelleme, nameof(Dagitim), dagitimId,
@@ -359,7 +351,7 @@ public class DagitimServisi(
             var hareket = new DagitimHareketi
             {
                 Parti = ayirma.Parti, DagitimDetay = detay, Miktar = pay, Zaman = simdi,
-                KullaniciId = KullaniciId, TeslimAlanKisiId = alan.Id, Aciklama = temizAciklama,
+                KullaniciId = oturum.KullaniciId, TeslimAlanKisiId = alan.Id, Aciklama = temizAciklama,
             };
             hareket.PartiyeUygula(ayirma.Parti!);
             veri.Repo<StokHareketi>().Ekle(hareket);

@@ -87,10 +87,13 @@ public class Afetzede : Kisi, IFizikselSilinemez
 
     public override string KisiTuru => "Afetzede";
 
-    public int Yas(DateOnly bugun)
+    public int Yas(DateOnly bugun) => YasHesapla(DogumTarihi, bugun);
+
+    /// <summary>Tamamlanmış yaş (doğum günü gelmediyse bir eksik); henüz kaydı olmayan kişi için de kullanılır.</summary>
+    public static int YasHesapla(DateOnly dogumTarihi, DateOnly bugun)
     {
-        var yas = bugun.Year - DogumTarihi.Year;
-        if (DogumTarihi > bugun.AddYears(-yas))
+        var yas = bugun.Year - dogumTarihi.Year;
+        if (dogumTarihi > bugun.AddYears(-yas))
             yas--;
         return Math.Max(yas, 0);
     }
