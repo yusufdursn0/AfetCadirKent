@@ -93,8 +93,8 @@ Tüm tablolarda PK `Id int identity` (GerekceUrunleri hariç: bileşik PK). FK'l
 | Partiler | PartiNo, Miktar, AyrilanMiktar, SonKullanmaTarihi, GirisZamani, Aktif, RowVersion | UrunId, BagisciId | İ: (UrunId, SKT) · CK: 0 ≤ Ayrılan ≤ Miktar |
 | StokHareketleri (TPH) | HareketTuru (ayırıcı), Miktar, Zaman, Aciklama, Aktif; Dağıtım: DagitimDetayId, TeslimAlanKisiId; Sayım: FazlaMi | PartiId, KullaniciId | İ: Zaman · CK: Miktar > 0 |
 | StokAyirmalari | Miktar, TeslimEdilenMiktar, SerbestBirakilanMiktar, Durum, Olusturma/KapanisZamani | DagitimDetayId, PartiId | CK: teslim + serbest ≤ miktar |
-| Dagitimlar | Tarih, Durum, Aciklama, Olusturma/OnayZamani, Aktif | UrunId, Olusturan/OnaylayanKullaniciId | İ: (UrunId, Tarih) |
-| DagitimDetaylari | HakMiktari, TeslimEdilenMiktar, OncelikliIhtiyac, IstisnaGerekcesi, Aktif, RowVersion | DagitimId, AileId | U: (DagitimId, AileId) · CK: teslim ≤ hak |
+| Dagitimlar | Tarih, Durum, Aciklama, Olusturma/OnayZamani, Aktif | UrunId, Olusturan/OnaylayanKullaniciId | İ: (UrunId, Tarih) · U (filtreli, Aktif ve Taslak/Onaylandı): UrunId — ürün başına tek açık liste |
+| DagitimDetaylari | HakMiktari, DevredenMiktar, TeslimEdilenMiktar, OncelikliIhtiyac, IstisnaGerekcesi, Aktif, RowVersion | DagitimId, AileId | U: (DagitimId, AileId) · CK: teslim ≤ hak, 0 ≤ devreden ≤ hak |
 | Talepler | Aciklama, Tur, Kaynak, Durum, YardimOnceligi, SaglikPersoneliDegerlendirecek, HedefRol, Acilis/KapanisZamani, Sonuc, SiniflandirmaDurumu, YzOnerilenTur/Oncelik, YzGerekce, RowVersion | AileId, CadirId, SorumluKullaniciId, OlusturanKullaniciId | İ: Durum, SorumluKullaniciId · CK: sağlık talebinde öncelik boş |
 | YakinBulmaBasvurulari | Başvuran bilgileri, ArananAd/Soyad/YaklasikYas/Memleket, Durum, DogrulamaAciklamasi, Sonuc, Acilis/KapanisZamani | BasvuranAileId, EslesenKisiId, KullaniciId | İ: Durum |
 | Gonulluler (`Gonullu`) | Ad, Soyad, Telefon, UzmanlikAlani, Notlar, Aktif, KayitZamani | — | — |
@@ -118,10 +118,10 @@ ER görseli rapor için Aşama 10'da bu tablodan üretilecektir.
 |---|---|
 | Soyut sınıf + kalıtım | `Kisi` (abstract) → `Afetzede`, `Gorevli`, `Gonullu`; `StokHareketi` (abstract) → `GirisHareketi`, `DagitimHareketi`, `IadeHareketi`, `HasarHareketi`, `SayimFarkiHareketi` |
 | Polimorfizm | `StokHareketi.StokEtkisi` her alt sınıfta farklı; `IGerekceKurali` uygulamaları (`BebekKurali`, `HamileKurali` …) tek döngüde değerlendirilir; `IYapayZekaServisi` |
-| Interface | `IGerekceKurali`, `IYapayZekaServisi`, `IRepository<T>`, `IPasifYapilabilir`, `IDenetlenebilir`, servis arayüzleri |
-| Kapsülleme | Entity property'lerinde doğrulama (ör. `Cadir.Kapasite > 0`, `Kisi.Ad` boş olamaz), `private set` ile korunan alanlar, `Parti.Ayir()/Teslim()` metotları |
-| Generic | `IRepository<T> where T : class`, `Repository<T>`, `SonucListesi<T>` |
-| Koleksiyonlar | `List<IGerekceKurali>`, `Dictionary<UrunKategorisi, bool>` (malzeme ihtiyaçları), `Dictionary<Modul, IzinSeti>` (yetki önbelleği) |
+| Interface | `IGerekceKurali`, `IRepository<T>`, `IVeriOturumu`, `IOturum`, `IAktiflik` → `IFizikselSilinemez` (arayüz kalıtımı: fiziksel silinemeyen kayıtlar), servis arayüzleri (`IKayitServisi`, `IDagitimServisi` …); `IYapayZekaServisi` Aşama 4'te |
+| Kapsülleme | Entity property'lerinde doğrulama (ör. `Cadir.Kapasite > 0`, `Kisi.Ad` boş olamaz), `private set` ile korunan alanlar, `Parti.Ayir()/AyrilaniTeslimEt()` ve `DagitimDetay.HakAta()/TeslimKaydet()` metotları |
+| Generic | `IRepository<T> where T : class`, `Repository<T>`, `VeriOturumu.Repo<T>()` |
+| Koleksiyonlar | `IReadOnlyList<IGerekceKurali>` (değerlendirici), `IReadOnlyDictionary<int, AileOncelikSonucu>` (toplu gerekçe değerlendirmesi), `HashSet<(Modul, Izin)>` (oturum izinleri), `Dictionary<int, AileHakDurumu>` (dağıtım hakları), `ILookup` (partiler/satırlar gruplama), `IReadOnlyList<MalzemeIhtiyaci>` (malzeme ihtiyaçları) |
 | İstisna yönetimi | `IsKuraliException` (taban, Entities) → `DogrulamaException` (Entities), `YetkisizIslemException`, `SilinemezException`, `EszamanlilikException` (Business); UI'da merkezi hata yakalama + Serilog |
 | Kapsülleme örnekleri (kodda) | `Cadir.Doluluk` yalnızca `Yerlestir/Bosalt` ile değişir; `Parti.Miktar/AyrilanMiktar` yalnızca `Ayir/AyirmaKaldir/AyrilaniTeslimEt` ile; `StokAyirma` yalnızca `TeslimEt/SerbestBirak` ile; `DagitimDetay.TeslimEdilenMiktar` yalnızca `TeslimKaydet` ile; `Afetzede.TcKimlikNo` setter'ı algoritmayla doğrular; `Gorevli.ParolaHash` dışarıdan yazılamaz |
 | Polimorfizm örnekleri (kodda) | `StokHareketi.PartiyeUygula` ve `PartidenGeriAl` her alt sınıfta farklı (dağıtım hareketi geri alınamaz); `Kisi.KisiTuru` |
@@ -151,7 +151,7 @@ ER görseli rapor için Aşama 10'da bu tablodan üretilecektir.
 | `IYedekServisi` | `YedekAl(yol)`, `GeriYukle(yol)` |
 | `IIslemGecmisiServisi` | `Kaydet`, `Listele(filtre)` |
 
-Her değiştirici işlem: yetki kontrolü → doğrulama → işlem (transaction) → işlem geçmişi kaydı. Kurallar saf sınıflarda (`TurkceMetin`, `TcKimlikDogrulayici`, `CadirOneriMotoru`, `FefoSecici`, `HakHesaplayici`, `StokTahminMotoru`, `TalepDurumMakinesi`) tutulur ve veritabanısız test edilir.
+Her değiştirici işlem: yetki kontrolü → doğrulama → işlem (transaction) → işlem geçmişi kaydı. Kurallar saf sınıflarda (`TurkceMetin`, `TcKimlik`, `MukerrerKontrol`, `GerekceDegerlendirici`, `CadirOneriMotoru`, `FefoSecici`, `HakHesaplayici`, `StokTahminMotoru`; talep durum makinesi P5'te) tutulur ve veritabanısız test edilir.
 
 ## 5. Yapay zeka (Ollama) entegrasyonu
 
