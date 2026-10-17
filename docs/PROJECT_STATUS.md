@@ -76,6 +76,13 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
   - Ürün başına tek açık dağıtım listesi için filtreli tekil indeks; eşzamanlı ikinci listeye anlaşılır mesaj (K-049a, K-062).
   - Dokümanlar kodla eşitlendi: ARCHITECTURE'daki olmayan tip adları, K-028, TESTING'deki transaction açıklaması.
   - 165 test, tamamı başarılı. Geliştirme veritabanına migration uygulandı (veri kaybı yok).
+- **Denetim düzeltmeleri (2026-10-17, önemli maddeler 4, 5, 8, 9):**
+  - Yeni üründe ve kategori değişiminde gerekçe ↔ ürün eşleşmeleri kendiliğinden kuruluyor; öncelikli kategorilerin tek kaynağı `ReferansVerisi` (K-041).
+  - Uzun metin hataları: sistemin birleştirdiği açıklamalar sütuna sığdırılıyor, aile/gönüllü notları doğrulanıyor, veritabanı uzunluk hatası anlaşılır mesaja çevriliyor.
+  - Refakatsiz çocuk görünürlüğü `RefakatsizGizlilik` yardımcısında toplandı; gerekçe, bekleme listesi, aile güncelleme/kişi ekleme ve aileden ayırmadaki açıklar kapatıldı (K-068).
+  - README (hazır/planlanan ayrımı, veritabanı adımı) ve SETUP (dotnet-ef, ortam değişkenleri, test veritabanı) güncellendi.
+  - 170 test, tamamı başarılı.
+- **Açık kararlar (kullanıcı):** sağlık bilgisi (hamile/kronik hasta) iznini kim kullanır; pasif kişi/aileyi yeniden aktif yapma eklensin mi (denetim maddeleri 6 ve 7).
 
 ## Ortam
 - .NET SDK 10.0.402 (ve 9.0.317) → hedef .NET 10.
@@ -88,7 +95,7 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
 - Başlangıç mesajı geçici olarak standart `MessageBox` (K-016).
 
 ## Test durumu
-- 165 / 165 başarılı (bkz. `docs/TESTING.md`).
+- 170 / 170 başarılı (bkz. `docs/TESTING.md`).
 
 ## Kalan gereksinimler
 - IMPLEMENTED 51 · PARTIALLY 32 · NOT IMPLEMENTED 59 (bkz. REQUIREMENTS.md).
