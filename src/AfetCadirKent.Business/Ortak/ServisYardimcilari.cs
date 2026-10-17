@@ -19,7 +19,7 @@ public static class ServisYardimcilari
             IslemTuru = tur,
             VarlikAdi = varlikAdi,
             VarlikId = varlikId,
-            Aciklama = aciklama.Length > 2000 ? aciklama[..2000] : aciklama,
+            Aciklama = aciklama.Kisalt(2000),
         });
     }
 
@@ -41,7 +41,19 @@ public static class ServisYardimcilari
         {
             throw new IsKuraliException("Aynı bilgilerle kayıtlı bir kayıt zaten var.", ex);
         }
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2628 or 8152 })
+        {
+            // Son savunma hattı: alan uzunlukları entity/servis doğrulamasında kontrol edilir.
+            throw new DogrulamaException("Girilen metinlerden biri izin verilen uzunluğu aşıyor. Lütfen kısaltıp tekrar deneyin.", ex);
+        }
     }
+
+    /// <summary>
+    /// Sistemin kendi oluşturduğu birleşik metinleri (ön ek + kullanıcı açıklaması) sütun uzunluğuna sığdırır.
+    /// Kullanıcının tek başına girdiği metin kısaltılmaz, <see cref="Dogrula"/> ile reddedilir.
+    /// </summary>
+    public static string Kisalt(this string metin, int enFazla) =>
+        metin.Length <= enFazla ? metin : metin[..(enFazla - 1)] + "…";
 
     public static DateTime Simdi(this TimeProvider zaman) => zaman.GetLocalNow().DateTime;
 

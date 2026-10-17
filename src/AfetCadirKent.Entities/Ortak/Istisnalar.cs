@@ -13,4 +13,5 @@ public class IsKuraliException : Exception
 public class DogrulamaException : IsKuraliException
 {
     public DogrulamaException(string mesaj) : base(mesaj) { }
+    public DogrulamaException(string mesaj, Exception icHata) : base(mesaj, icHata) { }
 }

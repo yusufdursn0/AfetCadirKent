@@ -120,7 +120,7 @@ public class BeklemeListesiServisi(
 
         var simdi = zaman.Simdi();
         kayit.CikisZamani = simdi;
-        kayit.Aciklama = Dogrula.IstegeBagliMetin($"{kayit.Aciklama} | Listeden çıkarıldı: {temiz}".Trim(' ', '|'), "Açıklama", 500);
+        kayit.Aciklama = $"{kayit.Aciklama} | Listeden çıkarıldı: {temiz}".Trim(' ', '|').Kisalt(500);
         veri.IslemKaydet(oturum, simdi, IslemTuru.Iptal, nameof(BeklemeListesiKaydi), kayit.Id,
             $"{kayit.Aile!.AileNo} bekleme listesinden yerleştirilmeden çıkarıldı. Açıklama: {temiz}");
         await veri.GuvenliKaydetAsync(iptal);

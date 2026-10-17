@@ -313,7 +313,7 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
             veri.Repo<KisiHareketi>().Ekle(new KisiHareketi
             {
                 Kisi = kisi, Tur = KisiHareketTuru.Ayrilis, EskiCadirId = cadir.Id, Zaman = simdi, KullaniciId = KullaniciId,
-                Aciklama = $"Kayıt pasif yapıldı: {temizAciklama}",
+                Aciklama = $"Kayıt pasif yapıldı: {temizAciklama}".Kisalt(500),
             });
         }
 
