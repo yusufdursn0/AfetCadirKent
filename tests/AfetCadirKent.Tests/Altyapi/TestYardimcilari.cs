@@ -1,4 +1,6 @@
 using AfetCadirKent.Business.CadirYonetimi;
+using AfetCadirKent.Business.DagitimYonetimi;
+using AfetCadirKent.Business.DepoYonetimi;
 using AfetCadirKent.Business.Gerekceler;
 using AfetCadirKent.Business.Kayit;
 using AfetCadirKent.Business.Ortak;
@@ -40,6 +42,30 @@ public static class TestYardimcilari
         var cadir = new CadirServisi(fixture.OturumFabrikasi(), oturum, TimeProvider.System, GerekceDegerlendirici.Varsayilan());
         return new BeklemeListesiServisi(fixture.OturumFabrikasi(), oturum, TimeProvider.System, GerekceDegerlendirici.Varsayilan(), cadir);
     }
+
+    public static UrunServisi UrunServisi(this VeritabaniFixture fixture, RolTuru rol = RolTuru.DepoSorumlusu,
+        TimeProvider? zaman = null) =>
+        new(fixture.OturumFabrikasi(), OturumAc(rol), zaman ?? TimeProvider.System);
+
+    public static StokServisi StokServisi(this VeritabaniFixture fixture, RolTuru rol = RolTuru.DepoSorumlusu,
+        TimeProvider? zaman = null) =>
+        new(fixture.OturumFabrikasi(), OturumAc(rol), zaman ?? TimeProvider.System, new DepoAyarlari());
+
+    public static DagitimServisi DagitimServisi(this VeritabaniFixture fixture, RolTuru rol = RolTuru.DepoSorumlusu,
+        TimeProvider? zaman = null) =>
+        new(fixture.OturumFabrikasi(), OturumAc(rol), zaman ?? TimeProvider.System, GerekceDegerlendirici.Varsayilan());
+
+    /// <summary>Testlerin eklediği ürünlerin ad öneki (demo verisi testleri bunları saymaz).</summary>
+    public const string TestUrunOnEki = "TestUrun";
+
+    /// <summary>Testlere özel (adı benzersiz) ürün.</summary>
+    public static Task<global::AfetCadirKent.Entities.Depo.Urun> TestUrunuAsync(this VeritabaniFixture fixture, HesaplamaTuru tur = HesaplamaTuru.AileBasi,
+        decimal hak = 1, int tekrar = 1, decimal kritik = 0, UrunKategorisi kategori = UrunKategorisi.Diger) =>
+        fixture.UrunServisi(RolTuru.Koordinator).UrunKaydetAsync(null, new UrunBilgisi
+        {
+            Ad = BenzersizSoyad(TestUrunOnEki), Kategori = kategori, Birim = Birim.Adet, HesaplamaTuru = tur,
+            HakMiktari = hak, TekrarAlmaGunu = tekrar, KritikSeviye = kritik,
+        });
 
     /// <summary>Testler arasında çakışmayan 5 harfli bölge kodu.</summary>
     public static string BenzersizBolgeKodu() =>
