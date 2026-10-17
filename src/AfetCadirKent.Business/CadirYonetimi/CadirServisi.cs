@@ -39,8 +39,6 @@ public interface ICadirServisi
 public class CadirServisi(
     IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, TimeProvider zaman, GerekceDegerlendirici degerlendirici) : ICadirServisi
 {
-    private int? KullaniciId => oturum.Kullanici is { Id: > 0 } k ? k.Id : null;
-
     // ---------------------------------------------------------------- Bölge
 
     public async Task<IReadOnlyList<Bolge>> BolgeleriListeleAsync(bool pasifleriDeGoster = false, CancellationToken iptal = default)
@@ -69,15 +67,10 @@ public class CadirServisi(
         if (await repo.VarMiAsync(b => b.Kod == bolge.Kod && b.Id != bolge.Id, iptal))
             throw new IsKuraliException($"'{bolge.Kod}' kodlu bir bölge zaten var.");
 
-        await using var islem = await veri.IslemBaslatAsync(iptal);
         if (id is null)
             repo.Ekle(bolge);
-        await veri.GuvenliKaydetAsync(iptal);
-
-        veri.IslemKaydet(oturum, zaman.Simdi(), id is null ? IslemTuru.Olusturma : IslemTuru.Guncelleme, nameof(Bolge), bolge.Id,
-            $"Bölge {bolge.Kod} – {bolge.Ad} {(id is null ? "eklendi" : "güncellendi")}.");
-        await veri.GuvenliKaydetAsync(iptal);
-        await islem.CommitAsync(iptal);
+        await veri.KaydetVeGecmiseYazAsync(oturum, zaman.Simdi(), id is null ? IslemTuru.Olusturma : IslemTuru.Guncelleme,
+            nameof(Bolge), () => bolge.Id, () => $"Bölge {bolge.Kod} – {bolge.Ad} {(id is null ? "eklendi" : "güncellendi")}.", iptal);
         return bolge;
     }
 
@@ -146,13 +139,9 @@ public class CadirServisi(
         var cadir = new Cadir();
         await BilgileriUygulaAsync(veri, cadir, bilgi, iptal);
 
-        await using var islem = await veri.IslemBaslatAsync(iptal);
         veri.Repo<Cadir>().Ekle(cadir);
-        await veri.GuvenliKaydetAsync(iptal);
-        veri.IslemKaydet(oturum, zaman.Simdi(), IslemTuru.Olusturma, nameof(Cadir), cadir.Id,
-            $"Çadır {cadir.Kod} eklendi (kapasite {cadir.Kapasite}).");
-        await veri.GuvenliKaydetAsync(iptal);
-        await islem.CommitAsync(iptal);
+        await veri.KaydetVeGecmiseYazAsync(oturum, zaman.Simdi(), IslemTuru.Olusturma, nameof(Cadir), () => cadir.Id,
+            () => $"Çadır {cadir.Kod} eklendi (kapasite {cadir.Kapasite}).", iptal);
         return cadir;
     }
 
@@ -285,11 +274,11 @@ public class CadirServisi(
         {
             eski.Bitis = simdi;
             eski.Cadir!.Bosalt(1);
-            veri.Repo<Yerlesim>().Ekle(new Yerlesim { KisiId = eski.KisiId, Cadir = yeniCadir, Baslangic = simdi, KullaniciId = KullaniciId });
+            veri.Repo<Yerlesim>().Ekle(new Yerlesim { KisiId = eski.KisiId, Cadir = yeniCadir, Baslangic = simdi, KullaniciId = oturum.KullaniciId });
             veri.Repo<KisiHareketi>().Ekle(new KisiHareketi
             {
                 KisiId = eski.KisiId, Tur = KisiHareketTuru.CadirDegisikligi, EskiCadirId = eski.CadirId, YeniCadir = yeniCadir,
-                Zaman = simdi, KullaniciId = KullaniciId, Aciklama = temizAciklama,
+                Zaman = simdi, KullaniciId = oturum.KullaniciId, Aciklama = temizAciklama,
             });
         }
 

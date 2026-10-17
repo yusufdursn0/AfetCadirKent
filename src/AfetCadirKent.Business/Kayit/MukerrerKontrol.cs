@@ -14,17 +14,9 @@ public static class MukerrerKontrol
         string ad, string soyad, DateOnly dogumTarihi, IEnumerable<Afetzede> adaylar, DateOnly bugun)
     {
         var aramaAdi = TurkceMetin.Normallestir($"{ad} {soyad}");
-        var yas = YasHesapla(dogumTarihi, bugun);
+        var yas = Afetzede.YasHesapla(dogumTarihi, bugun);
         return adaylar
             .Where(k => k.AramaAdi == aramaAdi && Math.Abs(k.Yas(bugun) - yas) < YasFarkiSiniri)
             .ToList();
-    }
-
-    private static int YasHesapla(DateOnly dogum, DateOnly bugun)
-    {
-        var yas = bugun.Year - dogum.Year;
-        if (dogum > bugun.AddYears(-yas))
-            yas--;
-        return Math.Max(yas, 0);
     }
 }

@@ -124,7 +124,7 @@ public class GerekceServisi(
             Tur = tur,
             Aciklama = aciklama, // entity: boş olamaz
             Zaman = simdi,
-            KullaniciId = oturum.Kullanici is { Id: > 0 } k ? k.Id : null,
+            KullaniciId = oturum.KullaniciId,
         };
         veri.Repo<AileGerekcesi>().Ekle(degisiklik);
 

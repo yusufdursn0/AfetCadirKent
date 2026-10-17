@@ -36,8 +36,6 @@ public interface IStokServisi
 
 public class StokServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, TimeProvider zaman, DepoAyarlari ayarlar) : IStokServisi
 {
-    private int? KullaniciId => oturum.Kullanici is { Id: > 0 } k ? k.Id : null;
-
     public async Task<Parti> StokGirisiAsync(StokGirisiBilgisi bilgi, CancellationToken iptal = default)
     {
         oturum.IzinGerekli(Modul.Depo, Izin.Degistirme);
@@ -65,20 +63,16 @@ public class StokServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, Ti
 
         var giris = new GirisHareketi
         {
-            Parti = parti, Miktar = bilgi.Miktar, Zaman = simdi, KullaniciId = KullaniciId,
+            Parti = parti, Miktar = bilgi.Miktar, Zaman = simdi, KullaniciId = oturum.KullaniciId,
             Aciklama = Dogrula.IstegeBagliMetin(bilgi.Aciklama, "Açıklama", 500),
         };
         giris.PartiyeUygula(parti);
 
-        await using var islem = await veri.IslemBaslatAsync(iptal);
         veri.Repo<Parti>().Ekle(parti);
         veri.Repo<StokHareketi>().Ekle(giris);
-        await veri.GuvenliKaydetAsync(iptal);
-        veri.IslemKaydet(oturum, simdi, IslemTuru.Olusturma, nameof(Parti), parti.Id,
-            $"Stok girişi: {urun.Ad}, parti {parti.PartiNo}, {giris.Miktar:0.##} {urun.Birim.Metin()}"
-            + (parti.SonKullanmaTarihi is { } s ? $", SKT {s:dd.MM.yyyy}." : "."));
-        await veri.GuvenliKaydetAsync(iptal);
-        await islem.CommitAsync(iptal);
+        await veri.KaydetVeGecmiseYazAsync(oturum, simdi, IslemTuru.Olusturma, nameof(Parti), () => parti.Id,
+            () => $"Stok girişi: {urun.Ad}, parti {parti.PartiNo}, {giris.Miktar:0.##} {urun.Birim.Metin()}"
+                  + (parti.SonKullanmaTarihi is { } s ? $", SKT {s:dd.MM.yyyy}." : "."), iptal);
         return parti;
     }
 
@@ -124,7 +118,7 @@ public class StokServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, Ti
         var simdi = zaman.Simdi();
         hareket.Parti = parti;
         hareket.Zaman = simdi;
-        hareket.KullaniciId = KullaniciId;
+        hareket.KullaniciId = oturum.KullaniciId;
         hareket.Aciklama = temizAciklama;
         hareket.PartiyeUygula(parti);
 
@@ -174,7 +168,7 @@ public class StokServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, Ti
         {
             var hareket = new HasarHareketi
             {
-                Parti = parti, Miktar = parti.Miktar - parti.AyrilanMiktar, Zaman = simdi, KullaniciId = KullaniciId,
+                Parti = parti, Miktar = parti.Miktar - parti.AyrilanMiktar, Zaman = simdi, KullaniciId = oturum.KullaniciId,
                 Aciklama = $"SKT geçti ({parti.SonKullanmaTarihi:dd.MM.yyyy}); fireye düşüldü.",
             };
             hareket.PartiyeUygula(parti);

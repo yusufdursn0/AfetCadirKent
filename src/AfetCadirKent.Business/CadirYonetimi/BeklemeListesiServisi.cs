@@ -45,16 +45,12 @@ public class BeklemeListesiServisi(
         var kayit = new BeklemeListesiKaydi
         {
             AileId = aileId, EklenmeZamani = simdi, Aciklama = Dogrula.IstegeBagliMetin(aciklama, "Açıklama", 500),
-            KullaniciId = oturum.Kullanici is { Id: > 0 } k ? k.Id : null,
+            KullaniciId = oturum.KullaniciId,
         };
 
-        await using var islem = await veri.IslemBaslatAsync(iptal);
         veri.Repo<BeklemeListesiKaydi>().Ekle(kayit);
-        await veri.GuvenliKaydetAsync(iptal);
-        veri.IslemKaydet(oturum, simdi, IslemTuru.Olusturma, nameof(BeklemeListesiKaydi), kayit.Id,
-            $"{aile.AileNo} {aile.AileAdi} bekleme listesine alındı.");
-        await veri.GuvenliKaydetAsync(iptal);
-        await islem.CommitAsync(iptal);
+        await veri.KaydetVeGecmiseYazAsync(oturum, simdi, IslemTuru.Olusturma, nameof(BeklemeListesiKaydi), () => kayit.Id,
+            () => $"{aile.AileNo} {aile.AileAdi} bekleme listesine alındı.", iptal);
         return kayit;
     }
 
