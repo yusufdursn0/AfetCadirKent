@@ -24,7 +24,8 @@ Gereksinim: SQL Server LocalDB (`sqllocaldb info` → `MSSQLLocalDB`). Farklı s
 | 2026-10-16 (Aşama 3a / P2) | 103 | 103 | 0 |
 | 2026-10-16 (Aşama 3b / P3) | 124 | 124 | 0 |
 | 2026-10-17 (Aşama 3c / P4) | 156 | 156 | 0 |
-| 2026-10-17 (denetim düzeltmeleri) | 165 | 165 | 0 |
+| 2026-10-17 (denetim düzeltmeleri, kritik) | 165 | 165 | 0 |
+| 2026-10-17 (denetim düzeltmeleri, önemli) | 170 | 170 | 0 |
 
 ## Kapsanan kurallar (C 9.1 listesine göre)
 | Kural | Test sınıfı |
@@ -42,6 +43,9 @@ Gereksinim: SQL Server LocalDB (`sqllocaldb info` → `MSSQLLocalDB`). Farklı s
 | Hak hesabı (kişi / aile / bebek başı; hastanedeki üye) | `DepoKuralTestleri.Hak_*`, `DagitimServisiTestleri.HastanedekiUyeninHakkiAiledeKalir_…` |
 | Tekrar alma süresi ve istisna | `DepoKuralTestleri.TekrarAlmaSuresi_…`, `DagitimServisiTestleri.TekrarAlmaSuresi_KismiTeslimDevreder_IstisnaGerekceyleYapilir` |
 | Kısmi teslimat (bekleyen hak, devretme) | `DepoKuralTestleri.KismiTeslim_…`, `DepoKuralTestleri.Devretme_TeslimOnceDevredeneSayilir` (6 durum), `DepoKuralTestleri.HakAta_…`, `DagitimServisiTestleri.DevredenHak_AileGelmeseDeKaybolmaz_TeslimiTekrarAlmaSuresiniKaydirmaz` |
+| Yeni üründe gerekçe ↔ ürün eşleşmesi (kategori) | `DepoServisTestleri.YeniUrundeGerekceEslesmeleriKategoridenKurulur_…`, `DagitimServisiTestleri.MalzemeIhtiyaciOlanAileOnde_…` (elle eşleşme olmadan) |
+| Refakatsiz çocuk gizliliği (tüm servisler) | `RefakatsizGizlilikTestleri`, `KayitServisiTestleri.RefakatsizCocuguYalnizcaKoordinatorGorur`, `DagitimServisiTestleri.RefakatsizCocukAilesi_…` |
+| Metin uzunlukları ve veritabanı uzunluk hatası | `KayitServisiTestleri.UzunMetinler_…`, `KayitServisiTestleri.VeritabaniUzunlukHatasiAnlasilirMesajaCevrilir` |
 | Ürün başına tek açık liste (yarış durumu) | `DagitimServisiTestleri.BirUrundeIkinciAcikListeVeritabanindaEngellenir` |
 | Dağıtım listesi sıralaması (malzeme ihtiyacı önde) | `DagitimServisiTestleri.MalzemeIhtiyaciOlanAileOnde_…` |
 | Stok tahmini ve "hesaplanamıyor" | `DepoKuralTestleri.Tahmin_*`, `DepoServisTestleri.Tahmin_…` |

@@ -6,15 +6,20 @@ Afet sonrası kurulan bir çadır kentte afetzedeleri, aileleri, çadırları, y
 
 > Nesne Tabanlı Programlama (2. sınıf) dönem projesidir. Proje geliştirme aşamasındadır; güncel durum için [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md).
 
-## Öne çıkan özellikler
+## Özellikler ve durum
 
-- Aile ve kişi kaydı, mükerrer kayıt kontrolü (Türkçe karakter farkları yok sayılır), aileden ayırma, aile fişi
-- Gerekçeli öncelik: ailenin **destek önceliği** ve **malzemeye özel ihtiyaçları** ayrı ayrı hesaplanır
-- Çadır önerisi, kapasite kontrolü, bekleme listesi, renkli çadır planı
-- Parti ve son kullanma tarihli depo (en yakın SKT önce), dağıtıma ayırma, kısmi teslimat
-- Stok tahmini, kritik seviye ve SKT uyarıları
-- Talep ve görev takibi; yerel yapay zeka (Ollama) ile talep sınıflandırma ve günlük özet
-- Kiosk ekranı, gönüllü ve vardiya yönetimi, yakın bulma, raporlar (PDF/Excel), işlem geçmişi, yedekleme
+Geliştirme aşamalara bölünmüştür; güncel ayrıntı için [PROJECT_STATUS.md](docs/PROJECT_STATUS.md). **Ekranlar henüz yoktur** (DevExpress kurulumundan sonra, Aşama 5'ten itibaren gelecek); aşağıdaki "hazır" özellikler iş katmanında çalışır ve otomatik testlerle doğrulanır.
+
+| Özellik | Durum |
+|---|---|
+| Aile ve kişi kaydı, mükerrer kayıt kontrolü (Türkçe karakter farkları yok sayılır), aileden ayırma, hastane durumu | ✅ Hazır (iş katmanı) |
+| Gerekçeli öncelik: ailenin **destek önceliği** ve **malzemeye özel ihtiyaçları** ayrı ayrı | ✅ Hazır (iş katmanı) |
+| Çadır önerisi, kapasite kontrolü, bekleme listesi, çadır planı verisi | ✅ Hazır (iş katmanı) |
+| Parti ve son kullanma tarihli depo (en yakın SKT önce), dağıtıma ayırma, kısmi teslimat, gün sonu | ✅ Hazır (iş katmanı) |
+| Stok tahmini, kritik seviye ve SKT uyarıları | ✅ Hazır (iş katmanı) |
+| Talep ve görev takibi, ilk yönetici kurulumu ve giriş | ⏳ Planlandı (Aşama 3d) |
+| Yerel yapay zeka (Ollama) ile talep sınıflandırma ve günlük özet | ⏳ Planlandı (Aşama 4) |
+| DevExpress ekranları, renkli çadır planı, aile fişi, kiosk, gönüllü/vardiya, yakın bulma, raporlar (PDF/Excel), işlem geçmişi ekranı, yedekleme | ⏳ Planlandı (Aşama 5–8) |
 
 ## Kullanılan teknolojiler
 
@@ -53,9 +58,17 @@ Ayrıntılı adımlar: [docs/SETUP.md](docs/SETUP.md)
    ```
    ollama pull qwen2.5:7b
    ```
-5. Çözümü (`AfetCadirKent.slnx`) Visual Studio'da açıp `AfetCadirKent.UI` projesini başlatın.
+5. Veritabanını oluşturun (SQL Server LocalDB):
+   ```
+   dotnet tool restore
+   dotnet ef database update --project src/AfetCadirKent.DataAccess
+   ```
+   Bağlantı dizesi `appsettings.json` dosyasından (veya `AFETCADIRKENT_DB` ortam değişkeninden) okunur. Aşama 5'ten itibaren uygulama açılışta migration'ları kendisi uygulayacak ve veritabanı boşsa demo verisini yükleyecektir; o zaman bu adım gerekmez.
+6. Çözümü (`AfetCadirKent.slnx`) Visual Studio'da açıp `AfetCadirKent.UI` projesini başlatın. *Şu an arayüz olmadığı için uygulama yalnızca ayar dosyasını kontrol edip kapanır.*
 
 ## İlk açılış
+
+> Aşama 5'te gelecek.
 
 Demo verisi kullanıcı içermez ve kodda hiçbir parola bulunmaz. Uygulama ilk açıldığında **"İlk yönetici hesabını oluştur"** ekranı çıkar. Yönetici (Koordinatör) giriş yaptıktan sonra Ayarlar ekranından diğer rolleri (kayıt görevlisi, depo sorumlusu, sağlık personeli, saha görevlisi, kiosk) ekler.
 
@@ -64,6 +77,7 @@ Demo verisi kullanıcı içermez ve kodda hiçbir parola bulunmaz. Uygulama ilk 
 ```
 dotnet test
 ```
+Testler ayrı bir LocalDB test veritabanı (`AfetCadirKent_Test`) kullanır ve her çalıştırmada onu yeniden kurar; geliştirme veritabanına dokunmaz. Ayrıntı: [docs/TESTING.md](docs/TESTING.md).
 
 ## Yapay zeka kullanım beyanı
 
@@ -72,4 +86,4 @@ dotnet test
 
 ## Dokümanlar
 
-[Gereksinimler](docs/REQUIREMENTS.md) · [Mimari](docs/ARCHITECTURE.md) · [Kararlar](docs/PROJECT_DECISIONS.md) · [Durum](docs/PROJECT_STATUS.md)
+[Gereksinimler](docs/REQUIREMENTS.md) · [Mimari](docs/ARCHITECTURE.md) · [Kararlar](docs/PROJECT_DECISIONS.md) · [Durum](docs/PROJECT_STATUS.md) · [Kurulum](docs/SETUP.md) · [Test](docs/TESTING.md)

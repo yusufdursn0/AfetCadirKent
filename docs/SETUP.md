@@ -32,8 +32,26 @@ sqllocaldb info
 2. Modeli indirin: `ollama pull qwen2.5:7b`
 3. Çalıştığını kontrol edin: tarayıcıda `http://localhost:11434` → "Ollama is running".
 
-## 5. Derleme ve çalıştırma
+## 5. Veritabanı
+Migration aracı proje içindeki yerel araç manifestiyle (`dotnet-tools.json`) gelir; bilgisayara ayrıca kurulum gerekmez.
+```
+dotnet tool restore
+dotnet ef database update --project src/AfetCadirKent.DataAccess
+```
+- Bağlantı dizesi sırasıyla `AFETCADIRKENT_DB` ortam değişkeninden, yoksa `src/AfetCadirKent.UI/appsettings.json` içindeki `ConnectionStrings:AfetDb` değerinden okunur. Kodda bağlantı dizesi yoktur.
+- Komut, eksik migration'ları uygular; mevcut veriyi silmez.
+- Aşama 5'ten itibaren uygulama açılışta aynı işlemi kendisi yapacak ve veritabanı boşsa demo verisini (3 bölge, 30 çadır, 20 aile, 10 ürün) yükleyecektir. Şu an demo verisi yalnızca test veritabanına yüklenir.
+
+## 6. Testler
+```
+dotnet test
+```
+- Testler LocalDB üzerinde ayrı bir `AfetCadirKent_Test` veritabanı kullanır; her çalıştırmada bu veritabanı silinip migration ve demo verisiyle yeniden kurulur. Geliştirme veritabanına (`AfetCadirKent`) dokunulmaz.
+- Farklı bir SQL Server örneği için `AFETCADIRKENT_TEST_SUNUCU` ortam değişkenine sunucu adını yazın (Windows kimlik doğrulaması kullanılır).
+- Ayrıntı: `docs/TESTING.md`.
+
+## 7. Derleme ve çalıştırma
 ```
 dotnet build AfetCadirKent.slnx
 ```
-Visual Studio'da `AfetCadirKent.UI` başlangıç projesi olarak seçilip çalıştırılır.
+Visual Studio'da `AfetCadirKent.UI` başlangıç projesi olarak seçilip çalıştırılır. Ekranlar Aşama 5'ten itibaren eklenecektir; şu an uygulama yalnızca ayar dosyasını kontrol edip kapanır.
