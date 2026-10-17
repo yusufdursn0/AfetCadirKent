@@ -21,8 +21,8 @@ public class DemoVeriTestleri(VeritabaniFixture fixture)
         Assert.Equal(3, await db.Bolgeler.CountAsync(b => new[] { "A", "B", "C" }.Contains(b.Kod)));
         Assert.Equal(30, await db.Cadirlar.CountAsync(c => new[] { "A", "B", "C" }.Contains(c.Bolge!.Kod)));
         Assert.Equal(20, await DemoAileleri(db).CountAsync());
-        Assert.Equal(10, await db.Urunler.CountAsync());
-        Assert.Equal(0, await db.Kullanicilar.CountAsync()); // demo verisi kullanıcı içermez
+        Assert.Equal(10, await db.Urunler.CountAsync(u => !u.Ad.StartsWith(TestYardimcilari.TestUrunOnEki)));
+        Assert.Equal(0, await db.Kullanicilar.CountAsync(k => k.OlusturmaZamani < VeritabaniFixture.TohumlamaZamani)); // demo verisi kullanıcı içermez
         Assert.Equal(6, await db.Roller.CountAsync());
         Assert.Equal(10, await db.Gerekceler.CountAsync());
     }
@@ -89,7 +89,7 @@ public class DemoVeriTestleri(VeritabaniFixture fixture)
     {
         await using var db = fixture.YeniContext();
         var bebekUrunleri = await db.GerekceUrunleri
-            .Where(g => g.GerekceId == (int)GerekceKodu.Bebek)
+            .Where(g => g.GerekceId == (int)GerekceKodu.Bebek && !g.Urun!.Ad.StartsWith(TestYardimcilari.TestUrunOnEki))
             .Select(g => g.Urun!.Ad).ToListAsync();
         Assert.Equal(["Battaniye", "Bebek bezi", "Bebek maması"], bebekUrunleri.Order());
     }
@@ -107,8 +107,9 @@ public class DemoVeriTestleri(VeritabaniFixture fixture)
     public async Task StokMiktarlariHareketlerleTutarlidir()
     {
         await using var db = fixture.YeniContext();
+        // Pasif yapılan (geri alınan) hareketin etkisi partiden geri alındığı için yalnızca aktif hareketler toplanır.
         var partiler = await db.Partiler.Include(p => p.Hareketler).ToListAsync();
-        Assert.All(partiler, p => Assert.Equal(p.Miktar, p.Hareketler.Sum(h => h.StokEtkisi)));
+        Assert.All(partiler, p => Assert.Equal(p.Miktar, p.Hareketler.Where(h => h.Aktif).Sum(h => h.StokEtkisi)));
     }
 }
 
