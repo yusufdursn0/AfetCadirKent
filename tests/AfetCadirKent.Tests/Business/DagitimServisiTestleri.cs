@@ -67,21 +67,13 @@ public class DagitimServisiTestleri(VeritabaniFixture fixture)
         return oturum;
     }
 
-    /// <summary>Test ürününü bir gerekçenin öncelikli malzemesi yapar (Ayarlar'daki gerekçe ↔ ürün eşleşmesi).</summary>
-    private async Task OncelikliYapAsync(int urunId, GerekceKodu kod)
-    {
-        await using var db = fixture.YeniContext();
-        db.GerekceUrunleri.Add(new GerekceUrun { GerekceId = (int)kod, UrunId = urunId });
-        await db.SaveChangesAsync();
-    }
-
     // ---------------------------------------------------------------- Ana akış (senaryo 3)
 
     [Fact]
     public async Task MalzemeIhtiyaciOlanAileOnde_OnaydaAyrilir_KismiTeslimBekleyenKalir_IptalVeGunSonuStoguDondurur()
     {
+        // Battaniye kategorisindeki yeni ürün, bebek ve 65 yaş üstü gerekçelerinin öncelikli malzemesi olur (elle eşleşme gerekmez).
         var urun = await fixture.TestUrunuAsync(HesaplamaTuru.KisiBasi, hak: 1, tekrar: 1, kategori: UrunKategorisi.Battaniye);
-        await OncelikliYapAsync(urun.Id, GerekceKodu.Bebek);
         await GirisAsync(urun.Id, 10_000);
         var normal = await AileAsync(("Ali", 40), ("Ayşe", 38));
         var bebekli = await AileAsync(("Anne", 30), ("Baba", 32), ("Bebek", 1));

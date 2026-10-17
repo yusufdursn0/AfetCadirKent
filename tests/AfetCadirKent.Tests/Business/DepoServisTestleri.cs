@@ -60,6 +60,30 @@ public class DepoServisTestleri(VeritabaniFixture fixture)
     }
 
     [Fact]
+    public async Task YeniUrundeGerekceEslesmeleriKategoridenKurulur_KategoriDegisinceYenilenir()
+    {
+        async Task<List<GerekceKodu>> EslesmelerAsync(int urunId)
+        {
+            await using var db = fixture.YeniContext();
+            return await db.GerekceUrunleri.Where(e => e.UrunId == urunId).Select(e => (GerekceKodu)e.GerekceId).OrderBy(k => k).ToListAsync();
+        }
+
+        var urun = await fixture.TestUrunuAsync(HesaplamaTuru.BebekBasi, kategori: UrunKategorisi.Mama);
+        Assert.Equal([GerekceKodu.Bebek], await EslesmelerAsync(urun.Id));
+
+        var bilgi = new UrunBilgisi
+        {
+            Ad = urun.Ad, Kategori = UrunKategorisi.Hijyen, Birim = Birim.Paket, HesaplamaTuru = HesaplamaTuru.AileBasi,
+            HakMiktari = 1, TekrarAlmaGunu = 7, KritikSeviye = 0,
+        };
+        await fixture.UrunServisi().UrunKaydetAsync(urun.Id, bilgi);
+        Assert.Equal([GerekceKodu.Hamile, GerekceKodu.TekEbeveyn], await EslesmelerAsync(urun.Id));
+
+        await fixture.UrunServisi().UrunKaydetAsync(urun.Id, bilgi with { Kategori = UrunKategorisi.Diger });
+        Assert.Empty(await EslesmelerAsync(urun.Id));
+    }
+
+    [Fact]
     public async Task KullanilmamisUrunSilinir_PartisiOlanUrunSilinemezPasifYapilir()
     {
         var bos = await fixture.TestUrunuAsync();

@@ -1,3 +1,4 @@
+using AfetCadirKent.DataAccess.Konfigurasyonlar;
 using Microsoft.EntityFrameworkCore;
 
 namespace AfetCadirKent.Business.DepoYonetimi;
@@ -6,7 +7,10 @@ public interface IUrunServisi
 {
     Task<IReadOnlyList<Urun>> UrunleriListeleAsync(bool pasifleriDeGoster = false, CancellationToken iptal = default);
 
-    /// <summary>Yeni ürün ekler (id null) veya ürünü ve ayarlarını (hak, tekrar alma, kritik seviye) günceller.</summary>
+    /// <summary>
+    /// Yeni ürün ekler (id null) veya ürünü ve ayarlarını (hak, tekrar alma, kritik seviye) günceller.
+    /// Yeni üründe ve kategori değiştiğinde gerekçe ↔ ürün eşleşmeleri kategoriye göre kurulur (K-041).
+    /// </summary>
     Task<Urun> UrunKaydetAsync(int? id, UrunBilgisi bilgi, CancellationToken iptal = default);
 
     /// <summary>Partisi veya dağıtım listesi olan ürün silinemez; pasif yapılabilir.</summary>
@@ -45,6 +49,7 @@ public class UrunServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, Ti
             ? await repo.BulAsync(mevcutId, iptal) ?? throw new KayitBulunamadiException("Ürün")
             : new Urun();
         var eski = id is null ? null : $"{urun.HesaplamaTuru.Metin()} {urun.HakMiktari:0.##}, {urun.TekrarAlmaGunu} gün, kritik {urun.KritikSeviye:0.##}";
+        var kategoriDegisti = id is null || urun.Kategori != bilgi.Kategori;
 
         urun.Ad = bilgi.Ad;
         urun.Kategori = bilgi.Kategori;
@@ -61,13 +66,32 @@ public class UrunServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, Ti
         await using var islem = await veri.IslemBaslatAsync(iptal);
         if (id is null)
             repo.Ekle(urun);
+        var eslesmeler = kategoriDegisti ? await EslesmeleriKurAsync(veri, urun, iptal) : null;
         await veri.GuvenliKaydetAsync(iptal);
 
+        var eslesmeMetni = eslesmeler is null ? "" : $" Öncelikli olduğu gerekçeler: {(eslesmeler.Count == 0 ? "yok" : string.Join(", ", eslesmeler))}.";
         veri.IslemKaydet(oturum, zaman.Simdi(), id is null ? IslemTuru.Olusturma : IslemTuru.Guncelleme, nameof(Urun), urun.Id,
-            id is null ? $"Ürün '{urun.Ad}' eklendi ({yeni})." : $"Ürün '{urun.Ad}' güncellendi. Ayarlar: {eski} → {yeni}.");
+            (id is null ? $"Ürün '{urun.Ad}' eklendi ({yeni})." : $"Ürün '{urun.Ad}' güncellendi. Ayarlar: {eski} → {yeni}.") + eslesmeMetni);
         await veri.GuvenliKaydetAsync(iptal);
         await islem.CommitAsync(iptal);
         return urun;
+    }
+
+    /// <summary>
+    /// Ürünün gerekçe eşleşmelerini kategorisine göre yeniden kurar (ör. Mama → 0–2 yaş bebek).
+    /// Eşleşen gerekçe adlarını döndürür.
+    /// </summary>
+    private static async Task<IReadOnlyList<string>> EslesmeleriKurAsync(IVeriOturumu veri, Urun urun, CancellationToken iptal)
+    {
+        var repo = veri.Repo<GerekceUrun>();
+        if (urun.Id > 0)
+            foreach (var eski in await repo.ListeleAsync(e => e.UrunId == urun.Id, iptal))
+                repo.Sil(eski);
+
+        var kodlar = ReferansVerisi.OncelikliKategoriler.Where(k => k.Value.Contains(urun.Kategori)).Select(k => k.Key).ToList();
+        foreach (var kod in kodlar)
+            repo.Ekle(new GerekceUrun { GerekceId = (int)kod, Urun = urun });
+        return ReferansVerisi.Gerekceler.Where(g => kodlar.Contains(g.Kod)).Select(g => g.Ad).ToList();
     }
 
     public async Task UrunSilAsync(int id, CancellationToken iptal = default)
