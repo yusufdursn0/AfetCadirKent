@@ -153,6 +153,12 @@ internal class DagitimKonfigurasyonu : IEntityTypeConfiguration<Dagitim>
         b.HasOne(d => d.OlusturanKullanici).WithMany().HasForeignKey(d => d.OlusturanKullaniciId);
         b.HasOne(d => d.OnaylayanKullanici).WithMany().HasForeignKey(d => d.OnaylayanKullaniciId);
         b.HasIndex(d => new { d.UrunId, d.Tarih });
+
+        // Bir ürün için aynı anda tek açık (taslak/onaylı) liste: eşzamanlı iki liste hazırlanamaz (K-049a).
+        b.HasIndex(d => d.UrunId)
+            .IsUnique()
+            .HasFilter($"[Aktif] = 1 AND [Durum] IN ({(int)DagitimDurumu.Taslak}, {(int)DagitimDurumu.Onaylandi})")
+            .HasDatabaseName("IX_Dagitimlar_UrunId_AcikListe");
     }
 }
 
@@ -161,9 +167,12 @@ internal class DagitimDetayKonfigurasyonu : IEntityTypeConfiguration<DagitimDeta
     public void Configure(EntityTypeBuilder<DagitimDetay> b)
     {
         b.ToTable("DagitimDetaylari", t => t.HasCheckConstraint(
-            "CK_DagitimDetaylari_Miktar", "[HakMiktari] > 0 AND [TeslimEdilenMiktar] >= 0 AND [TeslimEdilenMiktar] <= [HakMiktari]"));
+            "CK_DagitimDetaylari_Miktar",
+            "[HakMiktari] > 0 AND [TeslimEdilenMiktar] >= 0 AND [TeslimEdilenMiktar] <= [HakMiktari] " +
+            "AND [DevredenMiktar] >= 0 AND [DevredenMiktar] <= [HakMiktari]"));
         b.Property(d => d.HakMiktari).HasField("_hakMiktari");
         b.Property(d => d.TeslimEdilenMiktar);
+        b.Property(d => d.DevredenMiktar);
         b.Property(d => d.IstisnaGerekcesi).HasMaxLength(500);
         b.Property(d => d.RowVersion).IsRowVersion();
         b.HasOne(d => d.Dagitim).WithMany(x => x.Detaylar).HasForeignKey(d => d.DagitimId);

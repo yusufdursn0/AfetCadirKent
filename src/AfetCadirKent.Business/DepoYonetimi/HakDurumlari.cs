@@ -20,9 +20,10 @@ internal sealed record AileHakDurumu(
 
 /// <summary>
 /// Hak durumlarını veritabanından toplu hesaplar. Kurallar:
-/// yeni hak = <see cref="HakHesaplayici"/>; tekrar alma süresi son teslim alınan listenin tarihinden sayılır;
-/// en son satır kısmen teslim alındıysa kalanı devreder (hiç teslim alınmayan satır devretmez, aile yeni dönemde yeniden hak alır).
-/// İptal edilen listeler ve listeden çıkarılan satırlar hesaba katılmaz.
+/// yeni hak = <see cref="HakHesaplayici"/>; tekrar alma süresi, yeni haktan teslim alınan son listenin tarihinden sayılır
+/// (yalnızca devreden kalanın teslimi süreyi yeniden başlatmaz); devreden = en son kapanan satırın
+/// <see cref="DagitimDetay.Devredecek"/> değeri (ödenmemiş devreden hiç kaybolmaz).
+/// İptal edilen listeler ve listeden çıkarılan satırlar hesaba katılmaz (K-046).
 /// </summary>
 internal static class HakDurumlari
 {
@@ -41,7 +42,7 @@ internal static class HakDurumlari
 
         var aileler = await aileSorgu.ToListAsync(iptal);
         var satirlar = (await satirSorgu
-                .Select(d => new { d.Id, d.AileId, d.Dagitim!.Tarih, d.Dagitim.Durum, d.HakMiktari, d.TeslimEdilenMiktar })
+                .Select(d => new { d.Id, d.AileId, d.Dagitim!.Tarih, d.Dagitim.Durum, d.HakMiktari, d.DevredenMiktar, d.TeslimEdilenMiktar })
                 .ToListAsync(iptal))
             .ToLookup(s => s.AileId);
 
@@ -50,12 +51,12 @@ internal static class HakDurumlari
         {
             var aileSatirlari = satirlar[aile.Id].ToList();
             var acikSatir = aileSatirlari.Any(s => s.Durum is DagitimDurumu.Taslak or DagitimDurumu.Onaylandi);
-            var teslimliler = aileSatirlari.Where(s => s.TeslimEdilenMiktar > 0).ToList();
-            DateOnly? sonTeslim = teslimliler.Count > 0 ? teslimliler.Max(s => s.Tarih) : null;
+            var donemler = aileSatirlari.Where(s => DagitimDetay.YeniHakKullanildi(s.DevredenMiktar, s.TeslimEdilenMiktar)).ToList();
+            DateOnly? sonTeslim = donemler.Count > 0 ? donemler.Max(s => s.Tarih) : null;
 
             var enSon = aileSatirlari.Where(s => s.Durum == DagitimDurumu.Kapandi)
                 .OrderByDescending(s => s.Tarih).ThenByDescending(s => s.Id).FirstOrDefault();
-            var devreden = enSon is { TeslimEdilenMiktar: > 0 } ? enSon.HakMiktari - enSon.TeslimEdilenMiktar : 0;
+            var devreden = enSon is null ? 0 : DagitimDetay.Devredecek(enSon.HakMiktari, enSon.DevredenMiktar, enSon.TeslimEdilenMiktar);
 
             var tamHak = HakHesaplayici.Hesapla(urun, aile.Uyeler, bugun);
             var yeniHak = HakHesaplayici.TekrarAlabilirMi(urun, sonTeslim, bugun) ? tamHak : 0;

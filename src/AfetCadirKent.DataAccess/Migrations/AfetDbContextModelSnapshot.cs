@@ -254,6 +254,11 @@ namespace AfetCadirKent.DataAccess.Migrations
 
                     b.HasIndex("OnaylayanKullaniciId");
 
+                    b.HasIndex("UrunId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Dagitimlar_UrunId_AcikListe")
+                        .HasFilter("[Aktif] = 1 AND [Durum] IN (0, 1)");
+
                     b.HasIndex("UrunId", "Tarih");
 
                     b.ToTable("Dagitimlar", (string)null);
@@ -275,6 +280,10 @@ namespace AfetCadirKent.DataAccess.Migrations
 
                     b.Property<int>("DagitimId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("DevredenMiktar")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<decimal>("HakMiktari")
                         .HasPrecision(12, 2)
@@ -306,7 +315,7 @@ namespace AfetCadirKent.DataAccess.Migrations
 
                     b.ToTable("DagitimDetaylari", null, t =>
                         {
-                            t.HasCheckConstraint("CK_DagitimDetaylari_Miktar", "[HakMiktari] > 0 AND [TeslimEdilenMiktar] >= 0 AND [TeslimEdilenMiktar] <= [HakMiktari]");
+                            t.HasCheckConstraint("CK_DagitimDetaylari_Miktar", "[HakMiktari] > 0 AND [TeslimEdilenMiktar] >= 0 AND [TeslimEdilenMiktar] <= [HakMiktari] AND [DevredenMiktar] >= 0 AND [DevredenMiktar] <= [HakMiktari]");
                         });
                 });
 

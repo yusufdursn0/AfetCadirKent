@@ -45,11 +45,53 @@ public class DagitimDetay : VarlikTemel, IFizikselSilinemez
             Dogrula.Pozitif(value, "Hak miktarı");
             if (value < TeslimEdilenMiktar)
                 throw new IsKuraliException("Hak miktarı teslim edilen miktardan az olamaz.");
+            if (value < DevredenMiktar)
+                throw new IsKuraliException("Hak miktarı önceki listeden devreden miktardan az olamaz.");
             _hakMiktari = value;
         }
     }
 
+    /// <summary>
+    /// Hakkın önceki listelerden devreden (kısmi teslimatta kalan) kısmı; geri kalanı bu dönemin yeni hakkıdır.
+    /// Teslimler önce devredene sayılır (K-046).
+    /// </summary>
+    public decimal DevredenMiktar { get; private set; }
+
     public decimal TeslimEdilenMiktar { get; private set; }
+
+    /// <summary>Bu dönemin yeni hakkı (hak − devreden).</summary>
+    public decimal YeniHakMiktari => HakMiktari - DevredenMiktar;
+
+    /// <summary>Yeni haktan teslim alındı mı? Alındıysa tekrar alma süresi bu listenin tarihinden başlar.</summary>
+    public bool YeniHakKullanildiMi => YeniHakKullanildi(DevredenMiktar, TeslimEdilenMiktar);
+
+    /// <summary>Liste kapandığında sonraki listeye devredecek miktar.</summary>
+    public decimal DevredecekMiktar => Devredecek(HakMiktari, DevredenMiktar, TeslimEdilenMiktar);
+
+    /// <summary>
+    /// Yeni hak ve devreden miktarı birlikte atar (liste hazırlama, istisna).
+    /// </summary>
+    public void HakAta(decimal yeniHak, decimal devreden)
+    {
+        Dogrula.NegatifOlmayan(yeniHak, "Yeni hak");
+        Dogrula.NegatifOlmayan(devreden, "Devreden miktar");
+        var toplam = Dogrula.Pozitif(yeniHak + devreden, "Hak miktarı");
+        if (toplam < TeslimEdilenMiktar)
+            throw new IsKuraliException("Hak miktarı teslim edilen miktardan az olamaz.");
+        DevredenMiktar = 0;
+        HakMiktari = toplam;
+        DevredenMiktar = devreden;
+    }
+
+    /// <summary>Teslimler önce devredene sayıldığı için yeni hak, teslim devredeni aştığında kullanılmış olur.</summary>
+    public static bool YeniHakKullanildi(decimal devreden, decimal teslimEdilen) => teslimEdilen > devreden;
+
+    /// <summary>
+    /// Kapanan satırdan sonraki listeye devreden miktar: yeni haktan teslim alındıysa kalanın tamamı;
+    /// alınmadıysa yalnızca ödenmemiş devreden (aile yeni dönemde yeniden tam hak alacağı için yeni hak iki kez sayılmaz).
+    /// </summary>
+    public static decimal Devredecek(decimal hak, decimal devreden, decimal teslimEdilen) =>
+        YeniHakKullanildi(devreden, teslimEdilen) ? hak - teslimEdilen : devreden - teslimEdilen;
 
     /// <summary>Aile bu ürün için malzemeye özel ihtiyaç sahibi mi (liste sıralamasında öne alınır).</summary>
     public bool OncelikliIhtiyac { get; set; }

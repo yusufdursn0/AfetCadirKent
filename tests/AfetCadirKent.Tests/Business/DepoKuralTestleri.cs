@@ -195,6 +195,38 @@ public class DepoKuralTestleri
         Assert.Throws<IsKuraliException>(() => detay.TeslimKaydet(3));
     }
 
+    [Theory]
+    [InlineData(2, 0, 1, true, 1)]  // yeni hak 2, 1 teslim → kalan 1 devreder, dönem başladı
+    [InlineData(2, 0, 0, false, 0)] // hiç gelmedi → devretmez (yeni dönemde tam hak alır)
+    [InlineData(1, 1, 0, false, 1)] // yalnız devreden vardı, gelmedi → devreden kaybolmaz
+    [InlineData(1, 1, 1, false, 0)] // yalnız devreden teslim alındı → süre yeniden başlamaz
+    [InlineData(3, 1, 1, false, 0)] // teslim önce devredene sayılır; yeni 2 alınmadı → yeni dönemde tam hak
+    [InlineData(3, 1, 2, true, 1)]  // devreden + yeni haktan 1 → kalan 1 devreder
+    public void Devretme_TeslimOnceDevredeneSayilir(decimal hak, decimal devreden, decimal teslim, bool yeniKullanildi, decimal devredecek)
+    {
+        Assert.Equal(yeniKullanildi, DagitimDetay.YeniHakKullanildi(devreden, teslim));
+        Assert.Equal(devredecek, DagitimDetay.Devredecek(hak, devreden, teslim));
+    }
+
+    [Fact]
+    public void HakAta_YeniVeDevredenAyriTutulur_TutarsizAtamaReddedilir()
+    {
+        var detay = new DagitimDetay();
+        detay.HakAta(2, 1);
+        Assert.Equal((3m, 1m, 2m), (detay.HakMiktari, detay.DevredenMiktar, detay.YeniHakMiktari));
+
+        detay.TeslimKaydet(1);
+        Assert.False(detay.YeniHakKullanildiMi);
+        Assert.Equal(0, detay.DevredecekMiktar);
+        detay.TeslimKaydet(1);
+        Assert.True(detay.YeniHakKullanildiMi);
+        Assert.Equal(1, detay.DevredecekMiktar);
+
+        Assert.Throws<IsKuraliException>(() => detay.HakAta(0, 1)); // teslim edilenden (2) az
+        Assert.Throws<DogrulamaException>(() => new DagitimDetay().HakAta(0, 0));
+        Assert.Throws<IsKuraliException>(() => detay.HakMiktari = 0.5m);
+    }
+
     [Fact]
     public void HareketGeriAlma_HerTurKendiEtkisiniTersineCevirir()
     {
