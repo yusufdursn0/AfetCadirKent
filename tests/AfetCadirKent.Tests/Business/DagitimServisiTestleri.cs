@@ -229,6 +229,62 @@ public class DagitimServisiTestleri(VeritabaniFixture fixture)
     }
 
     [Fact]
+    public async Task DevredenHak_AileGelmeseDeKaybolmaz_TeslimiTekrarAlmaSuresiniKaydirmaz()
+    {
+        var urun = await fixture.TestUrunuAsync(HesaplamaTuru.AileBasi, hak: 2, tekrar: 3);
+        await GirisAsync(urun.Id, 10_000);
+        var aile = await AileAsync(("Kısmi", 40));
+        DagitimServisi Gun(int g) => Dagitim(zaman: new SabitZaman(DateTime.Now.AddDays(g)));
+
+        // Gün 0: 2'nin 1'i teslim; 1 devreder.
+        var gun0 = await Gun(0).ListeOlusturAsync(urun.Id);
+        await Gun(0).OnaylaAsync(gun0.Ozet.Id);
+        await Gun(0).TeslimEtAsync(Satir(gun0, aile.Id).DetayId, 1, aile.Uyeler[0].Id);
+        await Gun(0).GunSonuAsync();
+
+        // Gün 1: yalnız devreden 1 listede; aile gelmez, liste kapanır.
+        var gun1 = await Gun(1).ListeOlusturAsync(urun.Id);
+        Assert.Equal(1, Satir(gun1, aile.Id).HakMiktari);
+        await Gun(1).OnaylaAsync(gun1.Ozet.Id);
+        await Gun(1).GunSonuAsync();
+
+        // Gün 2: devreden kaybolmadı; teslim alınır.
+        var gun2 = await Gun(2).ListeOlusturAsync(urun.Id);
+        Assert.Equal(1, Satir(gun2, aile.Id).HakMiktari);
+        await Gun(2).OnaylaAsync(gun2.Ozet.Id);
+        await Gun(2).TeslimEtAsync(Satir(gun2, aile.Id).DetayId, 1, aile.Uyeler[0].Id);
+        await Gun(2).GunSonuAsync();
+
+        // Gün 3: süre gün 0'dan sayılır (devredenin gün 2'deki teslimi süreyi kaydırmaz) → yeni hak 2.
+        var gun3 = await Gun(3).ListeOlusturAsync(urun.Id);
+        Assert.Equal(2, Satir(gun3, aile.Id).HakMiktari);
+        await Gun(3).GunSonuAsync();
+
+        await using var db = fixture.YeniContext();
+        var satirlar = await db.DagitimDetaylari.Where(d => d.AileId == aile.Id).OrderBy(d => d.Id).ToListAsync();
+        Assert.Equal([0m, 1m, 1m, 0m], satirlar.Select(d => d.DevredenMiktar));
+    }
+
+    [Fact]
+    public async Task BirUrundeIkinciAcikListeVeritabanindaEngellenir()
+    {
+        var urun = await fixture.TestUrunuAsync(HesaplamaTuru.AileBasi, hak: 1);
+        var liste = await Dagitim().ListeOlusturAsync(urun.Id);
+
+        // Servis kontrolünü atlayan eşzamanlı bir ikinci liste (yarış durumu) veritabanı indeksine takılır.
+        await using (var db = fixture.YeniContext())
+        {
+            db.Dagitimlar.Add(new Dagitim { UrunId = urun.Id, Tarih = DateOnly.FromDateTime(DateTime.Today), OlusturmaZamani = DateTime.Now });
+            await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
+        }
+
+        // İptal edilen veya kapanan liste engel olmaz.
+        await Dagitim().ListeIptalAsync(liste.Ozet.Id, "Test");
+        var yeni = await Dagitim().ListeOlusturAsync(urun.Id);
+        await Dagitim().ListeIptalAsync(yeni.Ozet.Id, "Test sonu");
+    }
+
+    [Fact]
     public async Task HastanedekiUyeninHakkiAiledeKalir_TeslimiAiledenBuradakiBiriAlir()
     {
         var urun = await fixture.TestUrunuAsync(HesaplamaTuru.KisiBasi, hak: 3);

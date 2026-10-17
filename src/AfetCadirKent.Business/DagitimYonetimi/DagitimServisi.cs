@@ -172,16 +172,25 @@ public class DagitimServisi(
             Aciklama = Dogrula.IstegeBagliMetin(aciklama, "Açıklama", 500),
         };
         foreach (var aday in adaylar)
-            dagitim.Detaylar.Add(new DagitimDetay
-            {
-                AileId = aday.Aile.Id, HakMiktari = aday.ListeHakki,
-                OncelikliIhtiyac = oncelikler[aday.Aile.Id].UrunIcinOncelikliMi(urun.Id),
-            });
+        {
+            var detay = new DagitimDetay { AileId = aday.Aile.Id, OncelikliIhtiyac = oncelikler[aday.Aile.Id].UrunIcinOncelikliMi(urun.Id) };
+            detay.HakAta(aday.YeniHak, aday.Devreden);
+            dagitim.Detaylar.Add(detay);
+        }
 
         await using (var islem = await veri.IslemBaslatAsync(iptal))
         {
             veri.Repo<Dagitim>().Ekle(dagitim);
-            await veri.GuvenliKaydetAsync(iptal);
+            try
+            {
+                await veri.GuvenliKaydetAsync(iptal);
+            }
+            catch (IsKuraliException ex) when (ex.InnerException is DbUpdateException)
+            {
+                // Başka bir görevli aynı anda bu ürün için liste hazırladı (tek açık liste indeksi).
+                throw new IsKuraliException($"'{urun.Ad}' için az önce başka bir görevli dağıtım listesi hazırladı. Listeyi yenileyip onu kullanın.", ex);
+            }
+
             veri.IslemKaydet(oturum, simdi, IslemTuru.Olusturma, nameof(Dagitim), dagitim.Id,
                 $"{urun.Ad} dağıtım listesi hazırlandı: {adaylar.Count} aile, toplam {adaylar.Sum(a => a.ListeHakki):0.##} {urun.Birim.Metin()}.");
             await veri.GuvenliKaydetAsync(iptal);
@@ -234,7 +243,7 @@ public class DagitimServisi(
         var oncelikli = (await GerekceServisi.DegerlendirAsync(veri, [aileId], simdi, degerlendirici, iptal))[aileId].UrunIcinOncelikliMi(urun.Id);
         var detay = mevcut ?? new DagitimDetay { AileId = aileId };
         detay.Aktif = true;
-        detay.HakMiktari = istisna ? durum.IstisnaHakki : durum.ListeHakki;
+        detay.HakAta(istisna ? durum.TamHak : durum.YeniHak, durum.Devreden);
         detay.IstisnaGerekcesi = istisna ? temizGerekce : null;
         detay.OncelikliIhtiyac = oncelikli;
         if (mevcut is null)
