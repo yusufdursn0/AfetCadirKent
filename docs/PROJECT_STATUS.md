@@ -71,6 +71,11 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
   - `StokServisi`: stok girişi (parti, SKT, bağışçı), iade, hasar, sayım farkı, hatalı hareketi pasif yapma, SKT geçenleri fireye düşme, stok durumu (fiziksel / ayrılan / kullanılabilir ayrı), hareket listesi, kritik seviye ve SKT uyarıları, stok tahmini.
   - `DagitimServisi`: liste hazırlama (hakkı doğanlar + devreden bekleyen hak, malzeme ihtiyacı olanlar önde), taslakta aile ekleme (süre dolmamışsa gerekçeli istisna) ve satır çıkarma, onayda FEFO ayırma, teslim (teslim eden/alan/miktar/zaman, kısmi teslimat), teslim iptali, liste iptali, gün sonu ve önceki günleri kapatma; refakatsiz çocuk ailesi Koordinatör dışında gizli (K-068).
   - 156 test, tamamı başarılı; derleme 0 uyarı.
+- **Denetim düzeltmeleri (2026-10-17, kritik maddeler):**
+  - Devreden hak modeli: `DagitimDetaylari.DevredenMiktar` (migration `DevredenHakVeTekAcikListe`); ödenmemiş devreden artık kaybolmuyor, devredenin teslimi tekrar alma süresini kaydırmıyor (K-046).
+  - Ürün başına tek açık dağıtım listesi için filtreli tekil indeks; eşzamanlı ikinci listeye anlaşılır mesaj (K-049a, K-062).
+  - Dokümanlar kodla eşitlendi: ARCHITECTURE'daki olmayan tip adları, K-028, TESTING'deki transaction açıklaması.
+  - 165 test, tamamı başarılı. Geliştirme veritabanına migration uygulandı (veri kaybı yok).
 
 ## Ortam
 - .NET SDK 10.0.402 (ve 9.0.317) → hedef .NET 10.
@@ -83,7 +88,7 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
 - Başlangıç mesajı geçici olarak standart `MessageBox` (K-016).
 
 ## Test durumu
-- 156 / 156 başarılı (bkz. `docs/TESTING.md`).
+- 165 / 165 başarılı (bkz. `docs/TESTING.md`).
 
 ## Kalan gereksinimler
 - IMPLEMENTED 51 · PARTIALLY 32 · NOT IMPLEMENTED 59 (bkz. REQUIREMENTS.md).
