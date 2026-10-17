@@ -17,6 +17,32 @@ dotnet test
 ```
 Gereksinim: SQL Server LocalDB (`sqllocaldb info` → `MSSQLLocalDB`). Farklı sunucu için `AFETCADIRKENT_TEST_SUNUCU` ortam değişkeni.
 
+## Kapsam
+```
+dotnet test --settings tests/kapsam.runsettings --collect:"XPlat Code Coverage"
+```
+Sonuç `tests/AfetCadirKent.Tests/TestResults/<guid>/coverage.cobertura.xml` dosyasına yazılır (git'e girmez). Ölçüme Entities, DataAccess ve Business katmanları girer; EF Core'un ürettiği migration kodu ve test projesi hariçtir. UI katmanı henüz ekran içermediği için ölçülmez. Async metotların gövdesi derleyicinin ürettiği sınıflarda bulunduğundan `CompilerGenerated` dışlanmaz; aynı kaynak satırı bir kez sayılır.
+
+**2026-10-17 (170 test):**
+
+| Katman | Satır | Dal (branch) |
+|---|---|---|
+| **Toplam** | **%91,2** (3120/3421) | **%76,7** (719/937) |
+| Entities | %82,1 | %79,2 |
+| DataAccess | %95,5 | %87,5 |
+| Business | %92,5 | %74,8 |
+| ↳ Gerekçeler | %98,7 | %88,5 |
+| ↳ Depo yönetimi | %95,2 | %77,2 |
+| ↳ Dağıtım yönetimi | %93,1 | %71,8 |
+| ↳ Çadır yönetimi | %91,9 | %66,9 |
+| ↳ Kayıt | %87,6 | %79,6 |
+| ↳ Ortak | %85,0 | %71,0 |
+
+En düşük kapsamlı dosyalar ve nedeni:
+- `Talep.cs` (%16), `Gonullu.cs` (%44), `Sistem.cs` (%55: duyuru, vardiya): servisleri sonraki aşamalarda (P5, Aşama 7) yazılacak; şimdilik yalnızca demo verisi ve kısıt testleri dokunuyor.
+- `TasarimZamaniContextFabrikasi.cs` (%0): yalnızca `dotnet ef` komutlarında çalışır, uygulama ve testler kullanmaz.
+- `ServisYardimcilari.cs` (%77): ekrandaki Türkçe metin karşılıklarının (`Gosterim`) bir kısmı henüz hiçbir akışta gösterilmiyor.
+
 ## Durum
 | Tarih | Toplam | Başarılı | Başarısız |
 |---|---|---|---|

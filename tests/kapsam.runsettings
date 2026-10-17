@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Test kapsamı ölçümü (coverlet). Kullanım: docs/TESTING.md → "Kapsam" -->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- Yalnızca uygulama katmanları; test projesi ölçülmez -->
+          <Include>[AfetCadirKent.Entities]*,[AfetCadirKent.DataAccess]*,[AfetCadirKent.Business]*</Include>
+          <!-- EF Core'un ürettiği migration kodu ölçüme katılmaz -->
+          <ExcludeByFile>**/Migrations/*.cs</ExcludeByFile>
+          <ExcludeByAttribute>GeneratedCodeAttribute</ExcludeByAttribute>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
