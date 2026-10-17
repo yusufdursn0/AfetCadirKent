@@ -21,6 +21,7 @@ Gereksinim: SQL Server LocalDB (`sqllocaldb info` → `MSSQLLocalDB`). Farklı s
 |---|---|---|---|
 | 2026-10-16 (Aşama 2) | 52 | 52 | 0 |
 | 2026-10-16 (Aşama 3a / P2) | 103 | 103 | 0 |
+| 2026-10-16 (Aşama 3b / P3) | 124 | 124 | 0 |
 
 ## Kapsanan kurallar (C 9.1 listesine göre)
 | Kural | Test sınıfı |
@@ -29,9 +30,13 @@ Gereksinim: SQL Server LocalDB (`sqllocaldb info` → `MSSQLLocalDB`). Farklı s
 | Gerekçe → destek önceliği ve malzeme ihtiyacı | `GerekceKuralTestleri`, `KayitServisiTestleri.DemoAilesiIcinIkiAyriBilgiGosterilir` |
 | Yetki kontrolleri | `OturumTestleri`, `KayitServisiTestleri.YetkisizRolKayitYapamaz`, refakatsiz çocuk ve sağlık notu testleri |
 | Silme / pasife alma | `RepositoryTestleri`, `KayitServisiTestleri.KisiPasifYapilir…` |
-| Çadır kapasitesi (entity + DB) | `CadirTestleri`, `VeritabaniKisitTestleri` |
+| Çadır kapasitesi (entity + DB + eşzamanlı yerleştirme) | `CadirTestleri`, `VeritabaniKisitTestleri`, `CadirServisiTestleri.AyniCadiraEsZamanliYerlestirmedeYalnizcaBiriBasarili` |
+| Çadır öneri sırası | `CadirOneriMotoruTestleri`, `CadirServisiTestleri` |
+| Bekleme listesi sıralaması ve önerisi | `BeklemeSiralamasiTestleri`, `BeklemeListesiServisiTestleri` |
 | Parti, ayırma, SKT | `PartiVeStokHareketiTestleri` |
 | Sağlık talebinin öncelik almaması (DB kısıtı) | `VeritabaniKisitTestleri.SaglikTalebineYardimOnceligiVerilemez` |
-| Henüz yok (P3–P6) | Çadır öneri sırası, bekleme listesi, FEFO seçimi, hak hesabı, tekrar alma, stok tahmini, talep geçişleri, yapay zeka |
+| Henüz yok (P4–P6) | FEFO seçimi, ayırma/teslim/iptal servisi, hak hesabı, tekrar alma, kısmi teslimat servisi, stok tahmini, talep geçişleri, yapay zeka |
+
+Çadır servis testleri her test için benzersiz kodlu ayrı bir test bölgesi ve çadırlar oluşturur.
 
 Servis testleri kendi oluşturdukları ailelerle (benzersiz soyad) çalışır; demo verisi testleri yalnızca demo ailelerini sayar.

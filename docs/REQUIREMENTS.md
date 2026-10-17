@@ -57,9 +57,9 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | REQ-042 | TC doğrulama (11 hane + algoritma); aynı TC ile ikinci kayıt engellenir | Ş M2, C 9.2 | Y | — | IMPLEMENTED | BT, VT |
 | REQ-043 | TC yoksa: ad-soyad aynı ve yaş farkı 2'den az ise olası eşleşmeler gösterilir | Ş M2 | Y | REQ-044 | IMPLEMENTED | BT |
 | REQ-044 | Türkçe karakter farkları (ı/i, ş/s, ç/c, ğ/g, ö/o, ü/u) karşılaştırmada yok sayılır | Ş M2, M8 | Y | — | IMPLEMENTED | BT |
-| REQ-045 | Geliş, ayrılış, nakil ve çadır değişiklikleri geçmişiyle tutulur (KisiHareketleri) | Ş M2 | Y | — | PARTIALLY IMPLEMENTED | VT |
+| REQ-045 | Geliş, ayrılış, nakil ve çadır değişiklikleri geçmişiyle tutulur (KisiHareketleri) | Ş M2 | Y | — | IMPLEMENTED | VT |
 | REQ-046 | Aileye sonradan gelen yakın eklenebilir | Ş M2 | Y | — | IMPLEMENTED | VT |
-| REQ-047 | Bir aile iki çadıra yerleşebilir | Ş M2 | O | REQ-073 | PARTIALLY IMPLEMENTED | VT |
+| REQ-047 | Bir aile iki çadıra yerleşebilir | Ş M2 | O | REQ-073 | IMPLEMENTED | VT |
 | REQ-048 | Aileden ayırma: seçilen kişiler yeni aile olur, yeni numara, AileGecmisi kaydı, gerekçe ve haklar iki aile için yeniden hesaplanır | Ş M2 | Y | REQ-060 | IMPLEMENTED | VT, KT |
 | REQ-049 | Aile fişi (aile no, çadır, kiosk giriş bilgisi) XtraReports ile yazdırılır | Ş M2 | O | DevExpress | NOT IMPLEMENTED | MT |
 | REQ-050 | Refakatsiz çocuk kaydını yalnızca Koordinatör görür | Ş M2 | Y | REQ-036 | IMPLEMENTED | BT |
@@ -85,13 +85,13 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 |---|---|---|---|---|---|---|
 | REQ-070 | Çadır: bölge, sıra, numara, kapasite, doluluk, durum, erişilebilirlik, sağlık noktasına yakınlık | Ş M4 | Y | — | IMPLEMENTED | VT |
 | REQ-071 | Çadır durumları: Kullanılabilir / Bakımda / Kapalı | Ş Durumlar | Y | — | IMPLEMENTED | BT |
-| REQ-072 | Öneri sırası: kullanılabilir → yeterli yer → yerleşim etkisi → en az boş yatak israfı | Ş M4 | Y | REQ-060 | NOT IMPLEMENTED | BT |
-| REQ-073 | Sistem önerir, görevli onaylar | Ş M4 | Y | REQ-072 | NOT IMPLEMENTED | VT, KT |
-| REQ-074 | Kapasite asla aşılmaz (eşzamanlı işlemlerde de) | Ş M4, M14 | Y | REQ-171 | PARTIALLY IMPLEMENTED | BT, VT |
-| REQ-075 | Yer yoksa aile bekleme listesine alınır | Ş M4 | Y | — | NOT IMPLEMENTED | VT |
-| REQ-076 | Yer açılınca o çadıra uyan aile önerilir: önce destek önceliği, eşitlikte en uzun bekleyen | Ş M4 | Y | REQ-061 | NOT IMPLEMENTED | BT |
-| REQ-077 | Görevli onaylayınca aile yerleşir ve listeden çıkar | Ş M4 | Y | REQ-076 | NOT IMPLEMENTED | VT |
-| REQ-078 | Renkli, tıklanabilir çadır planı (TileControl) | Ş M4, Ş DevExpress | Y | DevExpress | NOT IMPLEMENTED | MT |
+| REQ-072 | Öneri sırası: kullanılabilir → yeterli yer → yerleşim etkisi → en az boş yatak israfı | Ş M4 | Y | REQ-060 | IMPLEMENTED | BT |
+| REQ-073 | Sistem önerir, görevli onaylar | Ş M4 | Y | REQ-072 | IMPLEMENTED | VT, KT |
+| REQ-074 | Kapasite asla aşılmaz (eşzamanlı işlemlerde de) | Ş M4, M14 | Y | REQ-171 | IMPLEMENTED | BT, VT |
+| REQ-075 | Yer yoksa aile bekleme listesine alınır | Ş M4 | Y | — | IMPLEMENTED | VT |
+| REQ-076 | Yer açılınca o çadıra uyan aile önerilir: önce destek önceliği, eşitlikte en uzun bekleyen | Ş M4 | Y | REQ-061 | IMPLEMENTED | BT |
+| REQ-077 | Görevli onaylayınca aile yerleşir ve listeden çıkar | Ş M4 | Y | REQ-076 | IMPLEMENTED | VT |
+| REQ-078 | Renkli, tıklanabilir çadır planı (TileControl) | Ş M4, Ş DevExpress | Y | DevExpress | PARTIALLY IMPLEMENTED | MT |
 
 ## 6. M5 – Depo
 
@@ -200,7 +200,7 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-180 | Silinebilir: ürün, çadır, bölge, kullanıcı, gönüllü; kullanılmışsa "Bu kayıt kullanıldığı için silinemez, pasif yapabilirsiniz." | Ş CRUD | Y | — | NOT IMPLEMENTED | VT |
+| REQ-180 | Silinebilir: ürün, çadır, bölge, kullanıcı, gönüllü; kullanılmışsa "Bu kayıt kullanıldığı için silinemez, pasif yapabilirsiniz." | Ş CRUD | Y | — | PARTIALLY IMPLEMENTED | VT |
 | REQ-181 | Pasif yapılır, fiziksel silinmez: kişi, aile, dağıtım, stok hareketi | Ş CRUD | Y | — | PARTIALLY IMPLEMENTED | VT |
 
 ## 17. Veritabanı ve OOP eşlemesi
@@ -248,4 +248,4 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 ---
 
-**Özet:** Toplam 142 gereksinim · IMPLEMENTED 26 · PARTIALLY 37 · NOT IMPLEMENTED 79 · BLOCKED 0
+**Özet:** Toplam 142 gereksinim · IMPLEMENTED 34 · PARTIALLY 36 · NOT IMPLEMENTED 72 · BLOCKED 0

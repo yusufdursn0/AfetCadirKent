@@ -74,14 +74,20 @@ Otomatik gerekçeler **saklanmaz, her okumada güncel veriden hesaplanır** (ya�
 
 **K-042 – Destek önceliği = en yüksek gerekçe.** Yüksek > Orta > Normal.
 
-**K-043 – Çadır öneri algoritması.** Filtre: `Durum = Kullanilabilir` ve `Aktif`. Sıralama:
+**K-043 – Çadır öneri algoritması (`CadirOneriMotoru`).** Filtre: çadır ve bölgesi aktif, `Durum = Kullanilabilir`, boş yatağı var. Sıralama:
 1. Yeterli boş yer (yerleşecek kişi sayısı ≤ boş yatak),
-2. Yerleşim etkisi uyumu puanı (ailenin istediği her etki için çadır sağlıyorsa +1),
-3. En az boş yatak israfı (boş yatak − kişi sayısı en küçük),
-4. Eşitlikte bölge/sıra/numara.
-Tek çadır yetmiyorsa aynı bölgede iki çadırlık en az israflı kombinasyon önerilir (aile iki çadıra yerleşebilir). Hiçbiri yoksa "bekleme listesine al" önerilir. Onay anında kapasite yeniden kontrol edilir ve RowVersion ile korunur.
+2. Yerleşim etkisi uyumu: ailenin gerekçelerinden gelen çadır etkilerinden (sıcak çadır → ısıtmalı, sağlık noktasına yakın, erişilebilir, büyük çadır → kapasite ≥ 6) karşılanan sayısı çok olan önce. "Koordinatör/görevli takibi" çadır seçmez.
+3. En az boş yatak israfı (boş yatak − kişi sayısı),
+4. Eşitlikte çadır kodu.
+Tek çadır yetmiyorsa **aynı bölgede iki çadırlık** öneriler üretilir (boş yeri büyük olan önce doldurulur); iki çadırlı öneride bir etki ancak iki çadır da karşılıyorsa karşılanmış sayılır. En fazla 5 öneri döner. Hiç öneri yoksa "bekleme listesine alabilirsiniz" mesajı verilir. Sistem yalnızca önerir; yerleşim görevli onayıyla (`YerlestirAsync`) yapılır ve görevli öneri dışı bir çadır da seçebilir. Onay anında kapasite entity kuralıyla yeniden kontrol edilir, eşzamanlı yerleştirmede çadırın RowVersion'ı ikinci işlemi reddeder. Yerleştirmede ailenin **yerleşmemiş tüm üyeleri** yerleşir; atanan kişi sayısı bu sayıya eşit olmalıdır; iki çadırda üyeler kayıt sırasıyla dağıtılır (gerekirse görevli çadır değişikliğiyle düzeltir).
 
-**K-044 – Bekleme listesi önerisi.** Yer açılan çadır için, listedeki aktif aileler arasında aile kişi sayısı boş yere sığanlar; destek önceliği yüksek olan önce, eşitlikte `EklenmeZamani` en eski olan.
+**K-044 – Bekleme listesi.** Görevli, çadıra yerleşmemiş üyesi olan bir aileyi listeye alabilir (bir aile aynı anda bir kez). Sıralama: destek önceliği yüksek olan önce, eşitlikte en uzun bekleyen (`BeklemeSiralamasi`). Yer açılan çadır için öneri: yerleşmemiş kişi sayısı boş yatağa sığan aileler bu sırayla; ilk sıradaki sistemin önerisidir. `YerAcilanCadirlarAsync` yeri olan her çadır için listedeki ilk uygun aileyi verir (bekleme listesi ekranındaki bildirim). Görevli onaylayınca aile yerleşir ve listeden çıkar; aile başka yoldan (çadır ekranından) yerleşse de listeden otomatik çıkar. Yerleştirmeden çıkarma açıklama ister.
+
+**K-045a – Çadır ve bölge düzenleme kuralları.** Çadırda kişi varken çadır "Kapalı" veya pasif yapılamaz ("Bakımda" yapılabilir; bakımdaki çadıra yeni yerleşim yapılmaz). Kapasite doluluğun altına düşürülemez. Aynı bölgede aynı sıra-numara ve aynı kodlu bölge tekrar eklenemez. Çadır, yerleşim / kişi hareketi / talep kaydında geçmişse; bölge, çadırı veya vardiyası varsa silinemez ("Bu kayıt kullanıldığı için silinemez, pasif yapabilirsiniz.").
+
+**K-045b – Çadır değişikliği.** Yalnızca şu an yerleşik kişiler taşınır; eski yerleşim kapanır, eski çadırın doluluğu düşer, yeni yerleşim açılır; `CadirDegisikligi` hareketi eski ve yeni çadırla yazılır; açıklama zorunlu.
+
+**K-045c – Çadır planı.** `CadirPlaniAsync` her çadır için kod, kapasite, doluluk, durum, özellikler ve içindeki aileleri döndürür; renk `PlanDurumu`'ndan (Boş / Kısmen dolu / Dolu / Kullanılamaz) belirlenir. Refakatsiz çocuk ailelerinin adları Koordinatör dışındaki rollerde listelenmez (doluluk yine sayılır).
 
 **K-045 – Hak hesabı.** Hak sayımında durumu **Burada** veya **Hastanede** olan aktif üyeler sayılır (hastanedeki kişinin hakkı ailede kalır). Bebek başı = 0–2 yaş üyeler. Aile başı = 1 × miktar. Hak 0 ise aile listede çıkmaz.
 
