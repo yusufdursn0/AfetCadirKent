@@ -131,9 +131,9 @@ ER görseli rapor için Aşama 10'da bu tablodan üretilecektir.
 
 | Servis | Başlıca işlemler |
 |---|---|
-| `IKurulumServisi` | `IlkKurulumGerekliMi()`, `IlkYoneticiOlustur(...)` |
-| `IOturumServisi` | `GirisYap(kullaniciAdi, parola)`, `Cikis()`, `AktifKullanici`, `IzinVarMi(Modul, Izin)` |
-| `IKullaniciServisi` | Kullanıcı CRUD, rol atama, parola değiştirme |
+| `IKurulumServisi` ✅ | `IlkKurulumGerekliMiAsync`, `IlkYoneticiOlusturAsync(YeniKullaniciBilgisi)` |
+| `IOturumServisi` ✅ | `GirisYapAsync(kullaniciAdi, parola)`, `CikisYapAsync`, `ParolaDegistirAsync`; açık oturum ve izinler `IOturum` (`Kullanici`, `Rol`, `IzinVarMi`, `IzinGerekli`) |
+| `IKullaniciServisi` ✅ | `ListeleAsync`, `RolleriListeleAsync`, `EkleAsync(bilgi, rol)`, `GuncelleAsync` (rol dahil), `ParolaSifirlaAsync`, `AktiflikDegistirAsync`, `SilAsync` (kullanılmışsa silinemez) |
 | `IKayitServisi` ✅ | `MukerrerKontrolAsync`, `AileOlusturAsync`, `AileGuncelleAsync`, `KisiEkleAsync`, `KisiGuncelleAsync`, `SaglikBilgisiGuncelleAsync`, `DurumDegistirAsync`, `AiledenAyirAsync`, `KisiPasifYapAsync`, `AilePasifYapAsync`, `KisileriListeleAsync`, `AileleriListeleAsync`, `AileGetirAsync`, `KisiHareketleriAsync`, `AileGecmisiAsync` (aile fişi verisi Aşama 7) |
 | `IGerekceServisi` ✅ | `DegerlendirAsync(aileId)` / toplu `DegerlendirAsync(aileIdler)` → `AileOncelikSonucu` (destek önceliği + gerekçeler + malzeme ihtiyaçları + ekran metinleri), `ElleDegistirAsync(kod, tür, açıklama)`, `ElleDegisikligiGeriAlAsync`, `DegisiklikGecmisiAsync` |
 | `ICadirServisi` ✅ | `BolgeleriListeleAsync`, `BolgeKaydetAsync`, `BolgeSilAsync`, `BolgeAktiflikDegistirAsync`, `CadirPlaniAsync`, `CadirEkleAsync`, `CadirGuncelleAsync`, `CadirSilAsync`, `CadirAktiflikDegistirAsync`, `OneriGetirAsync` → `YerlesimOnerisiSonucu`, `YerlestirAsync(atamalar)`, `CadirDegistirAsync` |
@@ -141,17 +141,17 @@ ER görseli rapor için Aşama 10'da bu tablodan üretilecektir.
 | `IUrunServisi` ✅ | `UrunleriListeleAsync`, `UrunKaydetAsync(id?, UrunBilgisi)` (ürün ayarları dahil), `UrunSilAsync`, `UrunAktiflikDegistirAsync`, `BagiscilariListeleAsync`, `BagisciKaydetAsync`, `BagisciAktiflikDegistirAsync` |
 | `IStokServisi` ✅ | `StokGirisiAsync` (parti + giriş), `IadeAsync`, `HasarAsync`, `SayimAsync(sayılan miktar)`, `HareketPasifYapAsync`, `SktGecenleriFireyeDusAsync`, `StokDurumuAsync` → `UrunStokDurumu` (fiziksel / ayrılan / kullanılabilir / SKT geçmiş, FEFO sıralı partiler), `HareketleriListeleAsync(filtre)`, `UyarilariGetirAsync`, `TahminleriGetirAsync` → `StokTahmini` |
 | `IDagitimServisi` ✅ | `ListeleriGetirAsync`, `ListeGetirAsync` → `DagitimListesi`, `ListeOlusturAsync(urunId)`, `EklenebilirAilelerAsync`, `AileEkleAsync(gerekçe → istisna)`, `SatirCikarAsync`, `OnaylaAsync` (FEFO ayırma), `TeslimEtAsync(miktar, teslim alan)`, `TeslimIptalAsync`, `ListeIptalAsync`, `GunSonuAsync`, `OncekiGunleriKapatAsync` |
-| `ITalepServisi` | `Olustur`, `Siniflandir` (YZ), `Ata`, `DurumDegistir(sonuc)`, `Listele` (rol filtreli) |
+| `ITalepServisi` ✅ | `OlusturAsync`, `SiniflandirAsync(tür, öncelik)`, `AtaAsync`, `IslemeAlAsync`, `TamamlaAsync(sonuç)`, `IptalEtAsync(sonuç)`, `ListeleAsync(filtre)` (rol filtreli, K-072), `GetirAsync`, `AtanabilirGorevlilerAsync` (YZ önerisi P6'da) |
 | `IYakinBulmaServisi` | `Ara`, başvuru CRUD, durum geçişleri |
 | `IGonulluServisi` | Gönüllü CRUD, vardiya, görev ataması |
 | `IDuyuruServisi` | CRUD, `AktifDuyurular(tarih)` |
-| `IKioskServisi` | `Giris(aileNo, dogumYili)`, `TalepBirak`, `Taleplerim`, `Duyurular` |
+| `IKioskServisi` ✅ | `AileGirisiAsync(aileNo, dogumYili)`, `AileCikisi`, `TalepBirakAsync`, `TaleplerimAsync`, `DuyurulariGetirAsync` (K-073) |
 | `IAnaEkranServisi` | Özet göstergeler |
 | `IRaporServisi` | Rapor veri kaynakları (dağıtım tutanağı, stok, nüfus, talep) |
 | `IYedekServisi` | `YedekAl(yol)`, `GeriYukle(yol)` |
-| `IIslemGecmisiServisi` | `Kaydet`, `Listele(filtre)` |
+| `IIslemGecmisiServisi` ✅ | `ListeleAsync(IslemGecmisiFiltresi)`; kayıtlar servislerde `IslemKaydet` / `KaydetVeGecmiseYazAsync` ile aynı transaction'da yazılır |
 
-Her değiştirici işlem: yetki kontrolü → doğrulama → işlem (transaction) → işlem geçmişi kaydı. Kurallar saf sınıflarda (`TurkceMetin`, `TcKimlik`, `MukerrerKontrol`, `GerekceDegerlendirici`, `CadirOneriMotoru`, `FefoSecici`, `HakHesaplayici`, `StokTahminMotoru`; talep durum makinesi P5'te) tutulur ve veritabanısız test edilir.
+Her değiştirici işlem: yetki kontrolü → doğrulama → işlem (transaction) → işlem geçmişi kaydı. Kurallar saf sınıflarda (`TurkceMetin`, `TcKimlik`, `MukerrerKontrol`, `GerekceDegerlendirici`, `CadirOneriMotoru`, `FefoSecici`, `HakHesaplayici`, `StokTahminMotoru`, `ParolaGuvenligi`; talep durum makinesi `Talep` entity'sinin metotlarında) tutulur ve veritabanısız test edilir.
 
 ## 5. Yapay zeka (Ollama) entegrasyonu
 

@@ -15,7 +15,7 @@ _Son güncelleme: 2026-10-17_
 | 5–10 | UI, ana akış, diğer formlar, altyapı, test, final denetim | Bekliyor |
 
 ## Sıradaki adım
-**P5 – Aşama 3d:** Talep iş akışı (oluşturma: kayıt masası / görevli / kiosk; durum makinesi Yeni → Atandı → İşlemde → Tamamlandı / İptal; tamamlarken ve iptalde sonuç zorunlu; türe göre yönlendirme: Sağlık → sağlık personeli, Malzeme → depo, Çadır/arıza → saha görevlisi, Diğer → koordinatör; sağlık talebi öncelik almaz ve "Sağlık personeli değerlendirecek" işaretlenir; rol bazlı listeleme: saha görevlisi yalnız kendine atananlar, sağlık personeli yalnız sağlık talepleri), işlem geçmişi listeleme servisi, kurulum servisi (ilk yönetici, BCrypt) ve giriş/oturum servisi, kullanıcı yönetimi (rol atama, silme/pasif) + testler. İlgili REQ'ler: M1, M9, M14 (işlem geçmişi), REQ-180 (kullanıcı silme). K-050, K-051, K-059'a bak.
+**P6 – Aşama 4:** Yapay zeka servisi: `IYapayZekaServisi` interface'i + `OllamaServisi` (`HttpClient`, adres ve model `appsettings.json`'dan, JSON çıktı modu), talep sınıflandırma (tür, yardım önceliği, gerekçe önerisi → `Talep.YzOnerilenTur/YzOnerilenOncelik/YzGerekce`, `SiniflandirmaDurumu.YapayZekaOnerdi`; son karar görevlide), sağlık türünde önerilen önceliğin yok sayılması (K-051), zaman aşımı / bağlantı hatası / okunamayan cevapta talebin "Sınıflandırılmamış" kalması, koordinatör için günlük özet; sahte `HttpMessageHandler` ile testler (K-070). İlgili REQ'ler: M10 (REQ-130…). Talep servisine YZ önerisini kaydetme ve öneriyi kabul etme yolu eklenecek.
 
 ## Takvim (teslim: Aralık başı)
 
@@ -85,6 +85,13 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
 - **Denetim düzeltmeleri (2026-10-17, iyi olur maddeleri 12, 14):**
   - Tekrarlanan kod toplandı: tek transaction'da "kaydet + işlem geçmişine yaz" yardımcısı (`KaydetVeGecmiseYazAsync`, 11 kopya kaldırıldı), `IOturum.KullaniciId`, tek yaş hesabı (`Afetzede.YasHesapla`). Davranış değişmedi, 170 test geçiyor.
   - Test kapsamı ölçüldü (`tests/kapsam.runsettings`): satır %91,2, dal %76,7 (ayrıntı `docs/TESTING.md` → Kapsam).
+- **Aşama 3d (P5, 2026-10-18):**
+  - `Talep` durum makinesi entity'de (K-050): sınıflandırma ve yönlendirme, atama, işleme alma, tamamlama/iptal (sonuç zorunlu); sağlık talebine öncelik verilmez, "Sağlık personeli değerlendirecek" işaretlenir.
+  - `TalepServisi`: kayıt masası/görevli talebi (çadır tek çadırdaysa kendiliğinden), sınıflandırma, atama (yalnız hedef rol veya Koordinatör), iş akışı, rol bazlı görünürlük ve filtreli liste, atanabilir görevliler (K-072).
+  - `KioskServisi`: aile no + doğum yılıyla aile girişi (art arda hatalı girişte bekleme), kiosk talebi, ailenin talepleri, yayındaki duyurular (K-073).
+  - `KurulumServisi` (ilk Koordinatör, yalnız hiç kullanıcı yokken), `OturumServisi` (BCrypt giriş, pasif hesap, giriş/çıkış kaydı, parola değiştirme), `KullaniciServisi` (ekle, güncelle/rol, parola yenile, pasif, kullanılmamışsa sil), `ParolaGuvenligi` (K-074).
+  - `IslemGecmisiServisi`: tarih, kullanıcı, varlık, işlem türü ve metinle filtreli işlem geçmişi.
+  - 207 test, tamamı başarılı; derleme 0 uyarı.
 - **Ertelenen denetim maddeleri:** 10 (yerleşimde kişi seçimi, bekleme listesinden iki çadıra) → Aşama 6; 11 (büyük veri için sayfalama/son satır sorgusu) → gerekirse; 13 (demo verisi ayarı) → Aşama 5.
 - **Açık kararlar (kullanıcı):** sağlık bilgisi (hamile/kronik hasta) iznini kim kullanır; pasif kişi/aileyi yeniden aktif yapma eklensin mi (denetim maddeleri 6 ve 7).
 
@@ -99,7 +106,7 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
 - Başlangıç mesajı geçici olarak standart `MessageBox` (K-016).
 
 ## Test durumu
-- 170 / 170 başarılı (bkz. `docs/TESTING.md`).
+- 207 / 207 başarılı (bkz. `docs/TESTING.md`).
 
 ## Kalan gereksinimler
-- IMPLEMENTED 51 · PARTIALLY 32 · NOT IMPLEMENTED 59 (bkz. REQUIREMENTS.md).
+- IMPLEMENTED 64 · PARTIALLY 31 · NOT IMPLEMENTED 47 (bkz. REQUIREMENTS.md).

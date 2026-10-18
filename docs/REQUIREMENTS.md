@@ -40,12 +40,12 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-030 | Hiç kullanıcı yoksa ilk açılışta "İlk yönetici hesabını oluştur" ekranı | Ş M1 | Y | — | NOT IMPLEMENTED | VT, KT |
-| REQ-031 | Kodda hiçbir parola bulunmaz; seed kullanıcı içermez | Ş M1, Ş Demo | Y | — | PARTIALLY IMPLEMENTED | DK |
-| REQ-032 | Parolalar BCrypt ile hash'lenerek saklanır | Ş M1 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-033 | Kullanıcı adı ve parolayla giriş; pasif kullanıcı giremez | Ş Ekran 2 | Y | REQ-032 | NOT IMPLEMENTED | BT, KT |
-| REQ-034 | Görme, değiştirme ve rapor alma ayrı izinlerdir (Yetkiler tablosu) | Ş M1 | Y | — | PARTIALLY IMPLEMENTED | BT |
-| REQ-035 | Altı rol ve yetki matrisi (Koordinatör, Kayıt görevlisi, Depo sorumlusu, Sağlık personeli, Saha görevlisi, Kiosk) | Ş Roller | Y | REQ-034 | PARTIALLY IMPLEMENTED | BT |
+| REQ-030 | Hiç kullanıcı yoksa ilk açılışta "İlk yönetici hesabını oluştur" ekranı | Ş M1 | Y | — | PARTIALLY IMPLEMENTED | VT, KT |
+| REQ-031 | Kodda hiçbir parola bulunmaz; seed kullanıcı içermez | Ş M1, Ş Demo | Y | — | IMPLEMENTED | DK |
+| REQ-032 | Parolalar BCrypt ile hash'lenerek saklanır | Ş M1 | Y | — | IMPLEMENTED | BT |
+| REQ-033 | Kullanıcı adı ve parolayla giriş; pasif kullanıcı giremez | Ş Ekran 2 | Y | REQ-032 | IMPLEMENTED | BT, KT |
+| REQ-034 | Görme, değiştirme ve rapor alma ayrı izinlerdir (Yetkiler tablosu) | Ş M1 | Y | — | IMPLEMENTED | BT |
+| REQ-035 | Altı rol ve yetki matrisi (Koordinatör, Kayıt görevlisi, Depo sorumlusu, Sağlık personeli, Saha görevlisi, Kiosk) | Ş Roller | Y | REQ-034 | IMPLEMENTED | BT |
 | REQ-036 | Yetkisiz ekran/butonlar gizlenir **ve** Business katmanında kontrol edilir | C 4.5 | Y | REQ-035 | PARTIALLY IMPLEMENTED | BT, KT |
 
 ## 3. M2 – Kayıt
@@ -140,12 +140,12 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-120 | Talep kaynakları: kayıt masası, görevli, kiosk | Ş M9 | Y | — | NOT IMPLEMENTED | VT |
-| REQ-121 | Durumlar ve geçişler: Yeni → Atandı → İşlemde → Tamamlandı / İptal | Ş M9 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-122 | Yönlendirme: Sağlık → sağlık personeli, Malzeme → depo, Çadır/arıza → saha görevlisi, Diğer → koordinatör | Ş M9 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-123 | Talep alanları: aile/çadır, açıklama, tür, sorumlu görevli, durum, açılış/kapanış zamanı, sonuç | Ş M9 | Y | — | NOT IMPLEMENTED | VT |
-| REQ-124 | "Tamamlandı" veya "İptal" yapılırken sonuç yazılması zorunlu | Ş M9 | Y | REQ-121 | NOT IMPLEMENTED | BT |
-| REQ-125 | Saha görevlisi yalnızca kendine atanan talepleri görür | Ş Roller | Y | REQ-036 | NOT IMPLEMENTED | BT |
+| REQ-120 | Talep kaynakları: kayıt masası, görevli, kiosk | Ş M9 | Y | — | IMPLEMENTED | VT |
+| REQ-121 | Durumlar ve geçişler: Yeni → Atandı → İşlemde → Tamamlandı / İptal | Ş M9 | Y | — | IMPLEMENTED | BT |
+| REQ-122 | Yönlendirme: Sağlık → sağlık personeli, Malzeme → depo, Çadır/arıza → saha görevlisi, Diğer → koordinatör | Ş M9 | Y | — | IMPLEMENTED | BT |
+| REQ-123 | Talep alanları: aile/çadır, açıklama, tür, sorumlu görevli, durum, açılış/kapanış zamanı, sonuç | Ş M9 | Y | — | IMPLEMENTED | VT |
+| REQ-124 | "Tamamlandı" veya "İptal" yapılırken sonuç yazılması zorunlu | Ş M9 | Y | REQ-121 | IMPLEMENTED | BT |
+| REQ-125 | Saha görevlisi yalnızca kendine atanan talepleri görür | Ş Roller | Y | REQ-036 | IMPLEMENTED | BT |
 
 ## 11. M10 – Yapay zeka (Ollama)
 
@@ -165,9 +165,9 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
 | REQ-140 | Tam ekran kiosk modu (TileControl) | Ş M11 | O | DevExpress | NOT IMPLEMENTED | MT |
-| REQ-141 | Giriş aile numarası ve doğum yılıyla | Ş M11 | O | — | NOT IMPLEMENTED | BT |
-| REQ-142 | Kioskta talep bırakılır, talep durumu ve duyurular görülür; yalnızca kendi ailesi | Ş M11, Roller | O | REQ-120 | NOT IMPLEMENTED | BT, MT |
-| REQ-143 | Duyuruları Koordinatör ekler (başlık, metin, başlangıç, bitiş); süresi dolan görünmez | Ş M11 | O | — | NOT IMPLEMENTED | BT |
+| REQ-141 | Giriş aile numarası ve doğum yılıyla | Ş M11 | O | — | IMPLEMENTED | BT |
+| REQ-142 | Kioskta talep bırakılır, talep durumu ve duyurular görülür; yalnızca kendi ailesi | Ş M11, Roller | O | REQ-120 | PARTIALLY IMPLEMENTED | BT, MT |
+| REQ-143 | Duyuruları Koordinatör ekler (başlık, metin, başlangıç, bitiş); süresi dolan görünmez | Ş M11 | O | — | PARTIALLY IMPLEMENTED | BT |
 
 ## 13. M12 – Gönüllüler
 
@@ -189,7 +189,7 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-170 | İşlem geçmişi: kim oluşturdu, değiştirdi, iptal etti (ne zaman, neyi) | Ş M14 | Y | — | PARTIALLY IMPLEMENTED | VT |
+| REQ-170 | İşlem geçmişi: kim oluşturdu, değiştirdi, iptal etti (ne zaman, neyi) | Ş M14 | Y | — | IMPLEMENTED | VT |
 | REQ-171 | `RowVersion` ile iyimser eşzamanlılık: aynı çadır/stok iki kişiye verilemez; anlaşılır mesaj | Ş M14 | Y | — | PARTIALLY IMPLEMENTED | VT |
 | REQ-172 | Program içinden yedek alma ve geri yükleme | Ş M14 | O | — | NOT IMPLEMENTED | VT, MT |
 | REQ-173 | Bağlantı kesilirse işlemin kaydedilip kaydedilmediği açıkça gösterilir | Ş M14 | O | — | NOT IMPLEMENTED | MT |
@@ -248,4 +248,4 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 ---
 
-**Özet:** Toplam 142 gereksinim · IMPLEMENTED 51 · PARTIALLY 32 · NOT IMPLEMENTED 59 · BLOCKED 0
+**Özet:** Toplam 142 gereksinim · IMPLEMENTED 64 · PARTIALLY 31 · NOT IMPLEMENTED 47 · BLOCKED 0
