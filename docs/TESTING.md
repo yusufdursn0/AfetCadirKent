@@ -52,6 +52,7 @@ En düşük kapsamlı dosyalar ve nedeni:
 | 2026-10-17 (Aşama 3c / P4) | 156 | 156 | 0 |
 | 2026-10-17 (denetim düzeltmeleri, kritik) | 165 | 165 | 0 |
 | 2026-10-17 (denetim düzeltmeleri, önemli) | 170 | 170 | 0 |
+| 2026-10-18 (Aşama 3d / P5) | 207 | 207 | 0 |
 
 ## Kapsanan kurallar (C 9.1 listesine göre)
 | Kural | Test sınıfı |
@@ -78,7 +79,15 @@ En düşük kapsamlı dosyalar ve nedeni:
 | Stok hareketleri (iade, hasar, sayım farkı, pasif yapma / geri alma) | `DepoKuralTestleri.HareketGeriAlma_…`, `DepoServisTestleri` |
 | Stokta eşzamanlılık (RowVersion) | `DepoServisTestleri.AyniStokEsZamanliIkiKisiyeAyrilamaz_…` |
 | Sağlık talebinin öncelik almaması (DB kısıtı) | `VeritabaniKisitTestleri.SaglikTalebineYardimOnceligiVerilemez` |
-| Henüz yok (P5–P6) | Talep durum geçişleri ve zorunlu sonuç, sağlık talebinin öncelik almaması (servis), kurulum/giriş, yapay zeka |
+| Talep durum geçişleri ve zorunlu sonuç | `TalepVeParolaKuralTestleri.Akis_…`, `GecersizGecisler_Reddedilir`, `Iptal_…`, `TalepServisiTestleri.Senaryo4_…`, `Iptal_AcanGorevliYeniTalebiniIptalEder_…` |
+| Talep yönlendirme ve atama | `TalepVeParolaKuralTestleri.Yonlendirme_TureGoreHedefRol`, `YenidenSiniflandirma_…`, `TalepServisiTestleri.Atama_…` |
+| Sağlık talebinin öncelik almaması (servis) | `TalepVeParolaKuralTestleri.SaglikTalebi_…`, `TalepServisiTestleri.Senaryo5_CocukAtesleniyor_…` |
+| Talep görünürlüğü (saha görevlisi yalnız kendine atanan, refakatsiz) | `TalepServisiTestleri.Senaryo4_…`, `RefakatsizCocukAilesininTalebi_YalnizKoordinatoreGorunur` |
+| Kiosk girişi, talebi, duyurular | `KioskServisiTestleri` |
+| İlk kurulum, giriş, parola (BCrypt) | `KurulumTestleri`, `KullaniciVeOturumTestleri`, `TalepVeParolaKuralTestleri.ParolaKurali_…`, `Bcrypt_…` |
+| Kullanıcı silme / pasif, son Koordinatör | `KullaniciVeOturumTestleri.Silme_…`, `AcikTalebiOlanGorevliPasifYapilamaz_…`, `KurulumTestleri` |
+| İşlem geçmişi listeleme | `KullaniciVeOturumTestleri.IslemGecmisi_YalnizKoordinatorGorur_Filtrelenir` |
+| Henüz yok (P6) | Yapay zeka (Ollama) servisi |
 
 Çadır servis testleri her test için benzersiz kodlu ayrı bir test bölgesi ve çadırlar oluşturur.
 
