@@ -133,4 +133,56 @@ public static class Gosterim
         DagitimDurumu.Iptal => "İptal",
         _ => durum.ToString(),
     };
+
+    public static string Metin(this TalepTuru? tur) => tur is { } t ? t.Metin() : "Sınıflandırılmamış";
+
+    public static string Metin(this TalepTuru tur) => tur switch
+    {
+        TalepTuru.Saglik => "Sağlık",
+        TalepTuru.Malzeme => "Malzeme",
+        TalepTuru.CadirAriza => "Çadır/arıza",
+        TalepTuru.Diger => "Diğer",
+        _ => tur.ToString(),
+    };
+
+    public static string Metin(this TalepDurumu durum) => durum switch
+    {
+        TalepDurumu.Yeni => "Yeni",
+        TalepDurumu.Atandi => "Atandı",
+        TalepDurumu.Islemde => "İşlemde",
+        TalepDurumu.Tamamlandi => "Tamamlandı",
+        TalepDurumu.Iptal => "İptal",
+        _ => durum.ToString(),
+    };
+
+    public static string Metin(this TalepKaynagi kaynak) => kaynak switch
+    {
+        TalepKaynagi.KayitMasasi => "Kayıt masası",
+        TalepKaynagi.Gorevli => "Görevli",
+        TalepKaynagi.Kiosk => "Kiosk",
+        _ => kaynak.ToString(),
+    };
+
+    public static string Metin(this RolTuru rol) => rol switch
+    {
+        RolTuru.Koordinator => "Koordinatör",
+        RolTuru.KayitGorevlisi => "Kayıt görevlisi",
+        RolTuru.DepoSorumlusu => "Depo sorumlusu",
+        RolTuru.SaglikPersoneli => "Sağlık personeli",
+        RolTuru.SahaGorevlisi => "Saha görevlisi",
+        RolTuru.Kiosk => "Kiosk",
+        _ => rol.ToString(),
+    };
+
+    public static string Metin(this IslemTuru tur) => tur switch
+    {
+        IslemTuru.Olusturma => "Oluşturma",
+        IslemTuru.Guncelleme => "Güncelleme",
+        IslemTuru.Iptal => "İptal",
+        IslemTuru.Silme => "Silme",
+        IslemTuru.PasifYapma => "Pasif yapma",
+        IslemTuru.Giris => "Giriş",
+        IslemTuru.Diger => "Diğer",
+        _ => tur.ToString(),
+    };
 }
