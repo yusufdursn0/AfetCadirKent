@@ -46,27 +46,6 @@ public class DagitimServisiTestleri(VeritabaniFixture fixture)
 
     private static DagitimSatiri Satir(DagitimListesi liste, int aileId) => liste.Satirlar.Single(s => s.AileId == aileId);
 
-    /// <summary>Veritabanına kaydedilmiş bir görevliyle açılmış oturum (teslim eden bilgisinin yazıldığını görmek için).</summary>
-    private async Task<Oturum> KayitliGorevliOturumuAsync(RolTuru rol)
-    {
-        var gorevli = new Gorevli
-        {
-            Ad = "Depo", Soyad = "Görevlisi", KullaniciAdi = BenzersizSoyad("depo").ToLowerInvariant(),
-            RolId = (int)rol, OlusturmaZamani = DateTime.Now,
-        };
-        gorevli.ParolaHashAta("test-ozeti");
-        await using (var db = fixture.YeniContext())
-        {
-            db.Kullanicilar.Add(gorevli);
-            await db.SaveChangesAsync();
-        }
-
-        var oturum = new Oturum();
-        oturum.Ac(gorevli, rol, ReferansVerisi.YetkiMatrisi[rol]
-            .SelectMany(m => m.Value.Select(i => new Yetki { RolId = (int)rol, Modul = m.Key, Izin = i })));
-        return oturum;
-    }
-
     // ---------------------------------------------------------------- Ana akış (senaryo 3)
 
     [Fact]
@@ -78,7 +57,7 @@ public class DagitimServisiTestleri(VeritabaniFixture fixture)
         var normal = await AileAsync(("Ali", 40), ("Ayşe", 38));
         var bebekli = await AileAsync(("Anne", 30), ("Baba", 32), ("Bebek", 1));
 
-        var oturum = await KayitliGorevliOturumuAsync(RolTuru.DepoSorumlusu);
+        var oturum = await fixture.KullaniciOturumuAsync(RolTuru.DepoSorumlusu);
         var servis = new DagitimServisi(fixture.OturumFabrikasi(), oturum, TimeProvider.System, GerekceDegerlendirici.Varsayilan());
         var liste = await servis.ListeOlusturAsync(urun.Id, "Sabah dağıtımı");
 

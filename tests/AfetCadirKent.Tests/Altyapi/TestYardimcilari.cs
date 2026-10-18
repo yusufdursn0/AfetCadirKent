@@ -2,7 +2,10 @@ using AfetCadirKent.Business.CadirYonetimi;
 using AfetCadirKent.Business.DagitimYonetimi;
 using AfetCadirKent.Business.DepoYonetimi;
 using AfetCadirKent.Business.Gerekceler;
+using AfetCadirKent.Business.Denetim;
 using AfetCadirKent.Business.Kayit;
+using AfetCadirKent.Business.KullaniciYonetimi;
+using AfetCadirKent.Business.TalepYonetimi;
 using AfetCadirKent.Business.Ortak;
 using AfetCadirKent.DataAccess.Depolar;
 using AfetCadirKent.DataAccess.Konfigurasyonlar;
@@ -25,41 +28,87 @@ public static class TestYardimcilari
         return oturum;
     }
 
-    public static IVeriOturumuFabrikasi OturumFabrikasi(this VeritabaniFixture fixture) => new TestVeriFabrikasi(fixture);
+    public static IVeriOturumuFabrikasi OturumFabrikasi(this TestVeritabaniTemel fixture) => new TestVeriFabrikasi(fixture);
 
-    public static KayitServisi KayitServisi(this VeritabaniFixture fixture, RolTuru rol) =>
+    public static KayitServisi KayitServisi(this TestVeritabaniTemel fixture, RolTuru rol) =>
         new(fixture.OturumFabrikasi(), OturumAc(rol), TimeProvider.System);
 
-    public static GerekceServisi GerekceServisi(this VeritabaniFixture fixture, RolTuru rol) =>
+    public static GerekceServisi GerekceServisi(this TestVeritabaniTemel fixture, RolTuru rol) =>
         new(fixture.OturumFabrikasi(), OturumAc(rol), TimeProvider.System, GerekceDegerlendirici.Varsayilan());
 
-    public static CadirServisi CadirServisi(this VeritabaniFixture fixture, RolTuru rol) =>
+    public static CadirServisi CadirServisi(this TestVeritabaniTemel fixture, RolTuru rol) =>
         new(fixture.OturumFabrikasi(), OturumAc(rol), TimeProvider.System, GerekceDegerlendirici.Varsayilan());
 
-    public static BeklemeListesiServisi BeklemeListesiServisi(this VeritabaniFixture fixture, RolTuru rol)
+    public static BeklemeListesiServisi BeklemeListesiServisi(this TestVeritabaniTemel fixture, RolTuru rol)
     {
         var oturum = OturumAc(rol);
         var cadir = new CadirServisi(fixture.OturumFabrikasi(), oturum, TimeProvider.System, GerekceDegerlendirici.Varsayilan());
         return new BeklemeListesiServisi(fixture.OturumFabrikasi(), oturum, TimeProvider.System, GerekceDegerlendirici.Varsayilan(), cadir);
     }
 
-    public static UrunServisi UrunServisi(this VeritabaniFixture fixture, RolTuru rol = RolTuru.DepoSorumlusu,
+    public static UrunServisi UrunServisi(this TestVeritabaniTemel fixture, RolTuru rol = RolTuru.DepoSorumlusu,
         TimeProvider? zaman = null) =>
         new(fixture.OturumFabrikasi(), OturumAc(rol), zaman ?? TimeProvider.System);
 
-    public static StokServisi StokServisi(this VeritabaniFixture fixture, RolTuru rol = RolTuru.DepoSorumlusu,
+    public static StokServisi StokServisi(this TestVeritabaniTemel fixture, RolTuru rol = RolTuru.DepoSorumlusu,
         TimeProvider? zaman = null) =>
         new(fixture.OturumFabrikasi(), OturumAc(rol), zaman ?? TimeProvider.System, new DepoAyarlari());
 
-    public static DagitimServisi DagitimServisi(this VeritabaniFixture fixture, RolTuru rol = RolTuru.DepoSorumlusu,
+    public static DagitimServisi DagitimServisi(this TestVeritabaniTemel fixture, RolTuru rol = RolTuru.DepoSorumlusu,
         TimeProvider? zaman = null) =>
         new(fixture.OturumFabrikasi(), OturumAc(rol), zaman ?? TimeProvider.System, GerekceDegerlendirici.Varsayilan());
+
+    /// <summary>
+    /// Veritabanına kaydedilmiş bir görevliyle açılmış oturum. Kendi açtığı/kendine atanan talepler, teslim eden
+    /// gibi kullanıcıya bağlı kurallar kayıtlı kullanıcı Id'si gerektirir.
+    /// </summary>
+    public static async Task<Oturum> KullaniciOturumuAsync(this TestVeritabaniTemel fixture, RolTuru rol)
+    {
+        var gorevli = new Gorevli
+        {
+            Ad = "Test", Soyad = rol.ToString(), KullaniciAdi = BenzersizSoyad(rol.ToString()[..4]).ToLowerInvariant(),
+            RolId = (int)rol, OlusturmaZamani = DateTime.Now,
+        };
+        gorevli.ParolaHashAta("test-ozeti"); // bu kullanıcıyla parola girişi yapılmaz
+        await using (var db = fixture.YeniContext())
+        {
+            db.Kullanicilar.Add(gorevli);
+            await db.SaveChangesAsync();
+        }
+
+        var oturum = new Oturum();
+        oturum.Ac(gorevli, rol, ReferansVerisi.YetkiMatrisi[rol]
+            .SelectMany(m => m.Value.Select(i => new Yetki { RolId = (int)rol, Modul = m.Key, Izin = i })));
+        return oturum;
+    }
+
+    public static TalepServisi TalepServisi(this TestVeritabaniTemel fixture, IOturum oturum, TimeProvider? zaman = null) =>
+        new(fixture.OturumFabrikasi(), oturum, zaman ?? TimeProvider.System);
+
+    public static KullaniciServisi KullaniciServisi(this TestVeritabaniTemel fixture, IOturum oturum) =>
+        new(fixture.OturumFabrikasi(), oturum, TimeProvider.System);
+
+    public static OturumServisi OturumServisi(this TestVeritabaniTemel fixture, Oturum oturum) =>
+        new(fixture.OturumFabrikasi(), oturum, TimeProvider.System);
+
+    public static KurulumServisi KurulumServisi(this TestVeritabaniTemel fixture) =>
+        new(fixture.OturumFabrikasi(), new Oturum(), TimeProvider.System);
+
+    public static IslemGecmisiServisi IslemGecmisiServisi(this TestVeritabaniTemel fixture, IOturum oturum) =>
+        new(fixture.OturumFabrikasi(), oturum);
+
+    /// <summary>Kurala uygun yeni kullanıcı bilgisi (benzersiz kullanıcı adı).</summary>
+    public static YeniKullaniciBilgisi YeniKullanici(string parola = "Guvenli123", string? kullaniciAdi = null) => new()
+    {
+        Ad = "Ayşe", Soyad = "Görevli", KullaniciAdi = kullaniciAdi ?? BenzersizSoyad("kul").ToLowerInvariant(),
+        Parola = parola, ParolaTekrar = parola,
+    };
 
     /// <summary>Testlerin eklediği ürünlerin ad öneki (demo verisi testleri bunları saymaz).</summary>
     public const string TestUrunOnEki = "TestUrun";
 
     /// <summary>Testlere özel (adı benzersiz) ürün.</summary>
-    public static Task<global::AfetCadirKent.Entities.Depo.Urun> TestUrunuAsync(this VeritabaniFixture fixture, HesaplamaTuru tur = HesaplamaTuru.AileBasi,
+    public static Task<global::AfetCadirKent.Entities.Depo.Urun> TestUrunuAsync(this TestVeritabaniTemel fixture, HesaplamaTuru tur = HesaplamaTuru.AileBasi,
         decimal hak = 1, int tekrar = 1, decimal kritik = 0, UrunKategorisi kategori = UrunKategorisi.Diger) =>
         fixture.UrunServisi(RolTuru.Koordinator).UrunKaydetAsync(null, new UrunBilgisi
         {
@@ -95,7 +144,7 @@ public static class TestYardimcilari
         Memleket = "Hatay",
     };
 
-    private sealed class TestVeriFabrikasi(VeritabaniFixture fixture) : IVeriOturumuFabrikasi
+    private sealed class TestVeriFabrikasi(TestVeritabaniTemel fixture) : IVeriOturumuFabrikasi
     {
         public IVeriOturumu Ac() => new VeriOturumu(fixture.YeniContext());
     }

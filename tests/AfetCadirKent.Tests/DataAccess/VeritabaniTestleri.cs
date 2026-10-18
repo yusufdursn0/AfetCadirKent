@@ -1,3 +1,4 @@
+using Microsoft.Data.SqlClient;
 using AfetCadirKent.DataAccess;
 using AfetCadirKent.DataAccess.Depolar;
 using AfetCadirKent.DataAccess.Konfigurasyonlar;
@@ -145,12 +146,11 @@ public class VeritabaniKisitTestleri(VeritabaniFixture fixture)
     {
         await using var db = fixture.YeniContext();
         await using var islem = await db.Database.BeginTransactionAsync();
-        db.Talepler.Add(new AfetCadirKent.Entities.Talepler.Talep
-        {
-            Aciklama = "Çocuk ateşleniyor", Tur = TalepTuru.Saglik, YardimOnceligi = DestekOnceligi.Yuksek,
-            AcilisZamani = DateTime.Now,
-        });
-        await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
+        // Entity kuralı (Talep.Siniflandir) atlanarak doğrudan SQL ile denenir: son savunma hattı CHECK kısıtıdır.
+        var saglik = (int)TalepTuru.Saglik;
+        var yuksek = (int)DestekOnceligi.Yuksek;
+        await Assert.ThrowsAsync<SqlException>(() => db.Database.ExecuteSqlInterpolatedAsync(
+            $"INSERT INTO Talepler (Aciklama, Tur, YardimOnceligi, Kaynak, Durum, SaglikPersoneliDegerlendirecek, AcilisZamani, SiniflandirmaDurumu) VALUES (N'Çocuk ateşleniyor', {saglik}, {yuksek}, 0, 0, 0, {DateTime.Now}, 2)"));
     }
 
     [Fact]
