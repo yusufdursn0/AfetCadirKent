@@ -125,14 +125,14 @@ Tek çadır yetmiyorsa **aynı bölgede iki çadırlık** öneriler üretilir (b
 
 **K-058 – Bağlantı kesintisi.** Kaydetme işlemleri try/catch ile sarılır; `SqlException`/bağlantı hatasında işlem transaction içinde olduğu için geri alınır ve kullanıcıya "İşlem kaydedilemedi, bağlantıyı kontrol edip tekrar deneyin" denir. Başarılı kayıtta "Kaydedildi" bildirimi verilir. Belirsiz durum (commit sırasında kopma) için kayıt yeniden okunarak kullanıcıya gerçek durum bildirilir.
 
-**K-059 – Yetki matrisi.** `ReferansVerisi.YetkiMatrisi` (migration ile `Yetkiler` tablosuna yazılır, 68 kayıt):
+**K-059 – Yetki matrisi.** `ReferansVerisi.YetkiMatrisi` (migration ile `Yetkiler` tablosuna yazılır, 74 kayıt; sağlık bilgisi satırları K-075 ile güncellendi):
 | Rol | Modül: izinler |
 |---|---|
 | Koordinatör | Tüm modüller: görme, değiştirme, rapor |
-| Kayıt görevlisi | Kayıt, Çadır: G/D/R · Talep, Yakın bulma: G/D |
-| Depo sorumlusu | Depo, Dağıtım: G/D/R · Kayıt: G · Talep: G/D (malzeme talepleri depoya yönlenir) |
+| Kayıt görevlisi | Kayıt, Çadır: G/D/R · Talep, Yakın bulma, Sağlık bilgisi: G/D |
+| Depo sorumlusu | Depo, Dağıtım: G/D/R · Kayıt: G · Talep, Sağlık bilgisi: G/D (malzeme talepleri depoya yönlenir) |
 | Sağlık personeli | Sağlık bilgisi: G/D · Talep: G/D (yalnız sağlık talepleri, Business filtreler) · Kayıt: G |
-| Saha görevlisi | Talep: G/D (yalnız kendine atananlar, Business filtreler) · Çadır: G |
+| Saha görevlisi | Talep: G/D (yalnız kendine atananlar, Business filtreler) · Sağlık bilgisi: G/D · Çadır: G |
 | Kiosk | Kiosk: G/D |
 Gerekçe: talepler "kayıt masasından" da gelir (kayıt görevlisi talep açar); yakın bulmayı "yetkili görevli" yapar (kayıt görevlisi + koordinatör); depo dağıtımda aileleri görmelidir.
 
@@ -158,7 +158,7 @@ Diğer geçişler (ör. Ayrıldı → Hastanede) "önce 'Burada' kaydedin" mesaj
 
 **K-066 – Pasif yapma.** Kişi pasif yapılırken aktif yerleşimi kapanır ve çadırdaki yer boşalır (açıklama zorunlu, işlem geçmişine yazılır). Aile ancak çadır kentte üyesi kalmadıysa pasif yapılabilir; bekleme listesindeyse listeden çıkar. Kayıtlar fiziksel olarak silinmez.
 
-**K-067 – Sağlık bilgisi görünürlüğü.** `SaglikNotu` yalnızca "Sağlık bilgisi" görme izni olan rollere (Koordinatör, Sağlık personeli) döner; diğer rollerde sorgu sonucunda boşaltılır. Kayıt sırasında sağlık notu girmek "Sağlık bilgisi" değiştirme izni ister. Hamile/kronik hasta/tekerlekli sandalye işaretleri gerekçe hesabı için gerektiğinden kayıt görevlisi tarafından da işaretlenebilir.
+**K-067 – Sağlık bilgisi görünürlüğü.** `SaglikNotu` yalnızca "Sağlık bilgisi" görme izni olan rollere (K-075 ile tüm görevli rolleri; Kiosk hariç) döner; diğer rollerde sorgu sonucunda boşaltılır. Kayıt sırasında sağlık notu girmek "Sağlık bilgisi" değiştirme izni ister. Hamile/kronik hasta/tekerlekli sandalye işaretleri gerekçe hesabı için gerektiğinden kayıt görevlisi tarafından da işaretlenebilir.
 
 **K-068 – Refakatsiz çocuk görünürlüğü (uygulama).** Koordinatör dışındaki rollerde kişi listesi, aile ayrıntısı, kişi hareketleri ve mükerrer kontrolün olası eşleşmeleri refakatsiz çocukları içermez; tüm üyeleri refakatsiz çocuk olan aile "bulunamadı" olarak döner. Dağıtım listelerinde (P4) tüm üyeleri refakatsiz çocuk olan aile **listeden çıkarılmaz** (hakkı vardır), ancak Koordinatör dışındaki rollerde aile no "—", ad "Koordinatör takibinde" görünür, teslim alabilecek kişi listesi boş gelir ve teslimi yalnızca Koordinatör yapar (diğer rollere `YetkisizIslemException`). Stok hareketleri listesinde de aynı gizleme uygulanır. **Tek yer (2026-10-17 denetimi):** kural `Business/Ortak/RefakatsizGizlilik` içindedir (`RefakatsizCocukGorebilir`, `YalnizRefakatsizMi`, `AileGorunurOlmali`, `KisilerGorunurOlmali`, sorgu süzgeçleri `GorunurKisiler` / `GorunurAileler`); "üyesi olmayan aile gizli değildir" kuralı her yerde aynıdır. Kapsam: kayıt (aile getirme/güncelleme, kişi ekleme, aile pasif yapma, aileden ayırmada refakatsiz kişi seçilemez), gerekçe (değerlendirme, elle değişiklik, geçmiş), çadır (plan, öneri, yerleştirme, çadır değişikliği), bekleme listesi (ekleme, listeleme, onay, çıkarma), dağıtım ve stok hareketleri.
 
@@ -175,3 +175,5 @@ Diğer geçişler (ör. Ayrıldı → Hastanede) "önce 'Burada' kaydedin" mesaj
 **K-073 – Kiosk aile girişi.** Kiosk, `Kiosk` rolündeki hesapla açılır (K-052); afetzede aile numarası (büyük/küçük harf ve boşluk önemsenmez) ve ailenin çadır kentte bulunan (aktif, Burada/Hastanede) bir üyesinin doğum yılıyla giriş yapar. Hatalı aile numarası ile hatalı yıl aynı mesajı verir. Doğum yılı tahmin edilebilir bir bilgi olduğundan art arda 5 hatalı girişte kiosk 30 saniye bekletilir. Kiosk talebi "Kiosk" kaynağıyla, sınıflandırılmamış açılır (görevli veya yapay zeka sınıflandırır); kiosk yalnızca o ailenin taleplerini (tür, durum, sonuç; sorumlu görevli adı yok) ve yayındaki aktif duyuruları gösterir. Duyuru yönetimi (Koordinatör, Ayarlar) Aşama 7'de yapılır.
 
 **K-074 – Kullanıcı ve parola kuralları.** Parola en az 8, en fazla 64 karakter (BCrypt 72 bayt sınırı), en az bir harf ve bir rakam, kullanıcı adından farklı; ekranda iki kez girilir. BCrypt maliyet çarpanı 11. Hatalı kullanıcı adı ve hatalı parola aynı mesajı verir; kullanıcı yokken de sahte doğrulama yapılarak cevap süresi eşitlenir. Başarılı/başarısız girişler ve çıkışlar işlem geçmişine yazılır. İlk yönetici yalnızca hiç kullanıcı yokken, transaction içinde oluşturulur. En az bir aktif Koordinatör kalmalıdır (son Koordinatör pasif yapılamaz, silinemez, rolü değişmez); kullanıcı kendini pasif yapamaz/silemez. Açık talebi olan görevli, yeni rolü bu talepleri alamıyorsa pasif yapılamaz veya rolü değiştirilemez. Giriş yapmış, işlem yapmış veya talep almış kullanıcı silinmez, pasif yapılır (REQ-180).
+
+**K-075 – Sağlık bilgisi izni (2026-10-19, kullanıcı kararı).** Hamile/kronik hasta işaretlerini ve sağlık notunu sağlık personeli ve **tüm görevliler** (Koordinatör, Kayıt görevlisi, Depo sorumlusu, Saha görevlisi) görür ve değiştirir; Kiosk göremez. Şartnamedeki "Sağlık personeli: sağlık bilgileri" satırı sağlık personelinin bu bilgiye erişimini güvenceye alır, diğer görevlileri dışlamaz. Uygulama: `ReferansVerisi.YetkiMatrisi` ve `SaglikBilgisiTumGorevliler` migration'ı. Sağlık talepleri yine yalnızca sağlık personeline yönlenir (K-050).

@@ -106,18 +106,24 @@ public class KayitServisiTestleri(VeritabaniFixture fixture)
     }
 
     [Fact]
-    public async Task SaglikNotunuYalnizcaYetkiliGirerVeGorur()
+    public async Task SaglikBilgisiniTumGorevlilerGirerVeGorur_KioskGiremez()
     {
+        // Kullanıcı kararı (K-075): sağlık bilgisini sağlık personeli ve tüm görevliler görür ve girer.
         var soyad = BenzersizSoyad();
-        await Assert.ThrowsAsync<YetkisizIslemException>(() =>
-            Servis().AileOlusturAsync($"{soyad} Ailesi", false, [Kisi("A", soyad, 50, saglikNotu: "Şeker hastası")]));
-
-        var aile = await Servis(RolTuru.Koordinator).AileOlusturAsync($"{soyad} Ailesi", false,
+        var aile = await Servis().AileOlusturAsync($"{soyad} Ailesi", false,
             [Kisi("A", soyad, 50, saglikNotu: "Şeker hastası")]);
         var filtre = new KisiFiltresi { AileId = aile.Id };
 
-        Assert.Null(Assert.Single(await Servis().KisileriListeleAsync(filtre)).SaglikNotu);
-        Assert.Equal("Şeker hastası", Assert.Single(await Servis(RolTuru.SaglikPersoneli).KisileriListeleAsync(filtre)).SaglikNotu);
+        Assert.Equal("Şeker hastası", Assert.Single(await Servis(RolTuru.DepoSorumlusu).KisileriListeleAsync(filtre)).SaglikNotu);
+        var kisiId = Assert.Single(await Servis(RolTuru.SaglikPersoneli).KisileriListeleAsync(filtre)).Id;
+
+        await Servis(RolTuru.SahaGorevlisi).SaglikBilgisiGuncelleAsync(kisiId, kronikHasta: true, hamile: false, "Diyabet");
+        var kisi = Assert.Single(await Servis().KisileriListeleAsync(filtre));
+        Assert.True(kisi.KronikHasta);
+        Assert.Equal("Diyabet", kisi.SaglikNotu);
+
+        await Assert.ThrowsAsync<YetkisizIslemException>(() =>
+            Servis(RolTuru.Kiosk).SaglikBilgisiGuncelleAsync(kisiId, false, false, null));
     }
 
     [Fact]
