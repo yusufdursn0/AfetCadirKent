@@ -94,7 +94,7 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
   - 207 test, tamamı başarılı; derleme 0 uyarı.
 - **Ertelenen denetim maddeleri:** 10 (yerleşimde kişi seçimi, bekleme listesinden iki çadıra) → Aşama 6; 11 (büyük veri için sayfalama/son satır sorgusu) → gerekirse; 13 (demo verisi ayarı) → Aşama 5.
 - **Kullanıcı kararı (2026-10-19):** sağlık bilgisini sağlık personeli ve tüm görevliler görür ve girer, Kiosk göremez (K-075). Denetim maddesi 6 kapandı.
-- **Açık karar (kullanıcı):** pasif kişi/aileyi yeniden aktif yapma eklensin mi (denetim maddesi 7).
+- **Kullanıcı kararı (2026-10-19):** pasif kişi/aile yeniden aktif yapılmaz (K-076). Denetim maddesi 7 kapandı. Aşama 6'da arayüz, pasif yapmadan önce onay soracak. Açık kullanıcı kararı kalmadı.
 
 ## Ortam
 - .NET SDK 10.0.402 (ve 9.0.317) → hedef .NET 10.
