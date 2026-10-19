@@ -73,6 +73,20 @@ public class OturumTestleri
         Assert.All(Enum.GetValues<Modul>(), m => Assert.True(koordinator.IzinVarMi(m, Izin.Rapor)));
     }
 
+    [Theory]
+    [InlineData(RolTuru.Koordinator, true)]
+    [InlineData(RolTuru.KayitGorevlisi, true)]
+    [InlineData(RolTuru.DepoSorumlusu, true)]
+    [InlineData(RolTuru.SaglikPersoneli, true)]
+    [InlineData(RolTuru.SahaGorevlisi, true)]
+    [InlineData(RolTuru.Kiosk, false)]
+    public void SaglikBilgisiniTumGorevlilerGorurVeDegistirir(RolTuru rol, bool beklenen)
+    {
+        var oturum = TestYardimcilari.OturumAc(rol);
+        Assert.Equal(beklenen, oturum.IzinVarMi(Modul.SaglikBilgisi, Izin.Gorme));
+        Assert.Equal(beklenen, oturum.IzinVarMi(Modul.SaglikBilgisi, Izin.Degistirme));
+    }
+
     [Fact]
     public void KapaliOturumHicbirIzneSahipDegildir()
     {

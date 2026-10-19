@@ -93,7 +93,8 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
   - `IslemGecmisiServisi`: tarih, kullanıcı, varlık, işlem türü ve metinle filtreli işlem geçmişi.
   - 207 test, tamamı başarılı; derleme 0 uyarı.
 - **Ertelenen denetim maddeleri:** 10 (yerleşimde kişi seçimi, bekleme listesinden iki çadıra) → Aşama 6; 11 (büyük veri için sayfalama/son satır sorgusu) → gerekirse; 13 (demo verisi ayarı) → Aşama 5.
-- **Açık kararlar (kullanıcı):** sağlık bilgisi (hamile/kronik hasta) iznini kim kullanır; pasif kişi/aileyi yeniden aktif yapma eklensin mi (denetim maddeleri 6 ve 7).
+- **Kullanıcı kararı (2026-10-19):** sağlık bilgisini sağlık personeli ve tüm görevliler görür ve girer, Kiosk göremez (K-075). Denetim maddesi 6 kapandı.
+- **Açık karar (kullanıcı):** pasif kişi/aileyi yeniden aktif yapma eklensin mi (denetim maddesi 7).
 
 ## Ortam
 - .NET SDK 10.0.402 (ve 9.0.317) → hedef .NET 10.
@@ -106,7 +107,7 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
 - Başlangıç mesajı geçici olarak standart `MessageBox` (K-016).
 
 ## Test durumu
-- 207 / 207 başarılı (bkz. `docs/TESTING.md`).
+- 213 / 213 başarılı (bkz. `docs/TESTING.md`).
 
 ## Kalan gereksinimler
 - IMPLEMENTED 64 · PARTIALLY 31 · NOT IMPLEMENTED 47 (bkz. REQUIREMENTS.md).

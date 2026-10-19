@@ -53,6 +53,7 @@ En düşük kapsamlı dosyalar ve nedeni:
 | 2026-10-17 (denetim düzeltmeleri, kritik) | 165 | 165 | 0 |
 | 2026-10-17 (denetim düzeltmeleri, önemli) | 170 | 170 | 0 |
 | 2026-10-18 (Aşama 3d / P5) | 207 | 207 | 0 |
+| 2026-10-19 (sağlık bilgisi izni, K-075) | 213 | 213 | 0 |
 
 ## Kapsanan kurallar (C 9.1 listesine göre)
 | Kural | Test sınıfı |

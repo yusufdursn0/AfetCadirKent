@@ -33,6 +33,7 @@ public static class ReferansVerisi
                 [Modul.Cadir] = TumIzinler,
                 [Modul.Talep] = GorDegistir,
                 [Modul.YakinBulma] = GorDegistir,
+                [Modul.SaglikBilgisi] = GorDegistir,
             },
             [RolTuru.DepoSorumlusu] = new()
             {
@@ -40,6 +41,7 @@ public static class ReferansVerisi
                 [Modul.Dagitim] = TumIzinler,
                 [Modul.Kayit] = Gor,
                 [Modul.Talep] = GorDegistir,
+                [Modul.SaglikBilgisi] = GorDegistir,
             },
             [RolTuru.SaglikPersoneli] = new()
             {
@@ -51,6 +53,7 @@ public static class ReferansVerisi
             {
                 [Modul.Talep] = GorDegistir,
                 [Modul.Cadir] = Gor,
+                [Modul.SaglikBilgisi] = GorDegistir,
             },
             [RolTuru.Kiosk] = new()
             {
