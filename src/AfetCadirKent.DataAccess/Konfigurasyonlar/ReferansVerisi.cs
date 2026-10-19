@@ -41,7 +41,7 @@ public static class ReferansVerisi
                 [Modul.Dagitim] = TumIzinler,
                 [Modul.Kayit] = Gor,
                 [Modul.Talep] = GorDegistir,
-                [Modul.SaglikBilgisi] = GorDegistir,
+                [Modul.SaglikBilgisi] = Gor,
             },
             [RolTuru.SaglikPersoneli] = new()
             {
@@ -61,14 +61,21 @@ public static class ReferansVerisi
             },
         };
 
+    /// <summary>
+    /// Id rol, modül ve izinden türetilir (rol·1000 + modül·10 + izin); matris değişince
+    /// diğer satırların Id'si kaymaz, migration yalnızca eklenen/çıkan satırları içerir.
+    /// </summary>
     public static IReadOnlyList<Yetki> Yetkiler()
     {
         var liste = new List<Yetki>();
-        var id = 1;
         foreach (var (rol, moduller) in YetkiMatrisi.OrderBy(x => x.Key))
             foreach (var (modul, izinler) in moduller.OrderBy(x => x.Key))
                 foreach (var izin in izinler)
-                    liste.Add(new Yetki { Id = id++, RolId = (int)rol, Modul = modul, Izin = izin });
+                    liste.Add(new Yetki
+                    {
+                        Id = (int)rol * 1000 + (int)modul * 10 + (int)izin,
+                        RolId = (int)rol, Modul = modul, Izin = izin,
+                    });
         return liste;
     }
 

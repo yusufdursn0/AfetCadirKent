@@ -74,17 +74,17 @@ public class OturumTestleri
     }
 
     [Theory]
-    [InlineData(RolTuru.Koordinator, true)]
-    [InlineData(RolTuru.KayitGorevlisi, true)]
-    [InlineData(RolTuru.DepoSorumlusu, true)]
-    [InlineData(RolTuru.SaglikPersoneli, true)]
-    [InlineData(RolTuru.SahaGorevlisi, true)]
-    [InlineData(RolTuru.Kiosk, false)]
-    public void SaglikBilgisiniTumGorevlilerGorurVeDegistirir(RolTuru rol, bool beklenen)
+    [InlineData(RolTuru.Koordinator, true, true)]
+    [InlineData(RolTuru.KayitGorevlisi, true, true)]
+    [InlineData(RolTuru.DepoSorumlusu, true, false)]
+    [InlineData(RolTuru.SaglikPersoneli, true, true)]
+    [InlineData(RolTuru.SahaGorevlisi, true, true)]
+    [InlineData(RolTuru.Kiosk, false, false)]
+    public void SaglikBilgisiIzinleriRoleGoredir(RolTuru rol, bool gorur, bool degistirir)
     {
         var oturum = TestYardimcilari.OturumAc(rol);
-        Assert.Equal(beklenen, oturum.IzinVarMi(Modul.SaglikBilgisi, Izin.Gorme));
-        Assert.Equal(beklenen, oturum.IzinVarMi(Modul.SaglikBilgisi, Izin.Degistirme));
+        Assert.Equal(gorur, oturum.IzinVarMi(Modul.SaglikBilgisi, Izin.Gorme));
+        Assert.Equal(degistirir, oturum.IzinVarMi(Modul.SaglikBilgisi, Izin.Degistirme));
     }
 
     [Fact]

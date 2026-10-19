@@ -76,7 +76,7 @@ Tüm tablolarda PK `Id int identity` (GerekceUrunleri hariç: bileşik PK). FK'l
 |---|---|---|---|
 | Kullanicilar (`Gorevli`) | Ad, Soyad, Telefon, KullaniciAdi, ParolaHash (BCrypt), Aktif, OlusturmaZamani, SonGirisZamani | RolId | U: KullaniciAdi |
 | Roller (`Rol`) | Tur (RolTuru), Ad, Aciklama | — | U: Tur · migration ile 6 kayıt |
-| Yetkiler (`Yetki`) | Modul, Izin (Görme/Değiştirme/Rapor) | RolId (cascade) | U: (RolId, Modul, Izin) · 68 kayıt |
+| Yetkiler (`Yetki`) | Modul, Izin (Görme/Değiştirme/Rapor) | RolId (cascade) | U: (RolId, Modul, Izin) · 73 kayıt · Id = rol·1000 + modül·10 + izin |
 | Aileler (`Aile`) | AileNo (hesaplanmış, kalıcı), AileAdi, TekEbeveyn, Notlar, KayitZamani, Aktif, RowVersion | — | U: AileNo |
 | Kisiler (`Afetzede`) | KisiNo (hesaplanmış), Ad, Soyad, TcKimlikNo char(11) null, DogumTarihi date, DogumTarihiTahmini, Cinsiyet, Memleket, Yakinlik, Durum, Hamile, TekerlekliSandalye, KronikHasta, RefakatsizCocuk, SaglikNotu, Fotograf varbinary(max), AramaAdi, Aktif | AileId | U: KisiNo · U (filtreli): TcKimlikNo · İ: AramaAdi, Durum · CK: TC uzunluğu |
 | KisiHareketleri | Tur, Zaman, Aciklama | KisiId, Eski/YeniCadirId, Eski/YeniAileId, KullaniciId | İ: (KisiId, Zaman) |
