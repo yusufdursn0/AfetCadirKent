@@ -1281,518 +1281,511 @@ namespace AfetCadirKent.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = 1011,
                             Izin = 1,
                             Modul = 1,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 2,
+                            Id = 1012,
                             Izin = 2,
                             Modul = 1,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 3,
+                            Id = 1013,
                             Izin = 3,
                             Modul = 1,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 4,
+                            Id = 1021,
                             Izin = 1,
                             Modul = 2,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 5,
+                            Id = 1022,
                             Izin = 2,
                             Modul = 2,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 6,
+                            Id = 1023,
                             Izin = 3,
                             Modul = 2,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 7,
+                            Id = 1031,
                             Izin = 1,
                             Modul = 3,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 8,
+                            Id = 1032,
                             Izin = 2,
                             Modul = 3,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 9,
+                            Id = 1033,
                             Izin = 3,
                             Modul = 3,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 10,
+                            Id = 1041,
                             Izin = 1,
                             Modul = 4,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 11,
+                            Id = 1042,
                             Izin = 2,
                             Modul = 4,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 12,
+                            Id = 1043,
                             Izin = 3,
                             Modul = 4,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 13,
+                            Id = 1051,
                             Izin = 1,
                             Modul = 5,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 14,
+                            Id = 1052,
                             Izin = 2,
                             Modul = 5,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 15,
+                            Id = 1053,
                             Izin = 3,
                             Modul = 5,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 16,
+                            Id = 1061,
                             Izin = 1,
                             Modul = 6,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 17,
+                            Id = 1062,
                             Izin = 2,
                             Modul = 6,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 18,
+                            Id = 1063,
                             Izin = 3,
                             Modul = 6,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 19,
+                            Id = 1071,
                             Izin = 1,
                             Modul = 7,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 20,
+                            Id = 1072,
                             Izin = 2,
                             Modul = 7,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 21,
+                            Id = 1073,
                             Izin = 3,
                             Modul = 7,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 22,
+                            Id = 1081,
                             Izin = 1,
                             Modul = 8,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 23,
+                            Id = 1082,
                             Izin = 2,
                             Modul = 8,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 24,
+                            Id = 1083,
                             Izin = 3,
                             Modul = 8,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 25,
+                            Id = 1091,
                             Izin = 1,
                             Modul = 9,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 26,
+                            Id = 1092,
                             Izin = 2,
                             Modul = 9,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 27,
+                            Id = 1093,
                             Izin = 3,
                             Modul = 9,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 28,
+                            Id = 1101,
                             Izin = 1,
                             Modul = 10,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 29,
+                            Id = 1102,
                             Izin = 2,
                             Modul = 10,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 30,
+                            Id = 1103,
                             Izin = 3,
                             Modul = 10,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 31,
+                            Id = 1111,
                             Izin = 1,
                             Modul = 11,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 32,
+                            Id = 1112,
                             Izin = 2,
                             Modul = 11,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 33,
+                            Id = 1113,
                             Izin = 3,
                             Modul = 11,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 34,
+                            Id = 1121,
                             Izin = 1,
                             Modul = 12,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 35,
+                            Id = 1122,
                             Izin = 2,
                             Modul = 12,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 36,
+                            Id = 1123,
                             Izin = 3,
                             Modul = 12,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 37,
+                            Id = 1131,
                             Izin = 1,
                             Modul = 13,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 38,
+                            Id = 1132,
                             Izin = 2,
                             Modul = 13,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 39,
+                            Id = 1133,
                             Izin = 3,
                             Modul = 13,
                             RolId = 1
                         },
                         new
                         {
-                            Id = 40,
+                            Id = 2011,
                             Izin = 1,
                             Modul = 1,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 41,
+                            Id = 2012,
                             Izin = 2,
                             Modul = 1,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 42,
+                            Id = 2013,
                             Izin = 3,
                             Modul = 1,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 43,
+                            Id = 2021,
                             Izin = 1,
                             Modul = 2,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 44,
+                            Id = 2022,
                             Izin = 2,
                             Modul = 2,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 45,
+                            Id = 2023,
                             Izin = 3,
                             Modul = 2,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 46,
+                            Id = 2051,
                             Izin = 1,
                             Modul = 5,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 47,
+                            Id = 2052,
                             Izin = 2,
                             Modul = 5,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 48,
+                            Id = 2061,
                             Izin = 1,
                             Modul = 6,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 49,
+                            Id = 2062,
                             Izin = 2,
                             Modul = 6,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 50,
+                            Id = 2071,
                             Izin = 1,
                             Modul = 7,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 51,
+                            Id = 2072,
                             Izin = 2,
                             Modul = 7,
                             RolId = 2
                         },
                         new
                         {
-                            Id = 52,
+                            Id = 3011,
                             Izin = 1,
                             Modul = 1,
                             RolId = 3
                         },
                         new
                         {
-                            Id = 53,
+                            Id = 3031,
                             Izin = 1,
                             Modul = 3,
                             RolId = 3
                         },
                         new
                         {
-                            Id = 54,
+                            Id = 3032,
                             Izin = 2,
                             Modul = 3,
                             RolId = 3
                         },
                         new
                         {
-                            Id = 55,
+                            Id = 3033,
                             Izin = 3,
                             Modul = 3,
                             RolId = 3
                         },
                         new
                         {
-                            Id = 56,
+                            Id = 3041,
                             Izin = 1,
                             Modul = 4,
                             RolId = 3
                         },
                         new
                         {
-                            Id = 57,
+                            Id = 3042,
                             Izin = 2,
                             Modul = 4,
                             RolId = 3
                         },
                         new
                         {
-                            Id = 58,
+                            Id = 3043,
                             Izin = 3,
                             Modul = 4,
                             RolId = 3
                         },
                         new
                         {
-                            Id = 59,
+                            Id = 3051,
                             Izin = 1,
                             Modul = 5,
                             RolId = 3
                         },
                         new
                         {
-                            Id = 60,
+                            Id = 3052,
                             Izin = 2,
                             Modul = 5,
                             RolId = 3
                         },
                         new
                         {
-                            Id = 61,
+                            Id = 3061,
                             Izin = 1,
                             Modul = 6,
                             RolId = 3
                         },
                         new
                         {
-                            Id = 62,
-                            Izin = 2,
-                            Modul = 6,
-                            RolId = 3
-                        },
-                        new
-                        {
-                            Id = 63,
+                            Id = 4011,
                             Izin = 1,
                             Modul = 1,
                             RolId = 4
                         },
                         new
                         {
-                            Id = 64,
+                            Id = 4051,
                             Izin = 1,
                             Modul = 5,
                             RolId = 4
                         },
                         new
                         {
-                            Id = 65,
+                            Id = 4052,
                             Izin = 2,
                             Modul = 5,
                             RolId = 4
                         },
                         new
                         {
-                            Id = 66,
+                            Id = 4061,
                             Izin = 1,
                             Modul = 6,
                             RolId = 4
                         },
                         new
                         {
-                            Id = 67,
+                            Id = 4062,
                             Izin = 2,
                             Modul = 6,
                             RolId = 4
                         },
                         new
                         {
-                            Id = 68,
+                            Id = 5021,
                             Izin = 1,
                             Modul = 2,
                             RolId = 5
                         },
                         new
                         {
-                            Id = 69,
+                            Id = 5051,
                             Izin = 1,
                             Modul = 5,
                             RolId = 5
                         },
                         new
                         {
-                            Id = 70,
+                            Id = 5052,
                             Izin = 2,
                             Modul = 5,
                             RolId = 5
                         },
                         new
                         {
-                            Id = 71,
+                            Id = 5061,
                             Izin = 1,
                             Modul = 6,
                             RolId = 5
                         },
                         new
                         {
-                            Id = 72,
+                            Id = 5062,
                             Izin = 2,
                             Modul = 6,
                             RolId = 5
                         },
                         new
                         {
-                            Id = 73,
+                            Id = 6131,
                             Izin = 1,
                             Modul = 13,
                             RolId = 6
                         },
                         new
                         {
-                            Id = 74,
+                            Id = 6132,
                             Izin = 2,
                             Modul = 13,
                             RolId = 6

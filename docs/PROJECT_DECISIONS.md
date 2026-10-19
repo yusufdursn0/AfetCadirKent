@@ -125,12 +125,12 @@ Tek çadır yetmiyorsa **aynı bölgede iki çadırlık** öneriler üretilir (b
 
 **K-058 – Bağlantı kesintisi.** Kaydetme işlemleri try/catch ile sarılır; `SqlException`/bağlantı hatasında işlem transaction içinde olduğu için geri alınır ve kullanıcıya "İşlem kaydedilemedi, bağlantıyı kontrol edip tekrar deneyin" denir. Başarılı kayıtta "Kaydedildi" bildirimi verilir. Belirsiz durum (commit sırasında kopma) için kayıt yeniden okunarak kullanıcıya gerçek durum bildirilir.
 
-**K-059 – Yetki matrisi.** `ReferansVerisi.YetkiMatrisi` (migration ile `Yetkiler` tablosuna yazılır, 74 kayıt; sağlık bilgisi satırları K-075 ile güncellendi):
+**K-059 – Yetki matrisi.** `ReferansVerisi.YetkiMatrisi` (migration ile `Yetkiler` tablosuna yazılır, 73 kayıt; sağlık bilgisi satırları K-075 ile güncellendi). Kayıt Id'si sabittir: rol·1000 + modül·10 + izin; matris değişince diğer satırlar kaymaz (2026-10-19: sıra numarası kullanıldığında bir satırın çıkması tekil indeks çakışmasına yol açmıştı):
 | Rol | Modül: izinler |
 |---|---|
 | Koordinatör | Tüm modüller: görme, değiştirme, rapor |
 | Kayıt görevlisi | Kayıt, Çadır: G/D/R · Talep, Yakın bulma, Sağlık bilgisi: G/D |
-| Depo sorumlusu | Depo, Dağıtım: G/D/R · Kayıt: G · Talep, Sağlık bilgisi: G/D (malzeme talepleri depoya yönlenir) |
+| Depo sorumlusu | Depo, Dağıtım: G/D/R · Kayıt, Sağlık bilgisi: G · Talep: G/D (malzeme talepleri depoya yönlenir) |
 | Sağlık personeli | Sağlık bilgisi: G/D · Talep: G/D (yalnız sağlık talepleri, Business filtreler) · Kayıt: G |
 | Saha görevlisi | Talep: G/D (yalnız kendine atananlar, Business filtreler) · Sağlık bilgisi: G/D · Çadır: G |
 | Kiosk | Kiosk: G/D |
@@ -176,6 +176,6 @@ Diğer geçişler (ör. Ayrıldı → Hastanede) "önce 'Burada' kaydedin" mesaj
 
 **K-074 – Kullanıcı ve parola kuralları.** Parola en az 8, en fazla 64 karakter (BCrypt 72 bayt sınırı), en az bir harf ve bir rakam, kullanıcı adından farklı; ekranda iki kez girilir. BCrypt maliyet çarpanı 11. Hatalı kullanıcı adı ve hatalı parola aynı mesajı verir; kullanıcı yokken de sahte doğrulama yapılarak cevap süresi eşitlenir. Başarılı/başarısız girişler ve çıkışlar işlem geçmişine yazılır. İlk yönetici yalnızca hiç kullanıcı yokken, transaction içinde oluşturulur. En az bir aktif Koordinatör kalmalıdır (son Koordinatör pasif yapılamaz, silinemez, rolü değişmez); kullanıcı kendini pasif yapamaz/silemez. Açık talebi olan görevli, yeni rolü bu talepleri alamıyorsa pasif yapılamaz veya rolü değiştirilemez. Giriş yapmış, işlem yapmış veya talep almış kullanıcı silinmez, pasif yapılır (REQ-180).
 
-**K-075 – Sağlık bilgisi izni (2026-10-19, kullanıcı kararı).** Hamile/kronik hasta işaretlerini ve sağlık notunu sağlık personeli ve **tüm görevliler** (Koordinatör, Kayıt görevlisi, Depo sorumlusu, Saha görevlisi) görür ve değiştirir; Kiosk göremez. Şartnamedeki "Sağlık personeli: sağlık bilgileri" satırı sağlık personelinin bu bilgiye erişimini güvenceye alır, diğer görevlileri dışlamaz. Uygulama: `ReferansVerisi.YetkiMatrisi` ve `SaglikBilgisiTumGorevliler` migration'ı. Sağlık talepleri yine yalnızca sağlık personeline yönlenir (K-050).
+**K-075 – Sağlık bilgisi izni (2026-10-19, kullanıcı kararı).** Hamile/kronik hasta işaretlerini ve sağlık notunu sağlık personeli ve **tüm görevliler** (Koordinatör, Kayıt görevlisi, Depo sorumlusu, Saha görevlisi) görür. Depo sorumlusu dışındakiler değiştirebilir; depo sorumlusu yalnızca görür (kullanıcı kararı, aynı gün). Kiosk göremez. Şartnamedeki "Sağlık personeli: sağlık bilgileri" satırı sağlık personelinin bu bilgiye erişimini güvenceye alır, diğer görevlileri dışlamaz. Uygulama: `ReferansVerisi.YetkiMatrisi` ve `SaglikBilgisiTumGorevliler` migration'ı. Sağlık talepleri yine yalnızca sağlık personeline yönlenir (K-050).
 
 **K-076 – Pasif kayıt yeniden aktif yapılmaz (2026-10-19, kullanıcı kararı).** Pasif yapılan kişi ve aile tekrar aktif yapılamaz; pasif yapma kalıcıdır. Kayıt geçmişiyle birlikte korunur ve listelerde pasif olarak görülebilir. Pasif kişinin durumu değiştirilemez (K-064). Çadır kentten ayrılıp dönen kişi pasif yapılmaz; bu durum "Ayrıldı → Burada" geçişiyle izlenir (K-064). Sonuç: TC numarasıyla kayıtlı bir kişi pasif yapılırsa aynı TC ile yeniden kaydedilemez (mükerrer kontrol ve tekil TC indeksi pasif kayıtları da kapsar). Bu yüzden pasif yapma işleminde açıklama zorunludur (K-066) ve arayüz işlemden önce onay ister. Yeni kod gerekmez; mevcut davranış bu karara uygundur.

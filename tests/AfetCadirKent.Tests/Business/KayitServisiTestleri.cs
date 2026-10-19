@@ -106,9 +106,9 @@ public class KayitServisiTestleri(VeritabaniFixture fixture)
     }
 
     [Fact]
-    public async Task SaglikBilgisiniTumGorevlilerGirerVeGorur_KioskGiremez()
+    public async Task SaglikBilgisiniGorevlilerGorur_DepoVeKioskDegistiremez()
     {
-        // Kullanıcı kararı (K-075): sağlık bilgisini sağlık personeli ve tüm görevliler görür ve girer.
+        // Kullanıcı kararı (K-075): tüm görevliler görür; depo sorumlusu yalnızca görür, kiosk hiç erişemez.
         var soyad = BenzersizSoyad();
         var aile = await Servis().AileOlusturAsync($"{soyad} Ailesi", false,
             [Kisi("A", soyad, 50, saglikNotu: "Şeker hastası")]);
@@ -122,6 +122,8 @@ public class KayitServisiTestleri(VeritabaniFixture fixture)
         Assert.True(kisi.KronikHasta);
         Assert.Equal("Diyabet", kisi.SaglikNotu);
 
+        await Assert.ThrowsAsync<YetkisizIslemException>(() =>
+            Servis(RolTuru.DepoSorumlusu).SaglikBilgisiGuncelleAsync(kisiId, false, false, null));
         await Assert.ThrowsAsync<YetkisizIslemException>(() =>
             Servis(RolTuru.Kiosk).SaglikBilgisiGuncelleAsync(kisiId, false, false, null));
     }
