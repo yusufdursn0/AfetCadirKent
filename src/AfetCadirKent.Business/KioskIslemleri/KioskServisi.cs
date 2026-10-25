@@ -27,7 +27,10 @@ public interface IKioskServisi
     /// <summary>Aile oturumunu kapatır; kiosk, sıradaki aile için giriş ekranına döner.</summary>
     void AileCikisi();
 
-    /// <summary>Ailenin talebi "Kiosk" kaynağıyla, sınıflandırılmamış olarak açılır; görevli (veya yapay zeka) sınıflandırır.</summary>
+    /// <summary>
+    /// Ailenin talebi "Kiosk" kaynağıyla, sınıflandırılmamış olarak açılır ve arka planda yapay zeka sınıflandırmasına
+    /// sıraya alınır (K-080); son kararı görevli verir.
+    /// </summary>
     Task<KioskTalebi> TalepBirakAsync(string aciklama, CancellationToken iptal = default);
 
     /// <summary>Ailenin talepleri ve durumları (en yeni önce).</summary>
@@ -41,7 +44,8 @@ public interface IKioskServisi
 /// Kiosk ekranının iş kuralları. Kiosk, "Kiosk" rolündeki kullanıcı hesabıyla açılır; afetzede ayrıca aile girişi yapar
 /// ve yalnızca kendi ailesinin taleplerini görür (K-052). Art arda hatalı girişte kısa süre bekletilir (K-073).
 /// </summary>
-public class KioskServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, TimeProvider zaman) : IKioskServisi
+public class KioskServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, TimeProvider zaman,
+    ITalepSiniflandirmaKuyrugu siniflandirmaKuyrugu) : IKioskServisi
 {
     public const int HataliGirisSiniri = 5;
     public static readonly TimeSpan BeklemeSuresi = TimeSpan.FromSeconds(30);
@@ -114,6 +118,7 @@ public class KioskServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
         veri.Repo<Talep>().Ekle(talep);
         await veri.KaydetVeGecmiseYazAsync(oturum, talep.AcilisZamani, IslemTuru.Olusturma, nameof(Talep), () => talep.Id,
             () => $"Talep #{talep.Id} kiosktan açıldı ({aile.AileNo}).", iptal);
+        siniflandirmaKuyrugu.Ekle(talep.Id); // sağlık talebi görevli beklemeden sağlık personeline yönlensin (K-080)
         return Satir(talep);
     }
 

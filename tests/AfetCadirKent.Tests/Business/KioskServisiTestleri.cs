@@ -18,8 +18,9 @@ public class KioskServisiTestleri(VeritabaniFixture fixture)
 
     private static int AnneDogumYili => DateTime.Today.AddYears(-AnneYasi).AddDays(-10).Year;
 
-    private async Task<KioskServisi> KioskAsync(TimeProvider? zaman = null) =>
-        new(fixture.OturumFabrikasi(), await fixture.KullaniciOturumuAsync(RolTuru.Kiosk), zaman ?? TimeProvider.System);
+    private async Task<KioskServisi> KioskAsync(TimeProvider? zaman = null, ITalepSiniflandirmaKuyrugu? kuyruk = null) =>
+        new(fixture.OturumFabrikasi(), await fixture.KullaniciOturumuAsync(RolTuru.Kiosk), zaman ?? TimeProvider.System,
+            kuyruk ?? new SahteKuyruk());
 
     /// <summary>Teste özel bölgede tek çadıra yerleşmiş aile ve aile numarası.</summary>
     private async Task<(int AileId, string AileNo, int CadirId, int CocukId)> CadirdakiAileAsync()
@@ -79,7 +80,8 @@ public class KioskServisiTestleri(VeritabaniFixture fixture)
     {
         var (aileId, aileNo, cadirId, _) = await CadirdakiAileAsync();
         var (_, baskaAileNo, _, _) = await CadirdakiAileAsync();
-        var kiosk = await KioskAsync();
+        var kuyruk = new SahteKuyruk();
+        var kiosk = await KioskAsync(kuyruk: kuyruk);
 
         await Assert.ThrowsAsync<IsKuraliException>(() => kiosk.TalepBirakAsync("Battaniye lazım"));
 
@@ -92,6 +94,7 @@ public class KioskServisiTestleri(VeritabaniFixture fixture)
         var talep = await kiosk.TalepBirakAsync("Çadırın fermuarı bozuldu");
         Assert.Equal((TalepDurumu.Yeni, (TalepTuru?)null, "Sınıflandırılmamış", "Yeni"),
             (talep.Durum, talep.Tur, talep.TurMetni, talep.DurumMetni));
+        Assert.Equal([baskaTalep.Id, talep.Id], kuyruk.Eklenenler); // yapay zeka sınıflandırmasına sıraya alındı (K-080)
 
         var taleplerim = await kiosk.TaleplerimAsync();
         Assert.Equal([talep.Id], taleplerim.Select(t => t.Id));
@@ -156,7 +159,7 @@ public class KioskServisiTestleri(VeritabaniFixture fixture)
         var kioskOturumu = await fixture.KullaniciOturumuAsync(RolTuru.Kiosk);
         await Assert.ThrowsAsync<YetkisizIslemException>(() => fixture.TalepServisi(kioskOturumu).ListeleAsync(new TalepFiltresi()));
 
-        var gorevliKiosku = new KioskServisi(fixture.OturumFabrikasi(), OturumAc(RolTuru.KayitGorevlisi), TimeProvider.System);
+        var gorevliKiosku = new KioskServisi(fixture.OturumFabrikasi(), OturumAc(RolTuru.KayitGorevlisi), TimeProvider.System, new SahteKuyruk());
         await Assert.ThrowsAsync<YetkisizIslemException>(() => gorevliKiosku.AileGirisiAsync("A-000001", 1980));
         await Assert.ThrowsAsync<YetkisizIslemException>(() => gorevliKiosku.DuyurulariGetirAsync());
     }

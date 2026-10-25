@@ -7,6 +7,7 @@ using AfetCadirKent.Business.Kayit;
 using AfetCadirKent.Business.KullaniciYonetimi;
 using AfetCadirKent.Business.TalepYonetimi;
 using AfetCadirKent.Business.Ortak;
+using AfetCadirKent.Business.YapayZeka;
 using AfetCadirKent.DataAccess.Depolar;
 using AfetCadirKent.DataAccess.Konfigurasyonlar;
 using AfetCadirKent.Entities.Enumlar;
@@ -82,8 +83,10 @@ public static class TestYardimcilari
         return oturum;
     }
 
-    public static TalepServisi TalepServisi(this TestVeritabaniTemel fixture, IOturum oturum, TimeProvider? zaman = null) =>
-        new(fixture.OturumFabrikasi(), oturum, zaman ?? TimeProvider.System);
+    /// <summary>Yapay zeka verilmezse Ollama kapalıymış gibi davranan sahte servis kullanılır.</summary>
+    public static TalepServisi TalepServisi(this TestVeritabaniTemel fixture, IOturum oturum, TimeProvider? zaman = null,
+        IYapayZekaServisi? yapayZeka = null, ITalepSiniflandirmaKuyrugu? kuyruk = null) =>
+        new(fixture.OturumFabrikasi(), oturum, zaman ?? TimeProvider.System, yapayZeka ?? new SahteYapayZeka(), kuyruk ?? new SahteKuyruk());
 
     public static KullaniciServisi KullaniciServisi(this TestVeritabaniTemel fixture, IOturum oturum) =>
         new(fixture.OturumFabrikasi(), oturum, TimeProvider.System);
