@@ -20,8 +20,8 @@ sqllocaldb info
 |---|---|
 | `ConnectionStrings:AfetDb` | Veritabanı bağlantısı. Varsayılan LocalDB, Windows kimlik doğrulaması (parola yok). |
 | `Ollama:Adres` | Ollama adresi, varsayılan `http://localhost:11434` |
-| `Ollama:Model` | Kullanılacak model adı (ör. `qwen2.5:7b`) |
-| `Ollama:ZamanAsimiSaniye` | Yapay zeka cevabı için bekleme süresi |
+| `Ollama:Model` | Kullanılacak model adı (ör. `llama3.1:8b`, K-079) |
+| `Ollama:ZamanAsimiSaniye` | Yapay zeka cevabı için bekleme süresi (varsayılan 180; modelin ilk yüklenmesi 30–120 sn sürebilir) |
 | `Uygulama:SktUyariGunu` | Son kullanma tarihi kaç gün kala uyarı verilsin |
 | `Uygulama:YedekKlasoru` | Yedeklerin alınacağı klasör |
 
@@ -29,7 +29,7 @@ sqllocaldb info
 
 ## 4. Ollama
 1. ollama.com adresinden Ollama'yı kurun.
-2. Modeli indirin: `ollama pull qwen2.5:7b`
+2. Modeli indirin: `ollama pull llama3.1:8b`
 3. Çalıştığını kontrol edin: tarayıcıda `http://localhost:11434` → "Ollama is running".
 
 ## 5. Veritabanı

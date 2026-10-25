@@ -17,8 +17,8 @@ Geliştirme aşamalara bölünmüştür; güncel ayrıntı için [PROJECT_STATUS
 | Çadır önerisi, kapasite kontrolü, bekleme listesi, çadır planı verisi | ✅ Hazır (iş katmanı) |
 | Parti ve son kullanma tarihli depo (en yakın SKT önce), dağıtıma ayırma, kısmi teslimat, gün sonu | ✅ Hazır (iş katmanı) |
 | Stok tahmini, kritik seviye ve SKT uyarıları | ✅ Hazır (iş katmanı) |
-| Talep ve görev takibi, ilk yönetici kurulumu ve giriş | ⏳ Planlandı (Aşama 3d) |
-| Yerel yapay zeka (Ollama) ile talep sınıflandırma ve günlük özet | ⏳ Planlandı (Aşama 4) |
+| Talep ve görev takibi, ilk yönetici kurulumu ve giriş, kiosk işlemleri | ✅ Hazır (iş katmanı) |
+| Yerel yapay zeka (Ollama) ile talep sınıflandırma ve günlük özet | ✅ Hazır (iş katmanı; Ollama kurulumu gerekir) |
 | DevExpress ekranları, renkli çadır planı, aile fişi, kiosk, gönüllü/vardiya, yakın bulma, raporlar (PDF/Excel), işlem geçmişi ekranı, yedekleme | ⏳ Planlandı (Aşama 5–8) |
 
 ## Kullanılan teknolojiler
@@ -56,7 +56,7 @@ Ayrıntılı adımlar: [docs/SETUP.md](docs/SETUP.md)
    `src/AfetCadirKent.UI/appsettings.example.json` → aynı klasöre `appsettings.json` olarak kopyalayın ve gerekirse düzenleyin. Bu dosya `.gitignore` ile repoya yüklenmez.
 4. Ollama'yı kurun (ollama.com) ve modeli indirin:
    ```
-   ollama pull qwen2.5:7b
+   ollama pull llama3.1:8b
    ```
 5. Veritabanını oluşturun (SQL Server LocalDB):
    ```

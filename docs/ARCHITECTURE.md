@@ -118,9 +118,9 @@ ER görseli rapor için Aşama 10'da bu tablodan üretilecektir.
 |---|---|
 | Soyut sınıf + kalıtım | `Kisi` (abstract) → `Afetzede`, `Gorevli`, `Gonullu`; `StokHareketi` (abstract) → `GirisHareketi`, `DagitimHareketi`, `IadeHareketi`, `HasarHareketi`, `SayimFarkiHareketi` |
 | Polimorfizm | `StokHareketi.StokEtkisi` her alt sınıfta farklı; `IGerekceKurali` uygulamaları (`BebekKurali`, `HamileKurali` …) tek döngüde değerlendirilir; `IYapayZekaServisi` |
-| Interface | `IGerekceKurali`, `IRepository<T>`, `IVeriOturumu`, `IOturum`, `IAktiflik` → `IFizikselSilinemez` (arayüz kalıtımı: fiziksel silinemeyen kayıtlar), servis arayüzleri (`IKayitServisi`, `IDagitimServisi` …); `IYapayZekaServisi` Aşama 4'te |
+| Interface | `IGerekceKurali`, `IRepository<T>`, `IVeriOturumu`, `IOturum`, `IAktiflik` → `IFizikselSilinemez` (arayüz kalıtımı: fiziksel silinemeyen kayıtlar), servis arayüzleri (`IKayitServisi`, `IDagitimServisi` …); `IYapayZekaServisi` (`OllamaServisi`; testlerde `SahteYapayZeka`) |
 | Kapsülleme | Entity property'lerinde doğrulama (ör. `Cadir.Kapasite > 0`, `Kisi.Ad` boş olamaz), `private set` ile korunan alanlar, `Parti.Ayir()/AyrilaniTeslimEt()` ve `DagitimDetay.HakAta()/TeslimKaydet()` metotları |
-| Generic | `IRepository<T> where T : class`, `Repository<T>`, `VeriOturumu.Repo<T>()` |
+| Generic | `IRepository<T> where T : class`, `Repository<T>`, `VeriOturumu.Repo<T>()`, `YzSonucu<T> where T : class` (yapay zeka sonucu) |
 | Koleksiyonlar | `IReadOnlyList<IGerekceKurali>` (değerlendirici), `IReadOnlyDictionary<int, AileOncelikSonucu>` (toplu gerekçe değerlendirmesi), `HashSet<(Modul, Izin)>` (oturum izinleri), `Dictionary<int, AileHakDurumu>` (dağıtım hakları), `ILookup` (partiler/satırlar gruplama), `IReadOnlyList<MalzemeIhtiyaci>` (malzeme ihtiyaçları) |
 | İstisna yönetimi | `IsKuraliException` (taban, Entities) → `DogrulamaException` (Entities), `YetkisizIslemException`, `SilinemezException`, `EszamanlilikException` (Business); UI'da merkezi hata yakalama + Serilog |
 | Kapsülleme örnekleri (kodda) | `Cadir.Doluluk` yalnızca `Yerlestir/Bosalt` ile değişir; `Parti.Miktar/AyrilanMiktar` yalnızca `Ayir/AyirmaKaldir/AyrilaniTeslimEt` ile; `StokAyirma` yalnızca `TeslimEt/SerbestBirak` ile; `DagitimDetay.TeslimEdilenMiktar` yalnızca `TeslimKaydet` ile; `Afetzede.TcKimlikNo` setter'ı algoritmayla doğrular; `Gorevli.ParolaHash` dışarıdan yazılamaz |
@@ -141,12 +141,13 @@ ER görseli rapor için Aşama 10'da bu tablodan üretilecektir.
 | `IUrunServisi` ✅ | `UrunleriListeleAsync`, `UrunKaydetAsync(id?, UrunBilgisi)` (ürün ayarları dahil), `UrunSilAsync`, `UrunAktiflikDegistirAsync`, `BagiscilariListeleAsync`, `BagisciKaydetAsync`, `BagisciAktiflikDegistirAsync` |
 | `IStokServisi` ✅ | `StokGirisiAsync` (parti + giriş), `IadeAsync`, `HasarAsync`, `SayimAsync(sayılan miktar)`, `HareketPasifYapAsync`, `SktGecenleriFireyeDusAsync`, `StokDurumuAsync` → `UrunStokDurumu` (fiziksel / ayrılan / kullanılabilir / SKT geçmiş, FEFO sıralı partiler), `HareketleriListeleAsync(filtre)`, `UyarilariGetirAsync`, `TahminleriGetirAsync` → `StokTahmini` |
 | `IDagitimServisi` ✅ | `ListeleriGetirAsync`, `ListeGetirAsync` → `DagitimListesi`, `ListeOlusturAsync(urunId)`, `EklenebilirAilelerAsync`, `AileEkleAsync(gerekçe → istisna)`, `SatirCikarAsync`, `OnaylaAsync` (FEFO ayırma), `TeslimEtAsync(miktar, teslim alan)`, `TeslimIptalAsync`, `ListeIptalAsync`, `GunSonuAsync`, `OncekiGunleriKapatAsync` |
-| `ITalepServisi` ✅ | `OlusturAsync`, `SiniflandirAsync(tür, öncelik)`, `AtaAsync`, `IslemeAlAsync`, `TamamlaAsync(sonuç)`, `IptalEtAsync(sonuç)`, `ListeleAsync(filtre)` (rol filtreli, K-072), `GetirAsync`, `AtanabilirGorevlilerAsync` (YZ önerisi P6'da) |
+| `ITalepServisi` ✅ | `OlusturAsync`, `SiniflandirAsync(tür, öncelik)`, `AtaAsync`, `IslemeAlAsync`, `TamamlaAsync(sonuç)`, `IptalEtAsync(sonuç)`, `ListeleAsync(filtre)` (rol filtreli, K-072), `GetirAsync`, `AtanabilirGorevlilerAsync`, `YapayZekaOnerisiAlAsync` → `YzOneriSonucu`, `YapayZekaOnerisiniOnaylaAsync` (K-077) |
 | `IYakinBulmaServisi` | `Ara`, başvuru CRUD, durum geçişleri |
 | `IGonulluServisi` | Gönüllü CRUD, vardiya, görev ataması |
 | `IDuyuruServisi` | CRUD, `AktifDuyurular(tarih)` |
 | `IKioskServisi` ✅ | `AileGirisiAsync(aileNo, dogumYili)`, `AileCikisi`, `TalepBirakAsync`, `TaleplerimAsync`, `DuyurulariGetirAsync` (K-073) |
-| `IAnaEkranServisi` | Özet göstergeler |
+| `IGunlukOzetServisi` ✅ | `DurumuGetirAsync` → `GunlukDurum` (ana ekran göstergeleri), `OlusturAsync` → `GunlukOzet` (yapay zeka metni; yalnızca Koordinatör) |
+| `IAnaEkranServisi` | Özet göstergeler (`GunlukDurum` üzerine) |
 | `IRaporServisi` | Rapor veri kaynakları (dağıtım tutanağı, stok, nüfus, talep) |
 | `IYedekServisi` | `YedekAl(yol)`, `GeriYukle(yol)` |
 | `IIslemGecmisiServisi` ✅ | `ListeleAsync(IslemGecmisiFiltresi)`; kayıtlar servislerde `IslemKaydet` / `KaydetVeGecmiseYazAsync` ile aynı transaction'da yazılır |
@@ -156,18 +157,24 @@ Her değiştirici işlem: yetki kontrolü → doğrulama → işlem (transaction
 ## 5. Yapay zeka (Ollama) entegrasyonu
 
 ```
-IYapayZekaServisi
- ├─ Task<TalepSiniflandirmaSonucu> TalepSiniflandirAsync(string aciklama, CancellationToken)
- └─ Task<OzetSonucu> GunlukOzetAsync(GunlukDurumVerisi veri, CancellationToken)
+IYapayZekaServisi                                   (Business/YapayZeka)
+ ├─ Task<YzSonucu<TalepSiniflandirmaOnerisi>> TalepSiniflandirAsync(string talepMetni, CancellationToken)
+ └─ Task<YzSonucu<string>> GunlukOzetYazAsync(GunlukDurum durum, CancellationToken)
 
-OllamaYapayZekaServisi : IYapayZekaServisi   (HttpClient, OllamaAyarlari)
+OllamaServisi : IYapayZekaServisi        (HttpClient, OllamaAyarlari: Adres, Model, ZamanAsimiSaniye)
+YzIstemleri                              (sistem yönergeleri ve kullanıcı mesajları)
+YzCevapAyristirici                       (saf doğrulama: JSON → öneri, "acil" temizliği)
+GunlukOzetServisi : IGunlukOzetServisi   (toplu durum → IYapayZekaServisi)
+OtomatikSiniflandirici : ITalepSiniflandirmaKuyrugu   (türsüz açılan talepleri arka planda sırayla yapay zekaya gönderir, K-080)
+TalepServisi.YapayZekaOnerisiAlAsync / YapayZekaOnerisiniOnaylaAsync
 ```
 
-- Uç nokta: `POST {Ollama:Adres}/api/generate`, gövde: `model`, `prompt`, `system`, `format: "json"` (sınıflandırmada), `stream: false`.
-- Sınıflandırma beklenen JSON: `{"tur": "Saglik|Malzeme|CadirAriza|Diger", "yardimOnceligi": "Yuksek|Orta|Normal", "gerekce": "..."}`.
-- `TalepSiniflandirmaSonucu.Durum`: `Siniflandirildi` veya `Siniflandirilmamis` (+ neden). Bağlantı hatası, zaman aşımı (`Ollama:ZamanAsimiSaniye`), geçersiz JSON, bilinmeyen tür → `Siniflandirilmamis`; istisna dışarı sızmaz, loglanır.
-- `TalepServisi` sonucu uygular: tür Sağlık ise öncelik atılır, `SaglikPersoneliDegerlendirecek = true`, hedef rol Sağlık personeli. Görevli öneriyi onaylar veya değiştirir.
-- Günlük özet: Business, ana ekran verilerini (sayılar) toplar; yalnızca toplu sayılar ve talep başlıkları modele gönderilir; model düz metin özet döner. Veri bilgisayar dışına çıkmaz.
+- Uç nokta: `POST {Ollama:Adres}/api/chat`, gövde: `model`, `messages` (system + user), `stream: false`, sınıflandırmada `format: "json"`, `options.temperature` (K-078).
+- Beklenen JSON: `{"tur": "Saglik|Malzeme|CadirAriza|Diger", "oncelik": "Yuksek|Orta|Normal|null", "gerekce": "..."}`. Tür zorunlu; sağlıkta öncelik yok sayılır (K-051).
+- `YzSonucu<T>`: başarılıysa `Deger`, değilse `Hata` (`Ulasilamadi`, `ZamanAsimi`, `ModelBulunamadi`, `SunucuHatasi`, `CevapOkunamadi`) ve kullanıcıya gösterilecek `HataMesaji`. Servis istisna fırlatmaz (kullanıcı iptali hariç); teknik ayrıntı `ILogger<OllamaServisi>` ile loglanır. `HttpClient`'ın kendi zaman aşımı ayardaki süreden kısaysa kaldırılır.
+- Otomatik sınıflandırma: `TalepServisi.OlusturAsync` ve `KioskServisi.TalepBirakAsync` türsüz talebi `ITalepSiniflandirmaKuyrugu.Ekle` ile sıraya alır. UI açılışta `OtomatikSiniflandirici`'yi tek nesne olarak kaydeder, `BekleyenleriEkleAsync` ve ardından `CalistirAsync(uygulamaKapanisBelirteci)` çağırır (K-080).
+- `TalepServisi` öneriyi talebin `Yz*` alanlarına yazar; görevli onaylayınca uygulanır. Sağlık önerisi beklemeden sağlık personeline yönlenir (K-077). Başarısız çağrıda talep değişmez ("Sınıflandırılmamış").
+- Günlük özet: `GunlukOzetServisi` nüfus, doluluk, bekleme listesi, stok uyarıları ve talep sayılarını toplar; modele yalnızca bu toplu bilgi gider; model düz metin döner. Veri bilgisayar dışına çıkmaz.
 - Yeni bir sağlayıcı eklemek için `IYapayZekaServisi`'ni uygulayan tek sınıf yazılır ve DI kaydı değiştirilir.
 
 ## 6. UI ilkeleri

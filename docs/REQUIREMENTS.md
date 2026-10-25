@@ -20,7 +20,7 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 | REQ-005 | GitHub'da düzenli, küçük, anlamlı Türkçe commit geçmişi | F 2.4, F 8 | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-006 | README: tanıtım, kurulum/çalıştırma, teknolojiler ve sürümleri, Ollama kurulumu ve `ollama pull`, ilk yönetici oluşturma, rol ekleme adımları | F 2.4, F 6.1, Ş GitHub | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-007 | Gizli bilgi (bağlantı dizesi, parola, anahtar) repoda ve kodda yok; `appsettings.json` .gitignore'da, `appsettings.example.json` repoda | F 2.4, F 8 | Y | — | PARTIALLY IMPLEMENTED | DK |
-| REQ-008 | Yapay zeka entegrasyonu (yerel LLM – Ollama) | F 2.5 | Y | M10 | NOT IMPLEMENTED | BT, KT |
+| REQ-008 | Yapay zeka entegrasyonu (yerel LLM – Ollama) — P6: Business servisi hazır; ekranlar Aşama 6 | F 2.5 | Y | M10 | PARTIALLY IMPLEMENTED | BT, KT |
 | REQ-009 | OOP: anlamlı sınıf tasarımı, sınıflar ve nesneler | F 3 | Y | — | PARTIALLY IMPLEMENTED | DK |
 | REQ-010 | OOP: kapsülleme (property, erişim belirleyici, doğrulama) | F 3, Ş OOP | Y | — | PARTIALLY IMPLEMENTED | BT, DK |
 | REQ-011 | OOP: kalıtım ve çok biçimlilik | F 3, Ş OOP | Y | REQ-230, REQ-231 | PARTIALLY IMPLEMENTED | BT, DK |
@@ -151,14 +151,14 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 | ID | Gereksinim | Kaynak | Ön. | Bağımlılık | Durum | Test |
 |---|---|---|---|---|---|---|
-| REQ-130 | Yapay zeka servisi interface ile tasarlanır; yeni servis tek sınıf eklemekle eklenir | Ş M10 | Y | — | NOT IMPLEMENTED | DK, BT |
-| REQ-131 | `HttpClient` ile `http://localhost:11434`; JSON çıktı modu; adres ve model adı ayar dosyasında; internet gerekmez | Ş M10 | Y | — | NOT IMPLEMENTED | BT |
-| REQ-132 | Talep sınıflandırma: tür, yardım önceliği ve gerekçe önerisi (JSON) | Ş M10 | Y | REQ-131 | NOT IMPLEMENTED | BT, KT |
-| REQ-133 | Sağlık talepleri öncelik almaz, doğrudan sağlık personeline gider, "Sağlık personeli değerlendirecek" işaretlenir | Ş M10 | Y | REQ-122 | PARTIALLY IMPLEMENTED | BT, KT |
-| REQ-134 | Ollama çalışmıyor / zaman aşımı / cevap okunamıyorsa talep "Sınıflandırılmamış" kalır, görevli elle devam eder | Ş M10 | Y | — | NOT IMPLEMENTED | BT, KT |
-| REQ-135 | Koordinatör için günlük durum özeti | Ş M10 | Y | REQ-131 | NOT IMPLEMENTED | BT, KT |
-| REQ-136 | Son karar görevlide: yapay zeka yalnızca öneri yapar, görevli onaylar/değiştirir | Ş M10 | Y | — | NOT IMPLEMENTED | MT |
-| REQ-137 | Türkçe'yi iyi anlayan orta boyutlu model denenerek seçilir | Ş M10 | O | Ollama kurulumu | NOT IMPLEMENTED | MT |
+| REQ-130 | Yapay zeka servisi interface ile tasarlanır; yeni servis tek sınıf eklemekle eklenir | Ş M10 | Y | — | IMPLEMENTED | DK, BT |
+| REQ-131 | `HttpClient` ile `http://localhost:11434`; JSON çıktı modu; adres ve model adı ayar dosyasında; internet gerekmez | Ş M10 | Y | — | IMPLEMENTED | BT |
+| REQ-132 | Talep sınıflandırma: tür, yardım önceliği ve gerekçe önerisi (JSON) | Ş M10 | Y | REQ-131 | IMPLEMENTED | BT, KT |
+| REQ-133 | Sağlık talepleri öncelik almaz, doğrudan sağlık personeline gider, "Sağlık personeli değerlendirecek" işaretlenir | Ş M10 | Y | REQ-122 | IMPLEMENTED | BT, KT |
+| REQ-134 | Ollama çalışmıyor / zaman aşımı / cevap okunamıyorsa talep "Sınıflandırılmamış" kalır, görevli elle devam eder | Ş M10 | Y | — | IMPLEMENTED | BT, KT |
+| REQ-135 | Koordinatör için günlük durum özeti | Ş M10 | Y | REQ-131 | IMPLEMENTED | BT, KT |
+| REQ-136 | Son karar görevlide: yapay zeka yalnızca öneri yapar, görevli onaylar/değiştirir — P6: öneri ayrı alanlarda tutulur, onay/değiştirme servisi hazır; onay ekranı Aşama 6 | Ş M10 | Y | — | PARTIALLY IMPLEMENTED | MT |
+| REQ-137 | Türkçe'yi iyi anlayan orta boyutlu model denenerek seçilir — K-079: llama3.1:8b seçildi | Ş M10 | O | Ollama kurulumu | IMPLEMENTED | MT |
 
 ## 12. M11 – Kiosk
 
@@ -248,4 +248,4 @@ Projenin ana kontrol listesi. Her aşamada güncellenir.
 
 ---
 
-**Özet:** Toplam 142 gereksinim · IMPLEMENTED 64 · PARTIALLY 31 · NOT IMPLEMENTED 47 · BLOCKED 0
+**Özet:** Toplam 142 gereksinim · IMPLEMENTED 71 · PARTIALLY 32 · NOT IMPLEMENTED 39 · BLOCKED 0

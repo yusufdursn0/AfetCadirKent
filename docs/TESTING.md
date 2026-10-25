@@ -3,7 +3,7 @@
 ## Strateji
 | Tür | Kapsam | Veritabanı |
 |---|---|---|
-| Birim testi | Entity kuralları (doğrulama, kapasite, parti/ayırma, stok hareketi polimorfizmi, TC, Türkçe normalizasyon) ve saf iş kuralları (mükerrer kontrol, gerekçe, çadır önerisi, bekleme sırası, FEFO, hak, devretme, stok tahmini); Aşama 4'te yapay zeka cevap ayrıştırma | Yok |
+| Birim testi | Entity kuralları (doğrulama, kapasite, parti/ayırma, stok hareketi polimorfizmi, TC, Türkçe normalizasyon) ve saf iş kuralları (mükerrer kontrol, gerekçe, çadır önerisi, bekleme sırası, FEFO, hak, devretme, stok tahmini); yapay zeka cevap ayrıştırma ve `OllamaServisi` (sahte `HttpMessageHandler`) | Yok |
 | Veritabanı (entegrasyon) testi | Demo verisi, numaralar, kısıtlar (TC tekilliği, kapasite, sağlık önceliği, tek açık dağıtım listesi), RowVersion çakışması, repository silme kuralları, Business servisleri (kayıt, gerekçe, çadır, bekleme, ürün, stok, dağıtım) | `AfetCadirKent_Test` (LocalDB) |
 | Kabul testi | CLAUDE.md 9.2 senaryosu, elle | Geliştirme veritabanı |
 
@@ -54,6 +54,8 @@ En düşük kapsamlı dosyalar ve nedeni:
 | 2026-10-17 (denetim düzeltmeleri, önemli) | 170 | 170 | 0 |
 | 2026-10-18 (Aşama 3d / P5) | 207 | 207 | 0 |
 | 2026-10-19 (sağlık bilgisi izni, K-075) | 213 | 213 | 0 |
+| 2026-10-20 (Aşama 4 / P6, yapay zeka) | 276 | 276 | 0 |
+| 2026-10-20 (inceleme düzeltmeleri: otomatik sınıflandırma, zaman aşımı, loglama) | 287 | 287 | 0 |
 
 ## Kapsanan kurallar (C 9.1 listesine göre)
 | Kural | Test sınıfı |
@@ -95,3 +97,10 @@ En düşük kapsamlı dosyalar ve nedeni:
 Servis testleri kendi oluşturdukları ailelerle (benzersiz soyad) çalışır; demo verisi testleri yalnızca demo ailelerini sayar.
 
 Depo ve dağıtım testleri kendi ürünlerini (`TestUrun…` önekli, benzersiz ad) ve partilerini oluşturur; demo verisi testleri bu ürünleri ve testlerin eklediği kullanıcıları saymaz. Tekrar alma süresi testleri `SabitZaman` ile ileri tarihli liste hazırlar ve test sonunda o tarihte gün sonu yaparak listeleri kapatır. Stok tutarlılığı testi yalnızca aktif hareketleri toplar (pasif yapılan hareketin etkisi geri alınmıştır).
+| Talep durum geçişleri, zorunlu sonuç, sağlık talebinin öncelik almaması | `TalepVeParolaKuralTestleri`, `TalepServisiTestleri`, `YapayZekaKuralTestleri.SaglikOnerisi_*` |
+| Yapay zeka cevabı okunamazsa / Ollama kapalıysa "Sınıflandırılmamış" | `YapayZekaKuralTestleri.OkunamayanCevap_NullDoner`, `OllamaServisiTestleri` (bağlantı hatası, zaman aşımı, 404, 500, bozuk gövde), `YapayZekaServisTestleri.OllamaKapali_TalepSiniflandirilmamisKalir_GorevliElleDevamEder` |
+| Yapay zeka önerisi → görevli onayı (son karar görevlide) | `YapayZekaKuralTestleri.YapayZekaOnerisi_*`, `YapayZekaServisTestleri.Senaryo4_*`, `GorevliFarkliKararVerirse_KendiKarariGecerli` |
+| Ollama isteği (`/api/chat`, JSON modu, model adı) ve "acil" kelimesinin temizlenmesi | `OllamaServisiTestleri.Siniflandirma_*`, `YapayZekaKuralTestleri.AcilKelimesi_EkranaCikmaz` |
+| Günlük özet (toplu sayılar, yalnızca Koordinatör, Ollama kapalıyken durum) | `YapayZekaServisTestleri.GunlukDurum_*`, `GunlukOzet_*` |
+| Türsüz talebin kendiliğinden yapay zekaya gitmesi (kiosk dahil), sistem adına kayıt, eşzamanlı görevli kararı | `OtomatikSiniflandiriciTestleri`, `KioskServisiTestleri.TalepBirak_*` |
+| `HttpClient` zaman aşımı ve hataların loglanması | `OllamaServisiTestleri.HttpClientinVarsayilanSuresi*`, `HataninTeknikAyrintisiLogaYazilir_*`, `OkunamayanCevap_ModelinYazdigiMetinLogaYazilir` |

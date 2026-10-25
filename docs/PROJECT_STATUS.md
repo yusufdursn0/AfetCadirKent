@@ -9,13 +9,13 @@ _Son güncelleme: 2026-10-17_
 | 0 | Şartname analizi, gereksinim envanteri, kararlar, mimari | ✅ Tamamlandı |
 | 1 | Solution iskeleti, projeler, `appsettings.example.json`, README taslağı | ✅ Tamamlandı |
 | 2 | Entity'ler, DbContext, migration, seed | ✅ Tamamlandı (P1) |
-| 3 | Business servisleri ve kurallar + birim testleri | ⏳ Devam ediyor: 3a ✅ (P2), 3b ✅ (P3), 3c ✅ (P4), 3d sırada (P5) |
-| 4 | Ollama yapay zeka servisi + testleri | Bekliyor |
+| 3 | Business servisleri ve kurallar + birim testleri | ✅ Tamamlandı (P2–P5) |
+| 4 | Ollama yapay zeka servisi + testleri | ✅ Tamamlandı (P6, 2026-10-20; commit kullanıcı onayını bekliyor) |
 | ⏸ | DevExpress kurulumu ve Ollama modeli (kullanıcı) | Bekliyor |
 | 5–10 | UI, ana akış, diğer formlar, altyapı, test, final denetim | Bekliyor |
 
 ## Sıradaki adım
-**P6 – Aşama 4:** Yapay zeka servisi: `IYapayZekaServisi` interface'i + `OllamaServisi` (`HttpClient`, adres ve model `appsettings.json`'dan, JSON çıktı modu), talep sınıflandırma (tür, yardım önceliği, gerekçe önerisi → `Talep.YzOnerilenTur/YzOnerilenOncelik/YzGerekce`, `SiniflandirmaDurumu.YapayZekaOnerdi`; son karar görevlide), sağlık türünde önerilen önceliğin yok sayılması (K-051), zaman aşımı / bağlantı hatası / okunamayan cevapta talebin "Sınıflandırılmamış" kalması, koordinatör için günlük özet; sahte `HttpMessageHandler` ile testler (K-070). İlgili REQ'ler: M10 (REQ-130…). Talep servisine YZ önerisini kaydetme ve öneriyi kabul etme yolu eklenecek.
+**⏸ Kullanıcı:** ~5 Kasım'da DevExpress kurulumu. (Ollama 0.40.6 kurulu; `llama3.1:8b` modeli yüklü ve denendi, K-079.) Ardından **P7 – Aşama 5:** UI temeli (ilk kurulum, giriş, Ribbon ana ekran, rol bazlı menü); DI kayıtları (`OllamaAyarlari` appsettings'ten; `OtomatikSiniflandirici` tek nesne, açılışta `BekleyenleriEkleAsync` + `CalistirAsync`, K-080) ve Serilog'un `ILogger`'a bağlanması (K-078). P6 değişiklikleri kullanıcı "commit/push yap" diyene kadar commit'lenmez (2026-10-20 kullanıcı talimatı).
 
 ## Takvim (teslim: Aralık başı)
 
@@ -92,6 +92,15 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
   - `KurulumServisi` (ilk Koordinatör, yalnız hiç kullanıcı yokken), `OturumServisi` (BCrypt giriş, pasif hesap, giriş/çıkış kaydı, parola değiştirme), `KullaniciServisi` (ekle, güncelle/rol, parola yenile, pasif, kullanılmamışsa sil), `ParolaGuvenligi` (K-074).
   - `IslemGecmisiServisi`: tarih, kullanıcı, varlık, işlem türü ve metinle filtreli işlem geçmişi.
   - 207 test, tamamı başarılı; derleme 0 uyarı.
+- **Aşama 4 (P6, 2026-10-20):**
+  - `IYapayZekaServisi` (interface) + `OllamaServisi` (`HttpClient`, `/api/chat`, JSON çıktı modu, adres/model/zaman aşımı `appsettings.json`'dan); generic `YzSonucu<T>` ile hata türü ve anlaşılır mesaj (ulaşılamadı, zaman aşımı, model yok, sunucu hatası, okunamadı).
+  - `YzCevapAyristirici` (saf): JSON doğrulama, Türkçe yazım farkları, sağlıkta önceliğin yok sayılması (K-051), "acil" kelimesinin temizlenmesi; `YzIstemleri`: tıbbi değerlendirme yapmayan sistem yönergeleri.
+  - `Talep.YapayZekaOnerisiKaydet/YapayZekaOnerisiniOnayla`; `TalepServisi.YapayZekaOnerisiAlAsync/YapayZekaOnerisiniOnaylaAsync`: öneri ayrı alanlarda, son karar görevlide; sağlık önerisi doğrudan sağlık personeline; Ollama kapalıysa talep "Sınıflandırılmamış" kalır (K-077).
+  - `GunlukOzetServisi`: Koordinatör için toplu durum (nüfus, doluluk, bekleme, stok uyarıları, talepler) + yapay zeka özeti; yapay zeka kapalıyken durum yine döner (K-078).
+  - 276 test (63 yeni; sahte `HttpMessageHandler` ve sahte yapay zeka), tamamı başarılı; derleme 0 uyarı. Migration gerekmedi.
+  - Gerçek Ollama denemesi: 3 model karşılaştırıldı, `llama3.1:8b` seçildi, zaman aşımı 180 sn, yönergeler iyileştirildi (K-079).
+  - İnceleme düzeltmeleri (kullanıcı onayıyla): türsüz talepler (kiosk dahil) arka planda kendiliğinden yapay zekaya gider, sağlık talebi görevli beklemeden sağlık personeline düşer (K-080); `HttpClient`'ın 100 sn sınırı servis içinde kaldırıldı; yapay zeka hatalarının teknik ayrıntısı `ILogger` ile loglanıyor (K-078). 287 test, tamamı başarılı.
+  - İncelemede bulunup kullanıcı kararıyla bekletilenler: yakın bulma, gönüllü/vardiya, duyuru yönetimi, yedek/geri yükleme, rapor verisi servisleri (DevExpress'ten önce yapılabilir); `SUNUM_NOTLARI.md`, ER/UML rapor malzemesi; REQ-022 ve REQ-240 durumlarının güncellenmesi.
 - **Ertelenen denetim maddeleri:** 10 (yerleşimde kişi seçimi, bekleme listesinden iki çadıra) → Aşama 6; 11 (büyük veri için sayfalama/son satır sorgusu) → gerekirse; 13 (demo verisi ayarı) → Aşama 5.
 - **Kullanıcı kararı (2026-10-19):** sağlık bilgisini sağlık personeli ve tüm görevliler görür; depo sorumlusu dışındakiler değiştirebilir; Kiosk göremez (K-075). Denetim maddesi 6 kapandı.
 - **Kullanıcı kararı (2026-10-19):** pasif kişi/aile yeniden aktif yapılmaz (K-076). Denetim maddesi 7 kapandı. Aşama 6'da arayüz, pasif yapmadan önce onay soracak. Açık kullanıcı kararı kalmadı.
@@ -100,14 +109,14 @@ Kural: oturum başına bir iş paketi (CLAUDE.md 1.2.1). Tarihler hedeftir; gere
 - .NET SDK 10.0.402 (ve 9.0.317) → hedef .NET 10.
 - SQL Server LocalDB (`MSSQLLocalDB`) mevcut.
 - DevExpress: **kurulu değil** (Aşama 4 sonrası kurulacak).
-- Ollama: henüz kontrol edilmedi (Aşama 4 sonrası).
+- Ollama 0.40.6 kurulu; modeller: llama3.1:8b (seçilen), qwen2.5:7b, gemma2:9b, mistral:7b, phi3:medium, deepseek-r1:7b.
 
 ## Bilinen problemler
 - UI şu an yalnızca ayar kontrolü yapıp kapanır; formlar Aşama 5'ten itibaren eklenecek (DevExpress gerekli).
 - Başlangıç mesajı geçici olarak standart `MessageBox` (K-016).
 
 ## Test durumu
-- 213 / 213 başarılı (bkz. `docs/TESTING.md`).
+- 287 / 287 başarılı (bkz. `docs/TESTING.md`).
 
 ## Kalan gereksinimler
-- IMPLEMENTED 64 · PARTIALLY 31 · NOT IMPLEMENTED 47 (bkz. REQUIREMENTS.md).
+- IMPLEMENTED 71 · PARTIALLY 32 · NOT IMPLEMENTED 39 (bkz. REQUIREMENTS.md).
