@@ -70,3 +70,6 @@ public sealed record TalepOzeti
 
 /// <summary>Talebin atanabileceği görevli (hedef roldeki veya Koordinatör, aktif).</summary>
 public sealed record AtanabilirGorevli(int Id, string AdSoyad, string KullaniciAdi, RolTuru Rol);
+
+/// <summary>Yapay zeka önerisi isteğinin sonucu. Başarısızsa talep "Sınıflandırılmamış" kalır; mesaj kullanıcıya gösterilir.</summary>
+public sealed record YzOneriSonucu(bool Basarili, string? HataMesaji, TalepOzeti Talep);

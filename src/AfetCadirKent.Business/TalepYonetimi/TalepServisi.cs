@@ -1,14 +1,28 @@
+using AfetCadirKent.Business.YapayZeka;
 using Microsoft.EntityFrameworkCore;
 
 namespace AfetCadirKent.Business.TalepYonetimi;
 
 public interface ITalepServisi
 {
-    /// <summary>Kayıt masasından veya görevliden talep açar. Kiosk talepleri kiosk ekranından açılır.</summary>
+    /// <summary>
+    /// Kayıt masasından veya görevliden talep açar. Kiosk talepleri kiosk ekranından açılır.
+    /// Tür belirtilmezse talep arka planda yapay zeka sınıflandırmasına sıraya alınır (K-080).
+    /// </summary>
     Task<TalepOzeti> OlusturAsync(TalepBilgisi bilgi, CancellationToken iptal = default);
 
     /// <summary>Görevli türü ve yardım önceliğini belirler; talep türüne göre yönlendirilir (sağlık talebi öncelik almaz).</summary>
     Task SiniflandirAsync(int talepId, TalepTuru tur, DestekOnceligi? yardimOnceligi, CancellationToken iptal = default);
+
+    /// <summary>
+    /// Sınıflandırılmamış talep için yapay zekadan tür, yardım önceliği ve gerekçe önerisi alır (K-077). Öneri görevli onaylayana
+    /// kadar uygulanmaz; sağlık önerisi ise öncelik verilmeden doğrudan sağlık personeline yönlendirilir (K-051).
+    /// Yapay zeka çalışmıyorsa veya cevabı okunamazsa talep "Sınıflandırılmamış" kalır ve sonuç bunu bildirir.
+    /// </summary>
+    Task<YzOneriSonucu> YapayZekaOnerisiAlAsync(int talepId, CancellationToken iptal = default);
+
+    /// <summary>Yapay zeka önerisini olduğu gibi uygular. Görevli farklı karar verirse <see cref="SiniflandirAsync"/> kullanılır.</summary>
+    Task YapayZekaOnerisiniOnaylaAsync(int talepId, CancellationToken iptal = default);
 
     /// <summary>Talebi bir görevliye atar (Yeni → Atandı). Başkasına atamayı yalnızca Koordinatör yapar; diğerleri kendi rolündeki talebi üstlenebilir.</summary>
     Task AtaAsync(int talepId, int kullaniciId, CancellationToken iptal = default);
@@ -31,7 +45,8 @@ public interface ITalepServisi
     Task<IReadOnlyList<AtanabilirGorevli>> AtanabilirGorevlilerAsync(int talepId, CancellationToken iptal = default);
 }
 
-public class TalepServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, TimeProvider zaman) : ITalepServisi
+public class TalepServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, TimeProvider zaman, IYapayZekaServisi yapayZeka,
+    ITalepSiniflandirmaKuyrugu siniflandirmaKuyrugu) : ITalepServisi
 {
     private bool Koordinator => oturum.Rol == RolTuru.Koordinator;
 
@@ -71,6 +86,8 @@ public class TalepServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
         await veri.KaydetVeGecmiseYazAsync(oturum, talep.AcilisZamani, IslemTuru.Olusturma, nameof(Talep), () => talep.Id,
             () => $"Talep #{talep.Id} açıldı ({talep.Kaynak.Metin()}, {talep.Tur.Metin()}"
                   + (talep.HedefRol is { } r ? $" → {r.Metin()}" : "") + ").", iptal);
+        if (talep.Tur is null)
+            siniflandirmaKuyrugu.Ekle(talep.Id);
         return await OzetOkuAsync(veri, talep.Id, iptal);
     }
 
@@ -99,6 +116,35 @@ public class TalepServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
         veri.IslemKaydet(oturum, zaman.Simdi(), IslemTuru.Guncelleme, nameof(Talep), talepId,
             $"Talep #{talepId} sınıflandırıldı: {onceki} → {tur.Metin()} ({oncelik}), {talep.HedefRol!.Value.Metin()} yönlendirildi"
             + (atanmisti && talep.SorumluKullaniciId is null ? "; önceki atama kaldırıldı." : "."));
+        await veri.GuvenliKaydetAsync(iptal);
+    }
+
+    public async Task<YzOneriSonucu> YapayZekaOnerisiAlAsync(int talepId, CancellationToken iptal = default)
+    {
+        oturum.IzinGerekli(Modul.Talep, Izin.Degistirme);
+        await using var veri = veriFabrikasi.Ac();
+        var talep = await GorunurTalepAsync(veri, talepId, iptal);
+        talep.YapayZekaOnerisiAlinabilirOlmali();
+
+        var sonuc = await yapayZeka.TalepSiniflandirAsync(talep.Aciklama, iptal);
+        if (sonuc.Deger is not { } oneri)
+            return new YzOneriSonucu(false, sonuc.HataMesaji, await OzetOkuAsync(veri, talepId, iptal));
+
+        await YzOnerisiKaydedici.KaydetAsync(veri, oturum, zaman, talep, oneri, iptal);
+        return new YzOneriSonucu(true, null, await OzetOkuAsync(veri, talepId, iptal));
+    }
+
+    public async Task YapayZekaOnerisiniOnaylaAsync(int talepId, CancellationToken iptal = default)
+    {
+        oturum.IzinGerekli(Modul.Talep, Izin.Degistirme);
+        await using var veri = veriFabrikasi.Ac();
+        var talep = await GorunurTalepAsync(veri, talepId, iptal);
+
+        talep.YapayZekaOnerisiniOnayla();
+        var oncelik = talep.SaglikPersoneliDegerlendirecek ? "Sağlık personeli değerlendirecek"
+            : $"yardım önceliği {(talep.YardimOnceligi is { } o ? o.Metin() : "—")}";
+        veri.IslemKaydet(oturum, zaman.Simdi(), IslemTuru.Guncelleme, nameof(Talep), talepId,
+            $"Talep #{talepId} yapay zeka önerisi onaylandı: {talep.Tur.Metin()} ({oncelik}), {talep.HedefRol!.Value.Metin()} yönlendirildi.");
         await veri.GuvenliKaydetAsync(iptal);
     }
 

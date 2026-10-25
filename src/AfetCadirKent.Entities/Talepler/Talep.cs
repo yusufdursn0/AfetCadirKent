@@ -47,9 +47,9 @@ public class Talep : VarlikTemel
     public string? Sonuc { get; private set; }
 
     public SiniflandirmaDurumu SiniflandirmaDurumu { get; private set; } = SiniflandirmaDurumu.Siniflandirilmamis;
-    public TalepTuru? YzOnerilenTur { get; set; }
-    public DestekOnceligi? YzOnerilenOncelik { get; set; }
-    public string? YzGerekce { get; set; }
+    public TalepTuru? YzOnerilenTur { get; private set; }
+    public DestekOnceligi? YzOnerilenOncelik { get; private set; }
+    public string? YzGerekce { get; private set; }
 
     public int? OlusturanKullaniciId { get; set; }
     public Gorevli? OlusturanKullanici { get; set; }
@@ -97,6 +97,39 @@ public class Talep : VarlikTemel
         YardimOnceligi = saglik ? null : yardimOnceligi;
         SaglikPersoneliDegerlendirecek = saglik;
         SiniflandirmaDurumu = kaynak;
+    }
+
+    /// <summary>Yapay zeka önerisi yalnızca açık ve henüz türü belirlenmemiş talep için alınır.</summary>
+    public void YapayZekaOnerisiAlinabilirOlmali()
+    {
+        AcikOlmali();
+        if (Tur is not null)
+            throw new IsKuraliException("Talep zaten sınıflandırılmış; yapay zeka önerisi yalnızca sınıflandırılmamış talepler için alınır.");
+    }
+
+    /// <summary>
+    /// Yapay zeka önerisini kaydeder (K-077). Son karar görevlidedir: tür ve öncelik görevli onaylayınca uygulanır.
+    /// İstisna: sağlık önerisi beklemeden sağlık personeline yönlendirilir ve önerilen öncelik yok sayılır (K-051).
+    /// </summary>
+    public void YapayZekaOnerisiKaydet(TalepTuru tur, DestekOnceligi? oncelik, string? gerekce)
+    {
+        YapayZekaOnerisiAlinabilirOlmali();
+        var saglik = tur == TalepTuru.Saglik;
+        YzOnerilenTur = tur;
+        YzOnerilenOncelik = saglik ? null : oncelik;
+        YzGerekce = Dogrula.IstegeBagliMetin(gerekce, "Yapay zeka gerekçesi", SonucUzunlugu);
+        if (saglik)
+            Siniflandir(TalepTuru.Saglik, null, SiniflandirmaDurumu.YapayZekaOnerdi);
+        else
+            SiniflandirmaDurumu = SiniflandirmaDurumu.YapayZekaOnerdi;
+    }
+
+    /// <summary>Görevli yapay zeka önerisini olduğu gibi onaylar; talep önerilen türe yönlendirilir.</summary>
+    public void YapayZekaOnerisiniOnayla()
+    {
+        if (SiniflandirmaDurumu != SiniflandirmaDurumu.YapayZekaOnerdi || YzOnerilenTur is not { } tur)
+            throw new IsKuraliException("Onaylanacak bir yapay zeka önerisi yok.");
+        Siniflandir(tur, YzOnerilenOncelik, SiniflandirmaDurumu.GorevliBelirledi);
     }
 
     /// <summary>Yeni → Atandı (veya atanmış talebi başka görevliye verme).</summary>
