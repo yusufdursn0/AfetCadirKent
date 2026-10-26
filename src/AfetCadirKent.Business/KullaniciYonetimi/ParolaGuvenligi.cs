@@ -13,6 +13,10 @@ public static class ParolaGuvenligi
     /// <summary>BCrypt 72 bayttan sonrasını yok sayar; Türkçe karakterler 2 bayt olabildiği için sınır 64 karakter.</summary>
     public const int EnFazlaUzunluk = 64;
 
+    /// <summary>Parola giriş ekranlarında gösterilen kural metni (<see cref="KuralaUymali"/> ile aynı kurallar).</summary>
+    public static string KuralAciklamasi =>
+        $"Parola en az {EnAzUzunluk}, en fazla {EnFazlaUzunluk} karakter olmalı; en az bir harf ve bir rakam içermeli; kullanıcı adıyla aynı olmamalıdır.";
+
     // Kullanıcı bulunamadığında da aynı sürede cevap vermek için (kullanıcı adı tahmin edilemesin).
     private static readonly Lazy<string> SahteOzet = new(() => BCrypt.Net.BCrypt.HashPassword("zamanlama-esitleme", Maliyet));
 

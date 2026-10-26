@@ -5,8 +5,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DevExpress.Win.Design" Version="26.1.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.13" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.13" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
 
@@ -16,6 +19,8 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- DX1000: DevExpress deneme sürümü bilgilendirmesi (lisans dosyası deneme lisansıdır, K-081 bkz. SETUP.md) -->
+    <NoWarn>$(NoWarn);DX1000</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

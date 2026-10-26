@@ -15,4 +15,10 @@ public static class VeritabaniHazirlayici
         if (!await db.Bolgeler.AnyAsync(iptal))
             await DemoVeriYukleyici.YukleAsync(db, simdi, iptal);
     }
+
+    public static async Task HazirlaAsync(IDbContextFactory<AfetDbContext> fabrika, DateTime simdi, CancellationToken iptal = default)
+    {
+        await using var db = await fabrika.CreateDbContextAsync(iptal);
+        await HazirlaAsync(db, simdi, iptal);
+    }
 }

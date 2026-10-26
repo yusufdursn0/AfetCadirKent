@@ -174,6 +174,14 @@ public static class Gosterim
         _ => rol.ToString(),
     };
 
+    public static string Metin(this DepoYonetimi.StokUyariTuru tur) => tur switch
+    {
+        DepoYonetimi.StokUyariTuru.KritikSeviye => "Kritik seviye",
+        DepoYonetimi.StokUyariTuru.SktYaklasiyor => "SKT yaklaşıyor",
+        DepoYonetimi.StokUyariTuru.SktGecti => "SKT geçti",
+        _ => tur.ToString(),
+    };
+
     public static string Metin(this IslemTuru tur) => tur switch
     {
         IslemTuru.Olusturma => "Oluşturma",

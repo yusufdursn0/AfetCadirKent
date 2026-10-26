@@ -25,19 +25,9 @@ public class GunlukOzetServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum otur
         var gunBasi = bugun.ToDateTime(TimeOnly.MinValue);
 
         await using var veri = veriFabrikasi.Ac();
-        var kisiler = await veri.Repo<Afetzede>().Sorgu()
-            .Where(k => k.Aktif && (k.Durum == KisiDurumu.Burada || k.Durum == KisiDurumu.Hastanede))
-            .GroupBy(k => k.Durum).Select(g => new { Durum = g.Key, Sayi = g.Count() })
-            .ToListAsync(iptal);
-        var aileSayisi = await veri.Repo<Afetzede>().Sorgu()
-            .Where(k => k.Aktif && (k.Durum == KisiDurumu.Burada || k.Durum == KisiDurumu.Hastanede))
-            .Select(k => k.AileId).Distinct().CountAsync(iptal);
-
-        var cadirlar = await veri.Repo<Cadir>().Sorgu().Where(c => c.Aktif)
-            .Select(c => new { c.Durum, c.Kapasite, c.Doluluk }).ToListAsync(iptal);
-        var kullanilabilir = cadirlar.Where(c => c.Durum == CadirDurumu.Kullanilabilir).ToList();
-
-        var bekleyen = await veri.Repo<BeklemeListesiKaydi>().Sorgu().CountAsync(b => b.CikisZamani == null, iptal);
+        var nufus = await DurumSayaclari.NufusAsync(veri, iptal);
+        var yatak = await DurumSayaclari.YatakAsync(veri, iptal);
+        var bekleyen = await DurumSayaclari.BekleyenAileAsync(veri, iptal);
 
         var acikTalepler = await veri.Repo<Talep>().Sorgu()
             .Where(t => t.Durum != TalepDurumu.Tamamlandi && t.Durum != TalepDurumu.Iptal)
@@ -54,12 +44,12 @@ public class GunlukOzetServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum otur
         return new GunlukDurum
         {
             Tarih = bugun,
-            BuradakiKisi = kisiler.Where(k => k.Durum == KisiDurumu.Burada).Sum(k => k.Sayi),
-            HastanedekiKisi = kisiler.Where(k => k.Durum == KisiDurumu.Hastanede).Sum(k => k.Sayi),
-            AileSayisi = aileSayisi,
-            ToplamKapasite = kullanilabilir.Sum(c => c.Kapasite),
-            BosYatak = kullanilabilir.Sum(c => c.Kapasite - c.Doluluk),
-            KullanilamayanCadir = cadirlar.Count - kullanilabilir.Count,
+            BuradakiKisi = nufus.Burada,
+            HastanedekiKisi = nufus.Hastanede,
+            AileSayisi = nufus.AileSayisi,
+            ToplamKapasite = yatak.ToplamKapasite,
+            BosYatak = yatak.BosYatak,
+            KullanilamayanCadir = yatak.KullanilamayanCadir,
             BekleyenAile = bekleyen,
             KritikStoklar = Uyarilar(StokUyariTuru.KritikSeviye),
             SktYaklasanlar = Uyarilar(StokUyariTuru.SktYaklasiyor),
