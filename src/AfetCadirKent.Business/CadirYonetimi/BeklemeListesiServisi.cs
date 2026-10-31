@@ -20,6 +20,12 @@ public interface IBeklemeListesiServisi
     /// <summary>Görevli onayı: aile çadıra yerleşir ve listeden çıkar.</summary>
     Task OnaylaVeYerlestirAsync(int kayitId, int cadirId, CancellationToken iptal = default);
 
+    /// <summary>
+    /// Görevli onayı, çadır önerisiyle: aile bir veya iki çadıra (isteğe bağlı kişi seçimiyle) yerleşir ve listeden çıkar.
+    /// Hiçbir çadıra tek başına sığmayan kalabalık aileler için kullanılır.
+    /// </summary>
+    Task OnaylaVeYerlestirAsync(int kayitId, IReadOnlyList<CadirAtamasi> atamalar, CancellationToken iptal = default);
+
     /// <summary>Aileyi yerleştirmeden listeden çıkarır (ör. başka yere gitti). Açıklama zorunlu.</summary>
     Task ListedenCikarAsync(int kayitId, string aciklama, CancellationToken iptal = default);
 }
@@ -65,7 +71,7 @@ public class BeklemeListesiServisi(
     {
         oturum.IzinGerekli(Modul.Cadir, Izin.Gorme);
         await using var veri = veriFabrikasi.Ac();
-        var cadir = await veri.Repo<Cadir>().Sorgu().AsNoTracking().FirstOrDefaultAsync(c => c.Id == cadirId, iptal)
+        var cadir = await veri.Repo<Cadir>().Sorgu().Include(c => c.Bolge).AsNoTracking().FirstOrDefaultAsync(c => c.Id == cadirId, iptal)
             ?? throw new KayitBulunamadiException("Çadır");
         if (!cadir.KullanilabilirMi || cadir.BosYatak == 0)
             return [];
@@ -100,9 +106,20 @@ public class BeklemeListesiServisi(
 
         var kisiSayisi = (await Yerlestirici.YerlesmemisUyelerAsync(veri, kayit.AileId, iptal)).Count;
         await Yerlestirici.YerlestirAsync(veri, oturum, kayit.Aile!, [new CadirAtamasi(cadir.Id, cadir.Kod, kisiSayisi)],
-            zaman.Simdi(), "Bekleme listesinden görevli onayıyla yerleşim", iptal);
+            zaman.Simdi(), BeklemedenYerlesim, iptal);
         await veri.GuvenliKaydetAsync(iptal);
     }
+
+    public async Task OnaylaVeYerlestirAsync(int kayitId, IReadOnlyList<CadirAtamasi> atamalar, CancellationToken iptal = default)
+    {
+        oturum.IzinGerekli(Modul.Cadir, Izin.Degistirme);
+        await using var veri = veriFabrikasi.Ac();
+        var kayit = await BekleyenKayitAsync(veri, kayitId, iptal);
+        await Yerlestirici.YerlestirAsync(veri, oturum, kayit.Aile!, atamalar, zaman.Simdi(), BeklemedenYerlesim, iptal);
+        await veri.GuvenliKaydetAsync(iptal);
+    }
+
+    private const string BeklemedenYerlesim = "Bekleme listesinden görevli onayıyla yerleşim";
 
     public async Task ListedenCikarAsync(int kayitId, string aciklama, CancellationToken iptal = default)
     {

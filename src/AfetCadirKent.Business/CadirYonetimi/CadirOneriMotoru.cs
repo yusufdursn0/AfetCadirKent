@@ -1,7 +1,10 @@
 namespace AfetCadirKent.Business.CadirYonetimi;
 
-/// <summary>Önerideki bir çadıra kaç kişinin yerleşeceği.</summary>
-public sealed record CadirAtamasi(int CadirId, string CadirKodu, int KisiSayisi);
+/// <summary>
+/// Önerideki bir çadıra kaç kişinin yerleşeceği. Görevli kişileri kendisi seçtiyse <see cref="KisiIdler"/> doludur
+/// (ör. aile iki çadıra bölünürken kimin nereye gideceği); boşsa yerleşmemiş üyeler kayıt sırasıyla dağıtılır.
+/// </summary>
+public sealed record CadirAtamasi(int CadirId, string CadirKodu, int KisiSayisi, IReadOnlyList<int>? KisiIdler = null);
 
 /// <summary>Sistemin çadır önerisi. Görevli onaylamadan yerleşim yapılmaz.</summary>
 public sealed record CadirOnerisi(

@@ -97,6 +97,25 @@ public static class Gosterim
         _ => durum.ToString(),
     };
 
+    public static string Metin(this Cinsiyet cinsiyet) => cinsiyet switch
+    {
+        Cinsiyet.Kadin => "Kadın",
+        Cinsiyet.Erkek => "Erkek",
+        _ => "Belirtilmemiş",
+    };
+
+    public static string Metin(this KisiHareketTuru tur) => tur switch
+    {
+        KisiHareketTuru.Gelis => "Geliş",
+        KisiHareketTuru.Ayrilis => "Ayrılış",
+        KisiHareketTuru.Nakil => "Nakil",
+        KisiHareketTuru.CadirDegisikligi => "Çadır değişikliği",
+        KisiHareketTuru.HastaneyeSevk => "Hastaneye sevk",
+        KisiHareketTuru.HastanedenDonus => "Hastaneden dönüş",
+        KisiHareketTuru.AileDegisikligi => "Aile değişikliği",
+        _ => tur.ToString(),
+    };
+
     public static string Metin(this YerlesimEtkisi etki) => etki switch
     {
         YerlesimEtkisi.SicakCadir => "Sıcak çadır",
@@ -161,6 +180,23 @@ public static class Gosterim
         TalepKaynagi.Gorevli => "Görevli",
         TalepKaynagi.Kiosk => "Kiosk",
         _ => kaynak.ToString(),
+    };
+
+    public static string Metin(this CadirDurumu durum) => durum switch
+    {
+        CadirDurumu.Kullanilabilir => "Kullanılabilir",
+        CadirDurumu.Bakimda => "Bakımda",
+        CadirDurumu.Kapali => "Kapalı",
+        _ => durum.ToString(),
+    };
+
+    public static string Metin(this CadirYonetimi.PlanDurumu durum) => durum switch
+    {
+        CadirYonetimi.PlanDurumu.Bos => "Boş",
+        CadirYonetimi.PlanDurumu.KismenDolu => "Kısmen dolu",
+        CadirYonetimi.PlanDurumu.Dolu => "Dolu",
+        CadirYonetimi.PlanDurumu.Kullanilamaz => "Kullanılamaz",
+        _ => durum.ToString(),
     };
 
     public static string Metin(this RolTuru rol) => rol switch

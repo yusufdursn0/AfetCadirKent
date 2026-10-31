@@ -25,10 +25,18 @@ namespace AfetCadirKent.UI.Formlar
             this.bbiOturumuKapat = new DevExpress.XtraBars.BarButtonItem();
             this.bsiKullanici = new DevExpress.XtraBars.BarStaticItem();
             this.bsiSonGuncelleme = new DevExpress.XtraBars.BarStaticItem();
+            this.bbiAileKayit = new DevExpress.XtraBars.BarButtonItem();
+            this.bbiKisiListesi = new DevExpress.XtraBars.BarButtonItem();
             this.ribbonPageAnaSayfa = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this.rpgGostergeler = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.rpgYapayZeka = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.rpgOturum = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
+            this.ribbonPageKayit = new DevExpress.XtraBars.Ribbon.RibbonPage();
+            this.rpgKayit = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
+            this.bbiCadirPlani = new DevExpress.XtraBars.BarButtonItem();
+            this.bbiBeklemeListesi = new DevExpress.XtraBars.BarButtonItem();
+            this.ribbonPageCadir = new DevExpress.XtraBars.Ribbon.RibbonPage();
+            this.rpgCadir = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.ribbonStatusBar = new DevExpress.XtraBars.Ribbon.RibbonStatusBar();
             this.layoutControl = new DevExpress.XtraLayout.LayoutControl();
             this.lblKisi = new DevExpress.XtraEditors.LabelControl();
@@ -84,12 +92,18 @@ namespace AfetCadirKent.UI.Formlar
             this.bbiParolaDegistir,
             this.bbiOturumuKapat,
             this.bsiKullanici,
-            this.bsiSonGuncelleme});
+            this.bsiSonGuncelleme,
+            this.bbiAileKayit,
+            this.bbiKisiListesi,
+            this.bbiCadirPlani,
+            this.bbiBeklemeListesi});
             this.ribbonControl.Location = new System.Drawing.Point(0, 0);
-            this.ribbonControl.MaxItemId = 7;
+            this.ribbonControl.MaxItemId = 11;
             this.ribbonControl.Name = "ribbonControl";
             this.ribbonControl.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] {
-            this.ribbonPageAnaSayfa});
+            this.ribbonPageAnaSayfa,
+            this.ribbonPageKayit,
+            this.ribbonPageCadir});
             this.ribbonControl.ShowApplicationButton = DevExpress.Utils.DefaultBoolean.False;
             this.ribbonControl.Size = new System.Drawing.Size(1200, 158);
             this.ribbonControl.StatusBar = this.ribbonStatusBar;
@@ -137,6 +151,66 @@ namespace AfetCadirKent.UI.Formlar
             this.bsiSonGuncelleme.Alignment = DevExpress.XtraBars.BarItemLinkAlignment.Right;
             this.bsiSonGuncelleme.Id = 6;
             this.bsiSonGuncelleme.Name = "bsiSonGuncelleme";
+            //
+            // bbiAileKayit
+            //
+            this.bbiAileKayit.Caption = "Aile ve kişi kayıt";
+            this.bbiAileKayit.Id = 7;
+            this.bbiAileKayit.Name = "bbiAileKayit";
+            this.bbiAileKayit.RibbonStyle = DevExpress.XtraBars.Ribbon.RibbonItemStyles.Large;
+            this.bbiAileKayit.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.bbiAileKayit_ItemClick);
+            //
+            // bbiKisiListesi
+            //
+            this.bbiKisiListesi.Caption = "Kişi listesi ve arama";
+            this.bbiKisiListesi.Id = 8;
+            this.bbiKisiListesi.Name = "bbiKisiListesi";
+            this.bbiKisiListesi.RibbonStyle = DevExpress.XtraBars.Ribbon.RibbonItemStyles.Large;
+            this.bbiKisiListesi.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.bbiKisiListesi_ItemClick);
+            //
+            // ribbonPageKayit
+            //
+            this.ribbonPageKayit.Groups.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPageGroup[] {
+            this.rpgKayit});
+            this.ribbonPageKayit.Name = "ribbonPageKayit";
+            this.ribbonPageKayit.Text = "Kayıt";
+            //
+            // rpgKayit
+            //
+            this.rpgKayit.ItemLinks.Add(this.bbiAileKayit);
+            this.rpgKayit.ItemLinks.Add(this.bbiKisiListesi);
+            this.rpgKayit.Name = "rpgKayit";
+            this.rpgKayit.Text = "Afetzedeler";
+            //
+            // bbiCadirPlani
+            //
+            this.bbiCadirPlani.Caption = "Çadır planı";
+            this.bbiCadirPlani.Id = 9;
+            this.bbiCadirPlani.Name = "bbiCadirPlani";
+            this.bbiCadirPlani.RibbonStyle = DevExpress.XtraBars.Ribbon.RibbonItemStyles.Large;
+            this.bbiCadirPlani.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.bbiCadirPlani_ItemClick);
+            //
+            // bbiBeklemeListesi
+            //
+            this.bbiBeklemeListesi.Caption = "Bekleme listesi";
+            this.bbiBeklemeListesi.Id = 10;
+            this.bbiBeklemeListesi.Name = "bbiBeklemeListesi";
+            this.bbiBeklemeListesi.RibbonStyle = DevExpress.XtraBars.Ribbon.RibbonItemStyles.Large;
+            this.bbiBeklemeListesi.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.bbiBeklemeListesi_ItemClick);
+            //
+            // ribbonPageCadir
+            //
+            this.ribbonPageCadir.Groups.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPageGroup[] {
+            this.rpgCadir});
+            this.ribbonPageCadir.Name = "ribbonPageCadir";
+            this.ribbonPageCadir.Text = "Çadır";
+            //
+            // rpgCadir
+            //
+            this.rpgCadir.ItemLinks.Add(this.bbiCadirPlani);
+            this.rpgCadir.ItemLinks.Add(this.bbiBeklemeListesi);
+            this.rpgCadir.Name = "rpgCadir";
+            this.rpgCadir.Text = "Yerleşim";
             //
             // ribbonPageAnaSayfa
             //
@@ -522,6 +596,14 @@ namespace AfetCadirKent.UI.Formlar
         private DevExpress.XtraBars.BarButtonItem bbiOturumuKapat;
         private DevExpress.XtraBars.BarStaticItem bsiKullanici;
         private DevExpress.XtraBars.BarStaticItem bsiSonGuncelleme;
+        private DevExpress.XtraBars.BarButtonItem bbiAileKayit;
+        private DevExpress.XtraBars.BarButtonItem bbiKisiListesi;
+        private DevExpress.XtraBars.Ribbon.RibbonPage ribbonPageKayit;
+        private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgKayit;
+        private DevExpress.XtraBars.BarButtonItem bbiCadirPlani;
+        private DevExpress.XtraBars.BarButtonItem bbiBeklemeListesi;
+        private DevExpress.XtraBars.Ribbon.RibbonPage ribbonPageCadir;
+        private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgCadir;
         private DevExpress.XtraLayout.LayoutControl layoutControl;
         private DevExpress.XtraLayout.LayoutControlGroup Root;
         private DevExpress.XtraEditors.LabelControl lblKisi;

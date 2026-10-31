@@ -47,12 +47,20 @@ public partial class AnaForm : RibbonForm
         SimgeAta(bbiGunlukOzet, "svgimages/snap/summary.svg");
         SimgeAta(bbiParolaDegistir, "svgimages/xaf/action_security_changepassword.svg");
         SimgeAta(bbiOturumuKapat, "svgimages/xaf/action_logoff.svg");
+        SimgeAta(bbiAileKayit, "svgimages/business%20objects/bo_customer.svg");
+        SimgeAta(bbiKisiListesi, "svgimages/business%20objects/bo_employee.svg");
+        SimgeAta(bbiCadirPlani, "svgimages/dashboards/treemap.svg");
+        SimgeAta(bbiBeklemeListesi, "svgimages/business%20objects/bo_task.svg");
 
         _dolulukOlcegi = DolulukGostergesiOlustur();
         GridYardimcisi.BosMetinGoster(gridViewUyarilar, "Stok uyarısı yok: kritik seviyenin altında ürün ve son kullanma tarihi yaklaşan parti bulunmuyor.");
 
         // Rol bazlı menü: sonraki ekranlar eklendikçe Ribbon öğeleri burada izinleriyle eşlenir.
-        _yetkiler.Rol(bbiGunlukOzet, RolTuru.Koordinator);
+        _yetkiler.Rol(bbiGunlukOzet, RolTuru.Koordinator)
+            .Izin(bbiAileKayit, Modul.Kayit, Izin.Gorme)
+            .Izin(bbiKisiListesi, Modul.Kayit, Izin.Gorme)
+            .Izin(bbiCadirPlani, Modul.Cadir, Izin.Gorme)
+            .Izin(bbiBeklemeListesi, Modul.Cadir, Izin.Gorme);
         _yetkiler.Uygula(ribbonControl, _oturum);
 
         var kullanici = _oturum.Kullanici;
@@ -206,6 +214,14 @@ public partial class AnaForm : RibbonForm
             bbiGunlukOzet.Enabled = true;
         }
     }
+
+    private void bbiAileKayit_ItemClick(object? sender, ItemClickEventArgs e) => _formAcici.EkranAc<AileKayitForm>(this);
+
+    private void bbiKisiListesi_ItemClick(object? sender, ItemClickEventArgs e) => _formAcici.EkranAc<KisiListesiForm>(this);
+
+    private void bbiCadirPlani_ItemClick(object? sender, ItemClickEventArgs e) => _formAcici.EkranAc<CadirPlaniForm>(this);
+
+    private void bbiBeklemeListesi_ItemClick(object? sender, ItemClickEventArgs e) => _formAcici.EkranAc<BeklemeListesiForm>(this);
 
     private void bbiParolaDegistir_ItemClick(object? sender, ItemClickEventArgs e) =>
         _formAcici.DiyalogAc<ParolaDegistirForm>(this);

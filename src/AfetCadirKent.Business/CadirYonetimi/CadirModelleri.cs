@@ -36,6 +36,7 @@ public sealed record CadirPlanOgesi
     public required int Doluluk { get; init; }
     public required CadirDurumu Durum { get; init; }
     public required bool Aktif { get; init; }
+    public bool BolgeAktif { get; init; } = true;
     public bool Erisilebilir { get; init; }
     public bool SaglikNoktasinaYakin { get; init; }
     public bool Isitmali { get; init; }
@@ -46,7 +47,7 @@ public sealed record CadirPlanOgesi
     public int BosYatak => Kapasite - Doluluk;
 
     public PlanDurumu PlanDurumu =>
-        !Aktif || Durum != CadirDurumu.Kullanilabilir ? PlanDurumu.Kullanilamaz
+        !Aktif || !BolgeAktif || Durum != CadirDurumu.Kullanilabilir ? PlanDurumu.Kullanilamaz
         : Doluluk == 0 ? PlanDurumu.Bos
         : Doluluk >= Kapasite ? PlanDurumu.Dolu
         : PlanDurumu.KismenDolu;
@@ -63,6 +64,15 @@ public sealed record YerlesimOnerisiSonucu
     public required IReadOnlyList<YerlesimEtkisi> IstenenEtkiler { get; init; }
     public required IReadOnlyList<CadirOnerisi> Oneriler { get; init; }
 
+    /// <summary>
+    /// Yerleşecek kişiler (görevli iki çadırlık öneride kimin nereye gideceğini seçebilsin diye). Oturumdaki kullanıcıdan
+    /// gizli refakatsiz çocuklar listelenmez; bu durumda liste <see cref="YerlesecekKisiSayisi"/>'ndan kısa olur.
+    /// </summary>
+    public IReadOnlyList<YerlesecekKisi> YerlesecekKisiler { get; init; } = [];
+
+    /// <summary>Görevli kişileri tek tek seçebilir mi (tüm yerleşecek kişiler görünürse).</summary>
+    public bool KisiSecimiYapilabilir => YerlesecekKisiler.Count == YerlesecekKisiSayisi && YerlesecekKisiSayisi > 0;
+
     /// <summary>Uygun çadır yoksa aile bekleme listesine alınmalıdır.</summary>
     public bool BeklemeListesiOnerilir => YerlesecekKisiSayisi > 0 && Oneriler.Count == 0;
 
@@ -71,6 +81,16 @@ public sealed record YerlesimOnerisiSonucu
         : BeklemeListesiOnerilir ? $"{YerlesecekKisiSayisi} kişi için uygun çadır yok. Aileyi bekleme listesine alabilirsiniz."
         : $"{YerlesecekKisiSayisi} kişi için {Oneriler.Count} öneri bulundu. Görevli onayıyla yerleştirilir.";
 }
+
+/// <summary>Çadıra yerleşecek (henüz yerleşimi olmayan) kişi.</summary>
+public sealed record YerlesecekKisi(int Id, string KisiNo, string AdSoyad, int Yas, KisiDurumu Durum);
+
+/// <summary>Çadırda şu an yerleşik kişi.</summary>
+public sealed record CadirdakiKisi(int Id, string KisiNo, string AdSoyad, int Yas, KisiDurumu Durum, int AileId, string AileNo,
+    string AileAdi, DateTime Baslangic);
+
+/// <summary>Çadır kentte olup çadıra yerleşmemiş üyesi bulunan aile (çadır planında yerleştirilecek aileler).</summary>
+public sealed record YerlesmemisAile(int AileId, string AileNo, string AileAdi, int YerlesmemisKisiSayisi, bool BeklemeListesinde);
 
 /// <summary>Bekleme listesindeki aile.</summary>
 public sealed record BekleyenAile

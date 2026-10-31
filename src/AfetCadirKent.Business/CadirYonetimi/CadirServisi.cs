@@ -29,6 +29,12 @@ public interface ICadirServisi
     /// <summary>Ailenin yerleşmemiş üyeleri için çadır önerisi. Sistem önerir, görevli onaylar.</summary>
     Task<YerlesimOnerisiSonucu> OneriGetirAsync(int aileId, CancellationToken iptal = default);
 
+    /// <summary>Çadır kentte olup çadıra yerleşmemiş üyesi bulunan aktif aileler.</summary>
+    Task<IReadOnlyList<YerlesmemisAile>> YerlesmemisAilelerAsync(CancellationToken iptal = default);
+
+    /// <summary>Çadırda şu an yerleşik kişiler (hastanedekilerin yeri korunduğundan onlar da listelenir).</summary>
+    Task<IReadOnlyList<CadirdakiKisi>> CadirdakiKisilerAsync(int cadirId, CancellationToken iptal = default);
+
     /// <summary>Görevli onayı: ailenin yerleşmemiş üyelerini seçilen çadır(lar)a yerleştirir.</summary>
     Task YerlestirAsync(int aileId, IReadOnlyList<CadirAtamasi> atamalar, CancellationToken iptal = default);
 
@@ -126,7 +132,7 @@ public class CadirServisi(
         return cadirlar.Select(c => new CadirPlanOgesi
         {
             Id = c.Id, Kod = c.Kod, BolgeId = c.BolgeId, BolgeKodu = c.Bolge!.Kod, BolgeAdi = c.Bolge.Ad,
-            Sira = c.Sira, Numara = c.Numara, Kapasite = c.Kapasite, Doluluk = c.Doluluk, Durum = c.Durum, Aktif = c.Aktif,
+            Sira = c.Sira, Numara = c.Numara, Kapasite = c.Kapasite, Doluluk = c.Doluluk, Durum = c.Durum, Aktif = c.Aktif, BolgeAktif = c.Bolge.Aktif,
             Erisilebilir = c.Erisilebilir, SaglikNoktasinaYakin = c.SaglikNoktasinaYakin, Isitmali = c.Isitmali,
             Aileler = aileler.GetValueOrDefault(c.Id) ?? [],
         }).ToList();
@@ -154,7 +160,7 @@ public class CadirServisi(
 
         await BilgileriUygulaAsync(veri, cadir, bilgi, iptal);
         veri.IslemKaydet(oturum, zaman.Simdi(), IslemTuru.Guncelleme, nameof(Cadir), cadir.Id,
-            $"Çadır {cadir.Kod} güncellendi (kapasite {cadir.Kapasite}, durum {cadir.Durum}).");
+            $"Çadır {cadir.Kod} güncellendi (kapasite {cadir.Kapasite}, durum {cadir.Durum.Metin()}).");
         await veri.GuvenliKaydetAsync(iptal);
     }
 
@@ -220,7 +226,8 @@ public class CadirServisi(
         var simdi = zaman.Simdi();
         var oncelik = (await GerekceServisi.DegerlendirAsync(veri, [aileId], simdi, degerlendirici, iptal))[aileId];
         var etkiler = oncelik.YerlesimEtkileri.Where(CadirOneriMotoru.CadirEtkileri.Contains).OrderBy(e => e).ToList();
-        var kisiSayisi = (await Yerlestirici.YerlesmemisUyelerAsync(veri, aileId, iptal)).Count;
+        var yerlesmemisler = await Yerlestirici.YerlesmemisUyelerAsync(veri, aileId, iptal);
+        var kisiSayisi = yerlesmemisler.Count;
 
         IReadOnlyList<CadirOnerisi> oneriler = [];
         if (kisiSayisi > 0)
@@ -235,7 +242,55 @@ public class CadirServisi(
         {
             AileId = aile.Id, AileNo = aile.AileNo, AileAdi = aile.AileAdi, YerlesecekKisiSayisi = kisiSayisi,
             DestekOnceligi = oncelik.DestekOnceligi, IstenenEtkiler = etkiler, Oneriler = oneriler,
+            YerlesecekKisiler = yerlesmemisler
+                .Where(k => oturum.RefakatsizCocukGorebilir() || !k.RefakatsizCocuk)
+                .Select(k => new YerlesecekKisi(k.Id, k.KisiNo, k.AdSoyad, k.Yas(zaman.Bugun()), k.Durum))
+                .ToList(),
         };
+    }
+
+    public async Task<IReadOnlyList<YerlesmemisAile>> YerlesmemisAilelerAsync(CancellationToken iptal = default)
+    {
+        oturum.IzinGerekli(Modul.Cadir, Izin.Gorme);
+        await using var veri = veriFabrikasi.Ac();
+        var bekleme = veri.Repo<BeklemeListesiKaydi>().Sorgu();
+        return await veri.Repo<Aile>().Sorgu().AsNoTracking()
+            .Where(a => a.Aktif)
+            .GorunurAileler(oturum)
+            .Select(a => new
+            {
+                a.Id, a.AileNo, a.AileAdi,
+                Sayi = a.Uyeler.Count(k => k.Aktif
+                    && (k.Durum == KisiDurumu.Burada || k.Durum == KisiDurumu.Hastanede)
+                    && !k.Yerlesimler.Any(y => y.Bitis == null)),
+                Bekliyor = bekleme.Any(b => b.AileId == a.Id && b.CikisZamani == null),
+            })
+            .Where(x => x.Sayi > 0)
+            .OrderBy(x => x.AileNo)
+            .Select(x => new YerlesmemisAile(x.Id, x.AileNo, x.AileAdi, x.Sayi, x.Bekliyor))
+            .ToListAsync(iptal);
+    }
+
+    public async Task<IReadOnlyList<CadirdakiKisi>> CadirdakiKisilerAsync(int cadirId, CancellationToken iptal = default)
+    {
+        oturum.IzinGerekli(Modul.Cadir, Izin.Gorme);
+        await using var veri = veriFabrikasi.Ac();
+        var bugun = zaman.Bugun();
+        var refakatsizGorebilir = oturum.RefakatsizCocukGorebilir();
+        var satirlar = await veri.Repo<Yerlesim>().Sorgu().AsNoTracking()
+            .Where(y => y.CadirId == cadirId && y.Bitis == null && (refakatsizGorebilir || !y.Kisi!.RefakatsizCocuk))
+            .Select(y => new
+            {
+                y.Kisi!.Id, y.Kisi.KisiNo, y.Kisi.Ad, y.Kisi.Soyad, y.Kisi.DogumTarihi, y.Kisi.Durum, y.Kisi.AileId,
+                y.Kisi.Aile!.AileNo, y.Kisi.Aile.AileAdi, y.Baslangic,
+            })
+            .ToListAsync(iptal);
+
+        return satirlar
+            .OrderBy(s => s.AileNo).ThenBy(s => s.Id)
+            .Select(s => new CadirdakiKisi(s.Id, s.KisiNo, $"{s.Ad} {s.Soyad}", Afetzede.YasHesapla(s.DogumTarihi, bugun), s.Durum,
+                s.AileId, s.AileNo, s.AileAdi, s.Baslangic))
+            .ToList();
     }
 
     public async Task YerlestirAsync(int aileId, IReadOnlyList<CadirAtamasi> atamalar, CancellationToken iptal = default)

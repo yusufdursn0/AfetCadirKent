@@ -31,6 +31,7 @@ internal static class Yerlestirici
         var atanan = atamalar.Sum(a => a.KisiSayisi);
         if (atanan != uyeler.Count)
             throw new IsKuraliException($"Çadırlara atanan kişi sayısı ({atanan}) yerleşecek kişi sayısıyla ({uyeler.Count}) aynı olmalıdır.");
+        var kisiDagilimi = KisiDagilimi(atamalar, uyeler);
 
         var cadirIdleri = atamalar.Select(a => a.CadirId).ToList();
         var cadirlar = await veri.Repo<Cadir>().Sorgu().Include(c => c.Bolge)
@@ -38,15 +39,15 @@ internal static class Yerlestirici
             .ToDictionaryAsync(c => c.Id, iptal);
 
         var kullaniciId = oturum.KullaniciId;
-        var sira = 0;
         var ozet = new List<string>();
-        foreach (var atama in atamalar)
+        for (var i = 0; i < atamalar.Count; i++)
         {
+            var atama = atamalar[i];
             if (!cadirlar.TryGetValue(atama.CadirId, out var cadir))
                 throw new KayitBulunamadiException("Çadır");
 
             cadir.Yerlestir(atama.KisiSayisi); // kullanılabilirlik ve kapasite kontrolü
-            foreach (var kisi in uyeler.Skip(sira).Take(atama.KisiSayisi))
+            foreach (var kisi in kisiDagilimi[i])
             {
                 veri.Repo<Yerlesim>().Ekle(new Yerlesim { KisiId = kisi.Id, Cadir = cadir, Baslangic = simdi, KullaniciId = kullaniciId });
                 veri.Repo<KisiHareketi>().Ekle(new KisiHareketi
@@ -56,7 +57,6 @@ internal static class Yerlestirici
                 });
             }
 
-            sira += atama.KisiSayisi;
             ozet.Add($"{cadir.Kod} ({atama.KisiSayisi} kişi)");
         }
 
@@ -67,5 +67,39 @@ internal static class Yerlestirici
 
         veri.IslemKaydet(oturum, simdi, IslemTuru.Olusturma, nameof(Yerlesim), aile.Id,
             $"{aile.AileNo} {aile.AileAdi} yerleştirildi: {string.Join(" + ", ozet)}.{(bekleme.Count > 0 ? " Bekleme listesinden çıkarıldı." : "")}");
+    }
+
+    /// <summary>
+    /// Her atamaya yerleşecek kişiler. Kişi seçilmemişse üyeler kayıt sırasıyla dağıtılır; seçildiyse ya her atamada seçim
+    /// olmalı ya da hiçbirinde olmamalı, seçilen kişiler yerleşmemiş üyelerin tamamını tam bir kez kapsamalıdır.
+    /// </summary>
+    private static List<List<Afetzede>> KisiDagilimi(IReadOnlyList<CadirAtamasi> atamalar, List<Afetzede> uyeler)
+    {
+        if (atamalar.All(a => a.KisiIdler is null))
+        {
+            var sira = 0;
+            return atamalar.Select(a =>
+            {
+                var parca = uyeler.Skip(sira).Take(a.KisiSayisi).ToList();
+                sira += a.KisiSayisi;
+                return parca;
+            }).ToList();
+        }
+
+        if (atamalar.Any(a => a.KisiIdler is null))
+            throw new DogrulamaException("Kişi seçimi yapıldıysa her çadır için yerleşecek kişiler seçilmelidir.");
+
+        var uyeSozlugu = uyeler.ToDictionary(u => u.Id);
+        var secilenler = atamalar.SelectMany(a => a.KisiIdler!).ToList();
+        if (secilenler.Distinct().Count() != secilenler.Count)
+            throw new DogrulamaException("Bir kişi birden fazla çadıra seçilmiş.");
+        if (secilenler.Any(id => !uyeSozlugu.ContainsKey(id)))
+            throw new IsKuraliException("Seçilen kişilerden biri bu ailenin çadıra yerleşmemiş üyesi değil. Listeyi yenileyip tekrar deneyin.");
+        if (secilenler.Count != uyeler.Count)
+            throw new IsKuraliException($"Yerleşecek {uyeler.Count} kişinin hepsi bir çadıra seçilmelidir.");
+        if (atamalar.FirstOrDefault(a => a.KisiIdler!.Count != a.KisiSayisi) is { } hatali)
+            throw new IsKuraliException($"{hatali.CadirKodu} çadırı için {hatali.KisiSayisi} kişi seçilmeli; {hatali.KisiIdler!.Count} kişi seçildi.");
+
+        return atamalar.Select(a => a.KisiIdler!.Select(id => uyeSozlugu[id]).ToList()).ToList();
     }
 }

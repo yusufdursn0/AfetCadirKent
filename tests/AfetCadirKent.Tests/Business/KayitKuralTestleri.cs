@@ -57,6 +57,26 @@ public class KisiDurumGecisTestleri
     [InlineData(KisiDurumu.Nakil, KisiDurumu.Ayrildi)]
     public void IzinVerilmeyenGecisler(KisiDurumu eski, KisiDurumu yeni) =>
         Assert.Throws<IsKuraliException>(() => KayitServisi.DurumGecisi(eski, yeni));
+
+    [Theory]
+    [InlineData(KisiDurumu.Burada, new[] { KisiDurumu.Ayrildi, KisiDurumu.Nakil, KisiDurumu.Hastanede })]
+    [InlineData(KisiDurumu.Hastanede, new[] { KisiDurumu.Burada, KisiDurumu.Ayrildi, KisiDurumu.Nakil })]
+    [InlineData(KisiDurumu.Ayrildi, new[] { KisiDurumu.Burada })]
+    [InlineData(KisiDurumu.Nakil, new[] { KisiDurumu.Burada })]
+    public void EkrandaSunulanDurumlar_GecisKuraliylaAyni(KisiDurumu eski, KisiDurumu[] beklenen)
+    {
+        var gecilebilir = KayitServisi.GecilebilirDurumlar(eski);
+
+        Assert.Equal(beklenen.Order(), gecilebilir.Order());
+        // Sunulan her durum gerçekten geçilebilir, sunulmayanlar reddedilir.
+        foreach (var yeni in Enum.GetValues<KisiDurumu>())
+        {
+            if (gecilebilir.Contains(yeni))
+                KayitServisi.DurumGecisi(eski, yeni);
+            else
+                Assert.Throws<IsKuraliException>(() => KayitServisi.DurumGecisi(eski, yeni));
+        }
+    }
 }
 
 public class OturumTestleri

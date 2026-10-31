@@ -184,6 +184,66 @@ public class CadirServisiTestleri(VeritabaniFixture fixture)
             fixture.CadirServisi(RolTuru.SahaGorevlisi).YerlestirAsync(aile.Id, [new CadirAtamasi(1, "?", 1)]));
         Assert.NotEmpty(await fixture.CadirServisi(RolTuru.SahaGorevlisi).CadirPlaniAsync());
     }
+
+    [Fact]
+    public async Task IkiCadiraYerlesimdeGorevliKisileriSecebilir()
+    {
+        var (_, cadirlar) = await TestBolgesiAsync(Cadir(1, 4), Cadir(2, 4));
+        var aile = await AileAsync(("A", 50, false), ("B", 48, false), ("C", 25, false), ("D", 22, false), ("E", 20, false));
+        var idler = aile.Uyeler.Select(u => u.Id).ToList();
+
+        var oneri = await Servis().OneriGetirAsync(aile.Id);
+        Assert.True(oneri.KisiSecimiYapilabilir);
+        Assert.Equal(idler, oneri.YerlesecekKisiler.Select(k => k.Id).Order().ToList());
+
+        // Hatalı seçimler: kişi iki çadırda, bir kişi eksik, bir çadırda seçim yok, sayı tutmuyor
+        await Assert.ThrowsAsync<DogrulamaException>(() => Servis().YerlestirAsync(aile.Id,
+            [new CadirAtamasi(cadirlar[0], "?", 3, [idler[0], idler[1], idler[2]]), new CadirAtamasi(cadirlar[1], "?", 2, [idler[2], idler[3]])]));
+        await Assert.ThrowsAsync<IsKuraliException>(() => Servis().YerlestirAsync(aile.Id,
+            [new CadirAtamasi(cadirlar[0], "?", 3, [idler[0], idler[1], idler[2]]), new CadirAtamasi(cadirlar[1], "?", 2, [idler[3]])]));
+        await Assert.ThrowsAsync<DogrulamaException>(() => Servis().YerlestirAsync(aile.Id,
+            [new CadirAtamasi(cadirlar[0], "?", 3, [idler[0], idler[1], idler[2]]), new CadirAtamasi(cadirlar[1], "?", 2)]));
+        await Assert.ThrowsAsync<IsKuraliException>(() => Servis().YerlestirAsync(aile.Id,
+            [new CadirAtamasi(cadirlar[0], "?", 3, [idler[0], idler[1]]), new CadirAtamasi(cadirlar[1], "?", 2, [idler[2], idler[3], idler[4]])]));
+        Assert.Equal(0, await DolulukAsync(cadirlar[0]));
+
+        // Kayıt sırasına göre değil, görevlinin seçimine göre: A, C, E birinci; B, D ikinci çadıra
+        await Servis().YerlestirAsync(aile.Id,
+            [new CadirAtamasi(cadirlar[0], "?", 3, [idler[0], idler[2], idler[4]]), new CadirAtamasi(cadirlar[1], "?", 2, [idler[1], idler[3]])]);
+        Assert.Equal([idler[0], idler[2], idler[4]], (await Servis().CadirdakiKisilerAsync(cadirlar[0])).Select(k => k.Id).Order().ToList());
+        var ikinci = await Servis().CadirdakiKisilerAsync(cadirlar[1]);
+        Assert.Equal([idler[1], idler[3]], ikinci.Select(k => k.Id).Order().ToList());
+        Assert.All(ikinci, k => Assert.Equal(aile.AileNo, k.AileNo));
+    }
+
+    [Fact]
+    public async Task YerlesmemisAilelerListelenir_YerlesinceListedenCikar()
+    {
+        var (_, cadirlar) = await TestBolgesiAsync(Cadir(1, 4));
+        var aile = await AileAsync(("A", 40, false), ("B", 38, false));
+        await fixture.BeklemeListesiServisi(RolTuru.KayitGorevlisi).EkleAsync(aile.Id, null);
+
+        var satir = Assert.Single(await Servis().YerlesmemisAilelerAsync(), a => a.AileId == aile.Id);
+        Assert.Equal(2, satir.YerlesmemisKisiSayisi);
+        Assert.True(satir.BeklemeListesinde);
+
+        await Servis().YerlestirAsync(aile.Id, [new CadirAtamasi(cadirlar[0], "?", 2)]);
+        Assert.DoesNotContain(await Servis().YerlesmemisAilelerAsync(), a => a.AileId == aile.Id);
+    }
+
+    [Fact]
+    public async Task PasifBolgedekiCadiraYerlesilemez_PlandaKullanilamazGorunur()
+    {
+        var (bolgeId, cadirlar) = await TestBolgesiAsync(Cadir(1, 4));
+        var aile = await AileAsync(("A", 40, false));
+        await Servis().BolgeAktiflikDegistirAsync(bolgeId, false);
+
+        var hata = await Assert.ThrowsAsync<IsKuraliException>(() =>
+            Servis().YerlestirAsync(aile.Id, [new CadirAtamasi(cadirlar[0], "?", 1)]));
+        Assert.Contains("bölgesi pasif", hata.Message);
+        Assert.Equal(PlanDurumu.Kullanilamaz, (await Servis().CadirPlaniAsync(bolgeId)).Single().PlanDurumu);
+        Assert.DoesNotContain((await Servis().OneriGetirAsync(aile.Id)).Oneriler, o => o.Atamalar.Any(a => a.CadirId == cadirlar[0]));
+    }
 }
 
 [Collection(VeritabaniKoleksiyonu.Ad)]
@@ -254,5 +314,26 @@ public class BeklemeListesiServisiTestleri(VeritabaniFixture fixture)
         var cadirServisi = fixture.CadirServisi(RolTuru.KayitGorevlisi);
         await cadirServisi.YerlestirAsync(aile.Id, (await cadirServisi.OneriGetirAsync(aile.Id)).Oneriler[0].Atamalar);
         Assert.DoesNotContain(await Servis().ListeleAsync(), b => b.KayitId == kayit.Id);
+    }
+
+    [Fact]
+    public async Task TekCadiraSigmayanBekleyenAileIkiCadiraYerlestirilir()
+    {
+        var cadirServisi = fixture.CadirServisi(RolTuru.KayitGorevlisi);
+        var bolge = await cadirServisi.BolgeKaydetAsync(null, BenzersizBolgeKodu(), "İki çadır testi", null);
+        var c1 = await cadirServisi.CadirEkleAsync(new CadirBilgisi { BolgeId = bolge.Id, Sira = 1, Numara = 1, Kapasite = 3 });
+        var c2 = await cadirServisi.CadirEkleAsync(new CadirBilgisi { BolgeId = bolge.Id, Sira = 1, Numara = 2, Kapasite = 3 });
+        var aile = await AileAsync(("A", 45), ("B", 43), ("C", 20), ("D", 18), ("E", 15));
+        var kayit = await Servis().EkleAsync(aile.Id, "Tek çadıra sığmıyor");
+
+        // Hiçbir çadır tek başına yetmediği için "yer açılan çadır" önerisinde bu aile çıkmaz; iki çadırlık öneri kullanılır.
+        Assert.DoesNotContain(await Servis().CadirIcinOneriAsync(c1.Id), b => b.KayitId == kayit.Id);
+        var idler = aile.Uyeler.Select(u => u.Id).ToList();
+        await Servis().OnaylaVeYerlestirAsync(kayit.Id,
+            [new CadirAtamasi(c1.Id, c1.Kod, 3, [idler[0], idler[1], idler[4]]), new CadirAtamasi(c2.Id, c2.Kod, 2, [idler[2], idler[3]])]);
+
+        Assert.DoesNotContain(await Servis().ListeleAsync(), b => b.KayitId == kayit.Id);
+        Assert.Equal(3, (await cadirServisi.CadirdakiKisilerAsync(c1.Id)).Count);
+        Assert.Equal([idler[2], idler[3]], (await cadirServisi.CadirdakiKisilerAsync(c2.Id)).Select(k => k.Id).Order().ToList());
     }
 }

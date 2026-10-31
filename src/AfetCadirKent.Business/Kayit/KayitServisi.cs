@@ -209,16 +209,26 @@ public class KayitServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, T
     }
 
     /// <summary>İzin verilen durum geçişleri ve karşılık gelen hareket türü.</summary>
-    internal static KisiHareketTuru DurumGecisi(KisiDurumu eski, KisiDurumu yeni) => (eski, yeni) switch
+    internal static KisiHareketTuru DurumGecisi(KisiDurumu eski, KisiDurumu yeni)
     {
-        _ when eski == yeni => throw new IsKuraliException($"Kişinin durumu zaten '{yeni.Metin()}'."),
+        if (eski == yeni)
+            throw new IsKuraliException($"Kişinin durumu zaten '{yeni.Metin()}'.");
+        return GecisHareketi(eski, yeni) ?? throw new IsKuraliException(
+            $"'{eski.Metin()}' durumundaki kişi doğrudan '{yeni.Metin()}' yapılamaz. Önce kişinin geri geldiğini ('Burada') kaydedin.");
+    }
+
+    /// <summary>Kişinin şu anki durumundan geçilebilecek durumlar (ekran yalnızca bunları sunar; kural <see cref="DurumGecisi"/> ile aynı).</summary>
+    public static IReadOnlyList<KisiDurumu> GecilebilirDurumlar(KisiDurumu eski) =>
+        Enum.GetValues<KisiDurumu>().Where(y => y != eski && GecisHareketi(eski, y) is not null).ToList();
+
+    private static KisiHareketTuru? GecisHareketi(KisiDurumu eski, KisiDurumu yeni) => (eski, yeni) switch
+    {
         (KisiDurumu.Burada, KisiDurumu.Hastanede) => KisiHareketTuru.HastaneyeSevk,
         (KisiDurumu.Hastanede, KisiDurumu.Burada) => KisiHareketTuru.HastanedenDonus,
         (KisiDurumu.Burada or KisiDurumu.Hastanede, KisiDurumu.Ayrildi) => KisiHareketTuru.Ayrilis,
         (KisiDurumu.Burada or KisiDurumu.Hastanede, KisiDurumu.Nakil) => KisiHareketTuru.Nakil,
         (KisiDurumu.Ayrildi or KisiDurumu.Nakil, KisiDurumu.Burada) => KisiHareketTuru.Gelis,
-        _ => throw new IsKuraliException(
-            $"'{eski.Metin()}' durumundaki kişi doğrudan '{yeni.Metin()}' yapılamaz. Önce kişinin geri geldiğini ('Burada') kaydedin."),
+        _ => null,
     };
 
     public async Task<Aile> AiledenAyirAsync(int kaynakAileId, IReadOnlyCollection<int> kisiIdler, string yeniAileAdi, string aciklama,

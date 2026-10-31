@@ -58,7 +58,13 @@ public class Cadir : VarlikTemel, IAktiflik
 
     public bool BuyukMu => Kapasite >= BuyukCadirKapasitesi;
 
-    public bool KullanilabilirMi => Aktif && Durum == CadirDurumu.Kullanilabilir;
+    /// <summary>Yeni yerleşime açık mı? Bölgesi yüklüyse bölgenin de aktif olması gerekir.</summary>
+    public bool KullanilabilirMi => Aktif && Durum == CadirDurumu.Kullanilabilir && Bolge?.Aktif != false;
+
+    private string KullanilamamaNedeni =>
+        !Aktif ? "pasif"
+        : Bolge?.Aktif == false ? "bölgesi pasif"
+        : Durum switch { CadirDurumu.Bakimda => "bakımda", CadirDurumu.Kapali => "kapalı", _ => "kullanılabilir" };
 
     /// <summary>Ekranda gösterilen çadır kodu, ör. "A1-03".</summary>
     public string Kod => $"{Bolge?.Kod}{Sira}-{Numara:00}";
@@ -76,7 +82,7 @@ public class Cadir : VarlikTemel, IAktiflik
     {
         Dogrula.Pozitif(kisiSayisi, "Yerleşecek kişi sayısı");
         if (!KullanilabilirMi)
-            throw new IsKuraliException($"{Kod} çadırı şu an kullanılamaz ({Durum}).");
+            throw new IsKuraliException($"{Kod} çadırı şu an kullanılamaz ({KullanilamamaNedeni}).");
         if (kisiSayisi > BosYatak)
             throw new IsKuraliException($"{Kod} çadırında yeterli yer yok. Boş yatak: {BosYatak}, gereken: {kisiSayisi}.");
         Doluluk += kisiSayisi;
