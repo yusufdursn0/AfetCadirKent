@@ -29,8 +29,9 @@ public static class ReferansVerisi
             [RolTuru.Koordinator] = Enum.GetValues<Modul>().ToDictionary(m => m, _ => TumIzinler),
             [RolTuru.KayitGorevlisi] = new()
             {
-                [Modul.Kayit] = TumIzinler,
-                [Modul.Cadir] = TumIzinler,
+                // Rapor izni yok: şartname rollerinde rapor yalnızca Koordinatör ve Depo sorumlusunda (K-059).
+                [Modul.Kayit] = GorDegistir,
+                [Modul.Cadir] = GorDegistir,
                 [Modul.Talep] = GorDegistir,
                 [Modul.YakinBulma] = GorDegistir,
                 [Modul.SaglikBilgisi] = GorDegistir,

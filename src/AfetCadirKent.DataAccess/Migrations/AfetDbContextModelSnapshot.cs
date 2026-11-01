@@ -1568,13 +1568,6 @@ namespace AfetCadirKent.DataAccess.Migrations
                         },
                         new
                         {
-                            Id = 2013,
-                            Izin = 3,
-                            Modul = 1,
-                            RolId = 2
-                        },
-                        new
-                        {
                             Id = 2021,
                             Izin = 1,
                             Modul = 2,
@@ -1584,13 +1577,6 @@ namespace AfetCadirKent.DataAccess.Migrations
                         {
                             Id = 2022,
                             Izin = 2,
-                            Modul = 2,
-                            RolId = 2
-                        },
-                        new
-                        {
-                            Id = 2023,
-                            Izin = 3,
                             Modul = 2,
                             RolId = 2
                         },

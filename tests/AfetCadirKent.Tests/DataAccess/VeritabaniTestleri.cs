@@ -102,6 +102,10 @@ public class DemoVeriTestleri(VeritabaniFixture fixture)
         Assert.Equal(ReferansVerisi.Yetkiler().Count, await db.Yetkiler.CountAsync());
         Assert.True(await db.Yetkiler.AnyAsync(y => y.RolId == (int)RolTuru.DepoSorumlusu && y.Modul == Modul.Dagitim && y.Izin == Izin.Rapor));
         Assert.False(await db.Yetkiler.AnyAsync(y => y.RolId == (int)RolTuru.SahaGorevlisi && y.Izin == Izin.Rapor));
+
+        // Şartname rolleri: rapor yalnızca Koordinatör ve Depo sorumlusunda (K-059).
+        var raporluRoller = await db.Yetkiler.Where(y => y.Izin == Izin.Rapor).Select(y => y.RolId).Distinct().ToListAsync();
+        Assert.Equal([(int)RolTuru.Koordinator, (int)RolTuru.DepoSorumlusu], raporluRoller.Order());
     }
 
     [Fact]
