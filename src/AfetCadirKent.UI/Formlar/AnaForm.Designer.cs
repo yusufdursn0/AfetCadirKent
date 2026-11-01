@@ -38,6 +38,7 @@ namespace AfetCadirKent.UI.Formlar
             this.ribbonPageCadir = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this.rpgCadir = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.bbiUrunTanimlari = new DevExpress.XtraBars.BarButtonItem();
+            this.bbiStokGirisi = new DevExpress.XtraBars.BarButtonItem();
             this.ribbonPageDepo = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this.rpgDepo = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.ribbonStatusBar = new DevExpress.XtraBars.Ribbon.RibbonStatusBar();
@@ -100,9 +101,10 @@ namespace AfetCadirKent.UI.Formlar
             this.bbiKisiListesi,
             this.bbiCadirPlani,
             this.bbiBeklemeListesi,
-            this.bbiUrunTanimlari});
+            this.bbiUrunTanimlari,
+            this.bbiStokGirisi});
             this.ribbonControl.Location = new System.Drawing.Point(0, 0);
-            this.ribbonControl.MaxItemId = 12;
+            this.ribbonControl.MaxItemId = 13;
             this.ribbonControl.Name = "ribbonControl";
             this.ribbonControl.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] {
             this.ribbonPageAnaSayfa,
@@ -225,6 +227,14 @@ namespace AfetCadirKent.UI.Formlar
             this.bbiUrunTanimlari.RibbonStyle = DevExpress.XtraBars.Ribbon.RibbonItemStyles.Large;
             this.bbiUrunTanimlari.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.bbiUrunTanimlari_ItemClick);
             //
+            // bbiStokGirisi
+            //
+            this.bbiStokGirisi.Caption = "Stok girişi";
+            this.bbiStokGirisi.Id = 12;
+            this.bbiStokGirisi.Name = "bbiStokGirisi";
+            this.bbiStokGirisi.RibbonStyle = DevExpress.XtraBars.Ribbon.RibbonItemStyles.Large;
+            this.bbiStokGirisi.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.bbiStokGirisi_ItemClick);
+            //
             // ribbonPageDepo
             //
             this.ribbonPageDepo.Groups.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPageGroup[] {
@@ -235,6 +245,7 @@ namespace AfetCadirKent.UI.Formlar
             // rpgDepo
             //
             this.rpgDepo.ItemLinks.Add(this.bbiUrunTanimlari);
+            this.rpgDepo.ItemLinks.Add(this.bbiStokGirisi);
             this.rpgDepo.Name = "rpgDepo";
             this.rpgDepo.Text = "Stok";
             //
@@ -631,6 +642,7 @@ namespace AfetCadirKent.UI.Formlar
         private DevExpress.XtraBars.Ribbon.RibbonPage ribbonPageCadir;
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgCadir;
         private DevExpress.XtraBars.BarButtonItem bbiUrunTanimlari;
+        private DevExpress.XtraBars.BarButtonItem bbiStokGirisi;
         private DevExpress.XtraBars.Ribbon.RibbonPage ribbonPageDepo;
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgDepo;
         private DevExpress.XtraLayout.LayoutControl layoutControl;
