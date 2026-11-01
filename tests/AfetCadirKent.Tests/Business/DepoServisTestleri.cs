@@ -109,10 +109,18 @@ public class DepoServisTestleri(VeritabaniFixture fixture)
         await Assert.ThrowsAsync<IsKuraliException>(() => fixture.UrunServisi().BagisciKaydetAsync(null, ad, null, null));
 
         var urun = await fixture.TestUrunuAsync();
-        var parti = await Stok().StokGirisiAsync(new StokGirisiBilgisi { UrunId = urun.Id, PartiNo = "B-1", Miktar = 20, BagisciId = bagisci.Id });
+        var skt = DateOnly.FromDateTime(DateTime.Today).AddDays(60);
+        var parti = await Stok().StokGirisiAsync(new StokGirisiBilgisi
+        {
+            UrunId = urun.Id, PartiNo = "B-1", Miktar = 20, BagisciId = bagisci.Id, SonKullanmaTarihi = skt,
+        });
 
         var durum = (await Stok().StokDurumuAsync()).Single(u => u.UrunId == urun.Id);
         Assert.Equal(ad, durum.Partiler.Single(p => p.Id == parti.Id).BagisciAdi);
+
+        // Stok girişi ekranındaki "son girişler" listesi bağışçıyı ve SKT'yi hareketten okur.
+        var giris = Assert.Single(await Stok().HareketleriListeleAsync(new StokHareketFiltresi { UrunId = urun.Id, Tur = StokHareketTuru.Giris }));
+        Assert.Equal((ad, (DateOnly?)skt), (giris.BagisciAdi, giris.SonKullanmaTarihi));
     }
 
     // ---------------------------------------------------------------- Stok girişi ve hareketler

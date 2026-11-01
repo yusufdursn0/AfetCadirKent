@@ -92,6 +92,8 @@ public sealed record StokHareketSatiri
     public required string TurAdi { get; init; }
     public required string UrunAdi { get; init; }
     public required string PartiNo { get; init; }
+    public DateOnly? SonKullanmaTarihi { get; init; }
+    public string? BagisciAdi { get; init; }
     public required decimal Miktar { get; init; }
 
     /// <summary>İşaretli etki (+ giriş, − çıkış).</summary>

@@ -144,6 +144,29 @@ public static class Gosterim
         _ => birim.ToString(),
     };
 
+    public static string Metin(this UrunKategorisi kategori) => kategori switch
+    {
+        UrunKategorisi.Su => "Su",
+        UrunKategorisi.Gida => "Gıda",
+        UrunKategorisi.Mama => "Mama",
+        UrunKategorisi.Bez => "Bez",
+        UrunKategorisi.Hijyen => "Hijyen",
+        UrunKategorisi.Battaniye => "Battaniye",
+        UrunKategorisi.Giyim => "Giyim",
+        UrunKategorisi.Diger => "Diğer",
+        _ => kategori.ToString(),
+    };
+
+    public static string Metin(this StokHareketTuru tur) => tur switch
+    {
+        StokHareketTuru.Giris => "Giriş",
+        StokHareketTuru.Dagitim => "Dağıtım",
+        StokHareketTuru.Iade => "İade",
+        StokHareketTuru.Hasar => "Hasar/Fire",
+        StokHareketTuru.SayimFarki => "Sayım farkı",
+        _ => tur.ToString(),
+    };
+
     public static string Metin(this DagitimDurumu durum) => durum switch
     {
         DagitimDurumu.Taslak => "Taslak",

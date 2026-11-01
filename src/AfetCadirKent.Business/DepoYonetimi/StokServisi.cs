@@ -227,7 +227,8 @@ public class StokServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, Ti
         ArgumentNullException.ThrowIfNull(filtre);
         await using var veri = veriFabrikasi.Ac();
 
-        var sorgu = veri.Repo<StokHareketi>().Sorgu().Include(h => h.Parti!.Urun).Include(h => h.Kullanici).AsNoTracking();
+        var sorgu = veri.Repo<StokHareketi>().Sorgu().Include(h => h.Parti!.Urun).Include(h => h.Parti!.Bagisci).Include(h => h.Kullanici)
+            .AsNoTracking();
         if (!filtre.PasifleriDeGoster)
             sorgu = sorgu.Where(h => h.Aktif);
         if (filtre.UrunId is { } urunId)
@@ -260,6 +261,7 @@ public class StokServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturum, Ti
             return new StokHareketSatiri
             {
                 Id = h.Id, Zaman = h.Zaman, Tur = h.Tur, TurAdi = h.TurAdi, UrunAdi = h.Parti!.Urun!.Ad, PartiNo = h.Parti.PartiNo,
+                SonKullanmaTarihi = h.Parti.SonKullanmaTarihi, BagisciAdi = h.Parti.Bagisci?.Ad,
                 Miktar = h.Miktar, StokEtkisi = h.StokEtkisi, Aciklama = h.Aciklama, KullaniciAdi = h.Kullanici?.KullaniciAdi,
                 AileNo = d is null ? null : refakatsizGorebilir || !d.Gizli ? d.AileNo : Gosterim.GizliKayit,
                 TeslimAlan = d is null ? null : refakatsizGorebilir || !d.TeslimAlanRefakatsiz ? d.TeslimAlan : Gosterim.GizliKayit,
