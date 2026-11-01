@@ -156,6 +156,55 @@ public class DagitimServisiTestleri(VeritabaniFixture fixture)
     }
 
     [Fact]
+    public async Task AiledenAyrilanAile_KaynakAileninTeslimGecmisiniDevralir_SureDolmadanYeniHakAlmaz()
+    {
+        var urun = await fixture.TestUrunuAsync(HesaplamaTuru.KisiBasi, hak: 1, tekrar: 30);
+        await GirisAsync(urun.Id, 10_000);
+        var aile = await AileAsync(("Baba", 50), ("Anne", 48), ("Ogul", 25));
+
+        // Gün 0: aile 3 kişilik hakkını alır, sonra oğul aileden ayrılır.
+        var gun0 = await Dagitim().ListeOlusturAsync(urun.Id);
+        await Dagitim().OnaylaAsync(gun0.Ozet.Id);
+        await Dagitim().TeslimEtAsync(Satir(gun0, aile.Id).DetayId, 3, aile.Uyeler[0].Id);
+        await Dagitim().GunSonuAsync();
+        var yeni = await fixture.KayitServisi(RolTuru.KayitGorevlisi)
+            .AiledenAyirAsync(aile.Id, [aile.Uyeler[2].Id], $"{aile.AileAdi} 2", "Evlendi, ayrı aile oldu");
+
+        // Gün 1: yeni aile, kaynak ailenin teslimini devraldığı için süre dolmadan listeye girmez; istisna gerekir.
+        var yarin = new SabitZaman(DateTime.Now.AddDays(1));
+        var gun1 = await Dagitim(zaman: yarin).ListeOlusturAsync(urun.Id);
+        Assert.DoesNotContain(gun1.Satirlar, s => s.AileId == yeni.Id || s.AileId == aile.Id);
+        var aday = (await Dagitim(zaman: yarin).EklenebilirAilelerAsync(gun1.Ozet.Id)).Single(a => a.AileId == yeni.Id);
+        Assert.True(aday.IstisnaGerekir);
+        Assert.Equal(DateOnly.FromDateTime(DateTime.Today).AddDays(30), aday.SonrakiHakTarihi);
+        await Dagitim(zaman: yarin).GunSonuAsync();
+
+        // Gün 30: süre doldu; iki aile de yeni nüfuslarına göre hak alır.
+        var gun30 = new SabitZaman(DateTime.Now.AddDays(30));
+        var liste30 = await Dagitim(zaman: gun30).ListeOlusturAsync(urun.Id);
+        Assert.Equal(2, Satir(liste30, aile.Id).HakMiktari);
+        Assert.Equal(1, Satir(liste30, yeni.Id).HakMiktari);
+        await Dagitim(zaman: gun30).GunSonuAsync();
+    }
+
+    [Fact]
+    public async Task AyirmadanOnceHazirlananAcikSatirAyrilanlarinPayiniIcerir_YeniAileAyniUrundeListeyeEklenemez()
+    {
+        var urun = await fixture.TestUrunuAsync(HesaplamaTuru.KisiBasi, hak: 1, tekrar: 1);
+        await GirisAsync(urun.Id, 10_000);
+        var aile = await AileAsync(("Baba", 50), ("Ogul", 25));
+
+        var liste = await Dagitim().ListeOlusturAsync(urun.Id);
+        Assert.Equal(2, Satir(liste, aile.Id).HakMiktari);
+        var yeni = await fixture.KayitServisi(RolTuru.KayitGorevlisi)
+            .AiledenAyirAsync(aile.Id, [aile.Uyeler[1].Id], $"{aile.AileAdi} 2", "Ayrı çadıra geçti");
+
+        Assert.DoesNotContain(await Dagitim().EklenebilirAilelerAsync(liste.Ozet.Id), a => a.AileId == yeni.Id);
+        await Assert.ThrowsAsync<IsKuraliException>(() => Dagitim().AileEkleAsync(liste.Ozet.Id, yeni.Id, "Deneme"));
+        await Dagitim().GunSonuAsync();
+    }
+
+    [Fact]
     public async Task TekrarAlmaSuresi_KismiTeslimDevreder_IstisnaGerekceyleYapilir()
     {
         var urun = await fixture.TestUrunuAsync(HesaplamaTuru.AileBasi, hak: 2, tekrar: 3);
