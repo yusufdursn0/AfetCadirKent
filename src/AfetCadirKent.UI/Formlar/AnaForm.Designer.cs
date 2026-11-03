@@ -42,6 +42,8 @@ namespace AfetCadirKent.UI.Formlar
             this.bbiStokDurumu = new DevExpress.XtraBars.BarButtonItem();
             this.ribbonPageDepo = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this.rpgDepo = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
+            this.bbiDagitim = new DevExpress.XtraBars.BarButtonItem();
+            this.rpgDagitim = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.ribbonStatusBar = new DevExpress.XtraBars.Ribbon.RibbonStatusBar();
             this.layoutControl = new DevExpress.XtraLayout.LayoutControl();
             this.lblKisi = new DevExpress.XtraEditors.LabelControl();
@@ -104,9 +106,10 @@ namespace AfetCadirKent.UI.Formlar
             this.bbiBeklemeListesi,
             this.bbiUrunTanimlari,
             this.bbiStokGirisi,
-            this.bbiStokDurumu});
+            this.bbiStokDurumu,
+            this.bbiDagitim});
             this.ribbonControl.Location = new System.Drawing.Point(0, 0);
-            this.ribbonControl.MaxItemId = 14;
+            this.ribbonControl.MaxItemId = 15;
             this.ribbonControl.Name = "ribbonControl";
             this.ribbonControl.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] {
             this.ribbonPageAnaSayfa,
@@ -248,7 +251,8 @@ namespace AfetCadirKent.UI.Formlar
             // ribbonPageDepo
             //
             this.ribbonPageDepo.Groups.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPageGroup[] {
-            this.rpgDepo});
+            this.rpgDepo,
+            this.rpgDagitim});
             this.ribbonPageDepo.Name = "ribbonPageDepo";
             this.ribbonPageDepo.Text = "Depo";
             //
@@ -259,6 +263,20 @@ namespace AfetCadirKent.UI.Formlar
             this.rpgDepo.ItemLinks.Add(this.bbiStokDurumu);
             this.rpgDepo.Name = "rpgDepo";
             this.rpgDepo.Text = "Stok";
+            //
+            // bbiDagitim
+            //
+            this.bbiDagitim.Caption = "Dağıtım";
+            this.bbiDagitim.Id = 14;
+            this.bbiDagitim.Name = "bbiDagitim";
+            this.bbiDagitim.RibbonStyle = DevExpress.XtraBars.Ribbon.RibbonItemStyles.Large;
+            this.bbiDagitim.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.bbiDagitim_ItemClick);
+            //
+            // rpgDagitim
+            //
+            this.rpgDagitim.ItemLinks.Add(this.bbiDagitim);
+            this.rpgDagitim.Name = "rpgDagitim";
+            this.rpgDagitim.Text = "Dağıtım";
             //
             // ribbonPageAnaSayfa
             //
@@ -657,6 +675,8 @@ namespace AfetCadirKent.UI.Formlar
         private DevExpress.XtraBars.BarButtonItem bbiStokDurumu;
         private DevExpress.XtraBars.Ribbon.RibbonPage ribbonPageDepo;
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgDepo;
+        private DevExpress.XtraBars.BarButtonItem bbiDagitim;
+        private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgDagitim;
         private DevExpress.XtraLayout.LayoutControl layoutControl;
         private DevExpress.XtraLayout.LayoutControlGroup Root;
         private DevExpress.XtraEditors.LabelControl lblKisi;
