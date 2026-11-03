@@ -56,6 +56,7 @@ public partial class AnaForm : RibbonForm
         SimgeAta(bbiStokDurumu, "svgimages/business%20objects/bo_list.svg");
         SimgeAta(bbiDagitim, "svgimages/icon%20builder/shopping_delivery.svg");
         SimgeAta(bbiTalepler, "svgimages/outlook%20inspired/employeetasklist.svg");
+        SimgeAta(bbiIslemGecmisi, "svgimages/business%20objects/bo_audit_changehistory.svg");
 
         _dolulukOlcegi = DolulukGostergesiOlustur();
         GridYardimcisi.BosMetinGoster(gridViewUyarilar, "Stok uyarısı yok: kritik seviyenin altında ürün ve son kullanma tarihi yaklaşan parti bulunmuyor.");
@@ -70,7 +71,8 @@ public partial class AnaForm : RibbonForm
             .Izin(bbiStokGirisi, Modul.Depo, Izin.Degistirme)
             .Izin(bbiStokDurumu, Modul.Depo, Izin.Gorme)
             .Izin(bbiDagitim, Modul.Dagitim, Izin.Gorme)
-            .Izin(bbiTalepler, Modul.Talep, Izin.Gorme);
+            .Izin(bbiTalepler, Modul.Talep, Izin.Gorme)
+            .Izin(bbiIslemGecmisi, Modul.IslemGecmisi, Izin.Gorme);
         _yetkiler.Uygula(ribbonControl, _oturum);
 
         var kullanici = _oturum.Kullanici;
@@ -242,6 +244,8 @@ public partial class AnaForm : RibbonForm
     private void bbiDagitim_ItemClick(object? sender, ItemClickEventArgs e) => _formAcici.EkranAc<DagitimForm>(this);
 
     private void bbiTalepler_ItemClick(object? sender, ItemClickEventArgs e) => _formAcici.EkranAc<TaleplerForm>(this);
+
+    private void bbiIslemGecmisi_ItemClick(object? sender, ItemClickEventArgs e) => _formAcici.EkranAc<IslemGecmisiForm>(this);
 
     private void bbiParolaDegistir_ItemClick(object? sender, ItemClickEventArgs e) =>
         _formAcici.DiyalogAc<ParolaDegistirForm>(this);

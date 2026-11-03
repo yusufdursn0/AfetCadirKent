@@ -164,6 +164,19 @@ public class KullaniciVeOturumTestleri(VeritabaniFixture fixture)
         await Assert.ThrowsAsync<YetkisizIslemException>(() => fixture.IslemGecmisiServisi(kayitGorevlisi).ListeleAsync(new IslemGecmisiFiltresi()));
         await Assert.ThrowsAsync<YetkisizIslemException>(() => fixture.KullaniciServisi(kayitGorevlisi).ListeleAsync());
     }
+
+    [Fact]
+    public async Task IslemGecmisi_KayitTurleriTurkceAdlaGosterilir()
+    {
+        Assert.Equal("Kişi", KayitTurleri.Metin("Afetzede"));
+        Assert.Equal("Yakın bulma", KayitTurleri.Metin("YakinBulmaBasvurusu"));
+        Assert.Equal("Bilinmeyen", KayitTurleri.Metin("Bilinmeyen"));
+
+        // Veritabanına yazılmış her kayıt türünün ekranda Türkçe adı vardır.
+        await using var db = fixture.YeniContext();
+        var turler = await db.IslemGecmisi.Select(i => i.VarlikAdi).Distinct().ToListAsync();
+        Assert.All(turler, t => Assert.True(KayitTurleri.Adlar.ContainsKey(t), $"'{t}' için Türkçe ad yok."));
+    }
 }
 
 /// <summary>İlk kurulum: demo verisi kullanıcı içermez; ilk Koordinatör yalnızca bir kez oluşturulur (ayrı veritabanı).</summary>

@@ -54,3 +54,33 @@ public class IslemGecmisiServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum ot
         return await sorgu.OrderByDescending(i => i.Zaman).ThenByDescending(i => i.Id).Take(filtre.EnFazlaKayit).ToListAsync(iptal);
     }
 }
+
+/// <summary>İşlem geçmişindeki kayıt türlerinin (varlık adları) ekranda gösterilen Türkçe adları.</summary>
+public static class KayitTurleri
+{
+    public static readonly IReadOnlyDictionary<string, string> Adlar = new Dictionary<string, string>
+    {
+        [nameof(Aile)] = "Aile",
+        [nameof(Afetzede)] = "Kişi",
+        [nameof(Cadir)] = "Çadır",
+        [nameof(Bolge)] = "Bölge",
+        [nameof(Yerlesim)] = "Yerleşim",
+        [nameof(BeklemeListesiKaydi)] = "Bekleme listesi",
+        [nameof(Urun)] = "Ürün",
+        [nameof(Parti)] = "Parti (stok girişi)",
+        [nameof(StokHareketi)] = "Stok hareketi",
+        [nameof(Bagisci)] = "Bağışçı",
+        [nameof(Dagitim)] = "Dağıtım listesi",
+        [nameof(DagitimDetay)] = "Dağıtım satırı",
+        [nameof(Talep)] = "Talep",
+        [nameof(YakinBulmaBasvurusu)] = "Yakın bulma",
+        [nameof(Gorevli)] = "Kullanıcı",
+        [nameof(Gonullu)] = "Gönüllü",
+        [nameof(Vardiya)] = "Vardiya",
+        [nameof(Duyuru)] = "Duyuru",
+        [nameof(Gerekce)] = "Gerekçe ayarı",
+    };
+
+    /// <summary>Türkçe ad; listede olmayan tür için varlık adının kendisi.</summary>
+    public static string Metin(string varlikAdi) => Adlar.GetValueOrDefault(varlikAdi, varlikAdi);
+}
