@@ -8,6 +8,7 @@ using AfetCadirKent.Business.Kayit;
 using AfetCadirKent.Business.KioskIslemleri;
 using AfetCadirKent.Business.KullaniciYonetimi;
 using AfetCadirKent.Business.TalepYonetimi;
+using AfetCadirKent.Business.YakinBulmaIslemleri;
 using AfetCadirKent.Business.YapayZeka;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -55,6 +56,7 @@ public static class IsKatmaniKayitlari
         servisler.AddSingleton<IGunlukOzetServisi, GunlukOzetServisi>();
         servisler.AddSingleton<IAnaEkranServisi, AnaEkranServisi>();
         servisler.AddSingleton<IIslemGecmisiServisi, IslemGecmisiServisi>();
+        servisler.AddSingleton<IYakinBulmaServisi, YakinBulmaServisi>();
         return servisler;
     }
 }
