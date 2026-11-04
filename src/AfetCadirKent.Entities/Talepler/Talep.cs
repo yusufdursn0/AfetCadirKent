@@ -197,6 +197,9 @@ public class YakinBulmaBasvurusu : VarlikTemel
     private string _basvuranAdSoyad = string.Empty;
     private string _arananAd = string.Empty;
     private string _arananSoyad = string.Empty;
+    private int? _arananYaklasikYas;
+    private string? _arananMemleket;
+    private string? _basvuranTelefon;
 
     public string BasvuranAdSoyad
     {
@@ -204,7 +207,11 @@ public class YakinBulmaBasvurusu : VarlikTemel
         set => _basvuranAdSoyad = Dogrula.ZorunluMetin(value, "Başvuran adı soyadı", 100);
     }
 
-    public string? BasvuranTelefon { get; set; }
+    public string? BasvuranTelefon
+    {
+        get => _basvuranTelefon;
+        set => _basvuranTelefon = Dogrula.Telefon(value);
+    }
 
     public int? BasvuranAileId { get; set; }
     public Aile? BasvuranAile { get; set; }
@@ -221,21 +228,87 @@ public class YakinBulmaBasvurusu : VarlikTemel
         set => _arananSoyad = Dogrula.ZorunluMetin(value, "Aranan kişinin soyadı", 50);
     }
 
-    public int? ArananYaklasikYas { get; set; }
-    public string? ArananMemleket { get; set; }
+    public int? ArananYaklasikYas
+    {
+        get => _arananYaklasikYas;
+        set => _arananYaklasikYas = value is null or (>= 0 and <= 120)
+            ? value
+            : throw new DogrulamaException("Aranan kişinin yaklaşık yaşı 0 ile 120 arasında olmalıdır.");
+    }
 
-    public YakinBulmaDurumu Durum { get; set; } = YakinBulmaDurumu.Acik;
+    public string? ArananMemleket
+    {
+        get => _arananMemleket;
+        set => _arananMemleket = Dogrula.IstegeBagliMetin(value, "Memleket", 50);
+    }
 
-    public int? EslesenKisiId { get; set; }
+    public YakinBulmaDurumu Durum { get; private set; } = YakinBulmaDurumu.Acik;
+
+    public int? EslesenKisiId { get; private set; }
     public Afetzede? EslesenKisi { get; set; }
 
     /// <summary>Doğrulamanın nasıl yapıldığı (fotoğraf tek başına yeterli değildir).</summary>
-    public string? DogrulamaAciklamasi { get; set; }
+    public string? DogrulamaAciklamasi { get; private set; }
 
-    public string? Sonuc { get; set; }
+    public string? Sonuc { get; private set; }
 
     public DateTime AcilisZamani { get; set; }
-    public DateTime? KapanisZamani { get; set; }
+    public DateTime? KapanisZamani { get; private set; }
+
+    public bool AcikMi => Durum != YakinBulmaDurumu.Kapandi;
+
+    /// <summary>Açık → Olası eşleşme (veya olası eşleşmede başka adaya geçiş). Doğrulanmış başvuruda eşleşme değişmez.</summary>
+    public void EslesmeIsaretle(int kisiId)
+    {
+        if (Durum is not (YakinBulmaDurumu.Acik or YakinBulmaDurumu.OlasiEslesme))
+            throw new IsKuraliException($"Yalnızca açık veya olası eşleşmedeki başvuruda kişi işaretlenebilir (şu an: {DurumAdi(Durum)}).");
+        EslesenKisiId = kisiId;
+        Durum = YakinBulmaDurumu.OlasiEslesme;
+    }
+
+    /// <summary>Olası eşleşme → Açık (yanlış aday). Aramaya devam edilir.</summary>
+    public void EslesmeyiKaldir()
+    {
+        if (Durum != YakinBulmaDurumu.OlasiEslesme)
+            throw new IsKuraliException($"Yalnızca olası eşleşmedeki başvurunun eşleşmesi kaldırılabilir (şu an: {DurumAdi(Durum)}).");
+        EslesenKisiId = null;
+        Durum = YakinBulmaDurumu.Acik;
+    }
+
+    /// <summary>
+    /// Olası eşleşme → Doğrulandı. Doğrulama yazılı açıklamayla ve kişinin (ya da yanındaki yetişkinin) kendisiyle görüşülerek
+    /// yapılır; fotoğraf benzerliği tek başına doğrulama sayılmaz (şartname M8).
+    /// </summary>
+    public void Dogrulandi(string aciklama, bool kisiyleGorusuldu)
+    {
+        if (Durum != YakinBulmaDurumu.OlasiEslesme || EslesenKisiId is null)
+            throw new IsKuraliException($"Doğrulama için önce olası eşleşen kişi işaretlenmelidir (şu an: {DurumAdi(Durum)}).");
+        var metin = Dogrula.ZorunluMetin(aciklama, "Doğrulama açıklaması", 1000);
+        if (!kisiyleGorusuldu)
+            throw new IsKuraliException("Fotoğraf benzerliği tek başına doğrulama sayılmaz. Bulunan kişiyle (çocuksa yanındaki yetişkinle) " +
+                                        "görüşüp kimliği teyit ettikten sonra doğrulayın.");
+        DogrulamaAciklamasi = metin;
+        Durum = YakinBulmaDurumu.Dogrulandi;
+    }
+
+    /// <summary>Herhangi bir açık durum → Kapandı. Sonuç zorunludur.</summary>
+    public void Kapat(string sonuc, DateTime zaman)
+    {
+        if (!AcikMi)
+            throw new IsKuraliException("Başvuru zaten kapalı.");
+        Sonuc = Dogrula.ZorunluMetin(sonuc, "Sonuç", 1000);
+        KapanisZamani = zaman;
+        Durum = YakinBulmaDurumu.Kapandi;
+    }
+
+    public static string DurumAdi(YakinBulmaDurumu durum) => durum switch
+    {
+        YakinBulmaDurumu.Acik => "Açık",
+        YakinBulmaDurumu.OlasiEslesme => "Olası eşleşme",
+        YakinBulmaDurumu.Dogrulandi => "Doğrulandı",
+        YakinBulmaDurumu.Kapandi => "Kapandı",
+        _ => durum.ToString(),
+    };
 
     public int? KullaniciId { get; set; }
     public Gorevli? Kullanici { get; set; }
