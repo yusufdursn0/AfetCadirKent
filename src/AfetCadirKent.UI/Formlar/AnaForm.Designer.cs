@@ -51,6 +51,8 @@ namespace AfetCadirKent.UI.Formlar
             this.rpgYakinBulma = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.bbiIslemGecmisi = new DevExpress.XtraBars.BarButtonItem();
             this.rpgDenetim = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
+            this.bbiGonulluler = new DevExpress.XtraBars.BarButtonItem();
+            this.rpgGonullu = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.ribbonStatusBar = new DevExpress.XtraBars.Ribbon.RibbonStatusBar();
             this.layoutControl = new DevExpress.XtraLayout.LayoutControl();
             this.lblKisi = new DevExpress.XtraEditors.LabelControl();
@@ -117,9 +119,10 @@ namespace AfetCadirKent.UI.Formlar
             this.bbiDagitim,
             this.bbiTalepler,
             this.bbiYakinBulma,
-            this.bbiIslemGecmisi});
+            this.bbiIslemGecmisi,
+            this.bbiGonulluler});
             this.ribbonControl.Location = new System.Drawing.Point(0, 0);
-            this.ribbonControl.MaxItemId = 18;
+            this.ribbonControl.MaxItemId = 19;
             this.ribbonControl.Name = "ribbonControl";
             this.ribbonControl.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] {
             this.ribbonPageAnaSayfa,
@@ -301,7 +304,8 @@ namespace AfetCadirKent.UI.Formlar
             // ribbonPageTalep
             //
             this.ribbonPageTalep.Groups.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPageGroup[] {
-            this.rpgTalep});
+            this.rpgTalep,
+            this.rpgGonullu});
             this.ribbonPageTalep.Name = "ribbonPageTalep";
             this.ribbonPageTalep.Text = "Talepler";
             //
@@ -338,6 +342,20 @@ namespace AfetCadirKent.UI.Formlar
             this.rpgDenetim.ItemLinks.Add(this.bbiIslemGecmisi);
             this.rpgDenetim.Name = "rpgDenetim";
             this.rpgDenetim.Text = "Denetim";
+            //
+            // bbiGonulluler
+            //
+            this.bbiGonulluler.Caption = "Gönüllüler";
+            this.bbiGonulluler.Id = 18;
+            this.bbiGonulluler.Name = "bbiGonulluler";
+            this.bbiGonulluler.RibbonStyle = DevExpress.XtraBars.Ribbon.RibbonItemStyles.Large;
+            this.bbiGonulluler.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.bbiGonulluler_ItemClick);
+            //
+            // rpgGonullu
+            //
+            this.rpgGonullu.ItemLinks.Add(this.bbiGonulluler);
+            this.rpgGonullu.Name = "rpgGonullu";
+            this.rpgGonullu.Text = "Gönüllü";
             //
             // ribbonPageAnaSayfa
             //
@@ -746,6 +764,8 @@ namespace AfetCadirKent.UI.Formlar
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgYakinBulma;
         private DevExpress.XtraBars.BarButtonItem bbiIslemGecmisi;
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgDenetim;
+        private DevExpress.XtraBars.BarButtonItem bbiGonulluler;
+        private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgGonullu;
         private DevExpress.XtraLayout.LayoutControl layoutControl;
         private DevExpress.XtraLayout.LayoutControlGroup Root;
         private DevExpress.XtraEditors.LabelControl lblKisi;
