@@ -2,6 +2,7 @@ using AfetCadirKent.Business.CadirYonetimi;
 using AfetCadirKent.Business.DagitimYonetimi;
 using AfetCadirKent.Business.DepoYonetimi;
 using AfetCadirKent.Business.Gerekceler;
+using AfetCadirKent.Business.GonulluYonetimi;
 using AfetCadirKent.Business.Denetim;
 using AfetCadirKent.Business.Kayit;
 using AfetCadirKent.Business.KullaniciYonetimi;
@@ -102,6 +103,9 @@ public static class TestYardimcilari
         new(fixture.OturumFabrikasi(), oturum);
 
     public static YakinBulmaServisi YakinBulmaServisi(this TestVeritabaniTemel fixture, RolTuru rol) =>
+        new(fixture.OturumFabrikasi(), OturumAc(rol), TimeProvider.System);
+
+    public static GonulluServisi GonulluServisi(this TestVeritabaniTemel fixture, RolTuru rol = RolTuru.Koordinator) =>
         new(fixture.OturumFabrikasi(), OturumAc(rol), TimeProvider.System);
 
     /// <summary>Kurala uygun yeni kullanıcı bilgisi (benzersiz kullanıcı adı).</summary>

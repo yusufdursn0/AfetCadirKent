@@ -5,6 +5,7 @@ using AfetCadirKent.Business.DagitimYonetimi;
 using AfetCadirKent.Business.Denetim;
 using AfetCadirKent.Business.DepoYonetimi;
 using AfetCadirKent.Business.Gerekceler;
+using AfetCadirKent.Business.GonulluYonetimi;
 using AfetCadirKent.Business.Kayit;
 using AfetCadirKent.Business.KioskIslemleri;
 using AfetCadirKent.Business.KullaniciYonetimi;
@@ -46,6 +47,7 @@ public class ServisKayitlariTestleri(VeritabaniFixture fixture)
     [InlineData(typeof(IAnaEkranServisi))]
     [InlineData(typeof(IIslemGecmisiServisi))]
     [InlineData(typeof(IYakinBulmaServisi))]
+    [InlineData(typeof(IGonulluServisi))]
     [InlineData(typeof(IYapayZekaServisi))]
     public void HerServisCozulur(Type servisTuru)
     {
