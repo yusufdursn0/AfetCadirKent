@@ -177,6 +177,25 @@ public class KullaniciVeOturumTestleri(VeritabaniFixture fixture)
         var turler = await db.IslemGecmisi.Select(i => i.VarlikAdi).Distinct().ToListAsync();
         Assert.All(turler, t => Assert.True(KayitTurleri.Adlar.ContainsKey(t), $"'{t}' için Türkçe ad yok."));
     }
+
+    [Fact]
+    public async Task ParolaDogrulama_OturumuDegistirmez_HataliDenemeGecmiseYazilir()
+    {
+        var bilgi = YeniKullanici();
+        var eklenen = await (await KoordinatorAsync()).EkleAsync(bilgi, RolTuru.Kiosk);
+        var oturum = new Oturum();
+        var servis = fixture.OturumServisi(oturum);
+        await servis.GirisYapAsync(bilgi.KullaniciAdi, bilgi.Parola);
+
+        Assert.True(await servis.ParolaDogrulaAsync(bilgi.Parola));
+        Assert.False(await servis.ParolaDogrulaAsync("Yanlis123"));
+        Assert.True(oturum.AcikMi);
+        Assert.Equal(RolTuru.Kiosk, oturum.Rol);
+
+        await using var db = fixture.YeniContext();
+        Assert.True(await db.IslemGecmisi.AnyAsync(i => i.KullaniciId == eklenen.Id && i.Aciklama.Contains("hatalı parola doğrulama")));
+        await Assert.ThrowsAsync<YetkisizIslemException>(() => fixture.OturumServisi(new Oturum()).ParolaDogrulaAsync(bilgi.Parola));
+    }
 }
 
 /// <summary>İlk kurulum: demo verisi kullanıcı içermez; ilk Koordinatör yalnızca bir kez oluşturulur (ayrı veritabanı).</summary>

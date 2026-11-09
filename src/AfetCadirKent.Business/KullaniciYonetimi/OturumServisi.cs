@@ -14,6 +14,12 @@ public interface IOturumServisi
 
     /// <summary>Oturumdaki kullanıcının kendi parolasını değiştirmesi (eski parola doğrulanır).</summary>
     Task ParolaDegistirAsync(string eskiParola, string yeniParola, string yeniParolaTekrar, CancellationToken iptal = default);
+
+    /// <summary>
+    /// Oturumdaki kullanıcının parolasını doğrular; oturumu değiştirmez. Kiosk ekranından çıkış gibi görevli onayı isteyen
+    /// işlemlerde kullanılır. Hatalı deneme işlem geçmişine yazılır.
+    /// </summary>
+    Task<bool> ParolaDogrulaAsync(string parola, CancellationToken iptal = default);
 }
 
 public class OturumServisi(IVeriOturumuFabrikasi veriFabrikasi, Oturum oturum, TimeProvider zaman) : IOturumServisi
@@ -103,5 +109,21 @@ public class OturumServisi(IVeriOturumuFabrikasi veriFabrikasi, Oturum oturum, T
         KullaniciOlusturucu.ParolaAta(gorevli, yeniParola, yeniParolaTekrar);
         veri.IslemKaydet(oturum, zaman.Simdi(), IslemTuru.Guncelleme, nameof(Gorevli), id, $"{gorevli.KullaniciAdi} parolasını değiştirdi.");
         await veri.GuvenliKaydetAsync(iptal);
+    }
+
+    public async Task<bool> ParolaDogrulaAsync(string parola, CancellationToken iptal = default)
+    {
+        if (oturum.KullaniciId is not { } id)
+            throw new YetkisizIslemException("Bu işlem için giriş yapmalısınız.");
+
+        await using var veri = veriFabrikasi.Ac();
+        var gorevli = await veri.Repo<Gorevli>().Sorgu().AsNoTracking().FirstOrDefaultAsync(g => g.Id == id, iptal)
+            ?? throw new KayitBulunamadiException("Kullanıcı");
+        if (ParolaGuvenligi.Dogrula(parola ?? "", gorevli.ParolaHash))
+            return true;
+
+        veri.IslemKaydet(oturum, zaman.Simdi(), IslemTuru.Giris, nameof(Gorevli), id, $"{gorevli.KullaniciAdi}: hatalı parola doğrulama denemesi.");
+        await veri.GuvenliKaydetAsync(iptal);
+        return false;
     }
 }
