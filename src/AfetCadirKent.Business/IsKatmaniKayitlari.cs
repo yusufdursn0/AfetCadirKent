@@ -9,6 +9,7 @@ using AfetCadirKent.Business.GonulluYonetimi;
 using AfetCadirKent.Business.Kayit;
 using AfetCadirKent.Business.KioskIslemleri;
 using AfetCadirKent.Business.KullaniciYonetimi;
+using AfetCadirKent.Business.Raporlama;
 using AfetCadirKent.Business.TalepYonetimi;
 using AfetCadirKent.Business.YakinBulmaIslemleri;
 using AfetCadirKent.Business.YapayZeka;
@@ -62,6 +63,7 @@ public static class IsKatmaniKayitlari
         servisler.AddSingleton<IGonulluServisi, GonulluServisi>();
         servisler.AddSingleton<IDuyuruServisi, DuyuruServisi>();
         servisler.AddSingleton<IGerekceAyarServisi, GerekceAyarServisi>();
+        servisler.AddSingleton<IRaporServisi, RaporServisi>();
         return servisler;
     }
 }

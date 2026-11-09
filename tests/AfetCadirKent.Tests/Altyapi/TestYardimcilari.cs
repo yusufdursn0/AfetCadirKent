@@ -9,6 +9,7 @@ using AfetCadirKent.Business.Kayit;
 using AfetCadirKent.Business.KullaniciYonetimi;
 using AfetCadirKent.Business.TalepYonetimi;
 using AfetCadirKent.Business.Ortak;
+using AfetCadirKent.Business.Raporlama;
 using AfetCadirKent.Business.YakinBulmaIslemleri;
 using AfetCadirKent.Business.YapayZeka;
 using AfetCadirKent.DataAccess.Depolar;
@@ -114,6 +115,17 @@ public static class TestYardimcilari
 
     public static GerekceAyarServisi GerekceAyarServisi(this TestVeritabaniTemel fixture, RolTuru rol = RolTuru.Koordinator) =>
         new(fixture.OturumFabrikasi(), OturumAc(rol), TimeProvider.System);
+
+    /// <summary>Rapor servisi; dayandığı servisler aynı oturumla kurulur.</summary>
+    public static RaporServisi RaporServisi(this TestVeritabaniTemel fixture, IOturum oturum)
+    {
+        var fabrika = fixture.OturumFabrikasi();
+        var degerlendirici = GerekceDegerlendirici.Varsayilan();
+        return new RaporServisi(fabrika, oturum, TimeProvider.System, degerlendirici,
+            new DagitimServisi(fabrika, oturum, TimeProvider.System, degerlendirici),
+            new StokServisi(fabrika, oturum, TimeProvider.System, new DepoAyarlari()),
+            fixture.TalepServisi(oturum), new KayitServisi(fabrika, oturum, TimeProvider.System));
+    }
 
     /// <summary>Kurala uygun yeni kullanıcı bilgisi (benzersiz kullanıcı adı).</summary>
     public static YeniKullaniciBilgisi YeniKullanici(string parola = "Guvenli123", string? kullaniciAdi = null) => new()

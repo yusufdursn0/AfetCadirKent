@@ -11,6 +11,7 @@ using AfetCadirKent.Business.Kayit;
 using AfetCadirKent.Business.KioskIslemleri;
 using AfetCadirKent.Business.KullaniciYonetimi;
 using AfetCadirKent.Business.Ortak;
+using AfetCadirKent.Business.Raporlama;
 using AfetCadirKent.Business.TalepYonetimi;
 using AfetCadirKent.Business.YakinBulmaIslemleri;
 using AfetCadirKent.Business.YapayZeka;
@@ -51,6 +52,7 @@ public class ServisKayitlariTestleri(VeritabaniFixture fixture)
     [InlineData(typeof(IGonulluServisi))]
     [InlineData(typeof(IDuyuruServisi))]
     [InlineData(typeof(IGerekceAyarServisi))]
+    [InlineData(typeof(IRaporServisi))]
     [InlineData(typeof(IYapayZekaServisi))]
     public void HerServisCozulur(Type servisTuru)
     {

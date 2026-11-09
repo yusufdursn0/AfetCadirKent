@@ -97,4 +97,83 @@ public class AyarlarVeRaporTestleri(VeritabaniFixture fixture)
         await Assert.ThrowsAsync<IsKuraliException>(() => ayar.EslesmeleriKaydetAsync(GerekceKodu.UcGundurYardimAlmadi, [urun.Id], "x"));
         await Assert.ThrowsAsync<KayitBulunamadiException>(() => ayar.EslesmeleriKaydetAsync(GerekceKodu.Yasli, [int.MaxValue], "x"));
     }
+
+    // ---------------------------------------------------------------- raporlar
+
+    [Fact]
+    public async Task DagitimTutanagi_AileSatirlariVeImzaAlanlariyla_DepoSorumlusunda()
+    {
+        var urun = await fixture.TestUrunuAsync(HesaplamaTuru.AileBasi, hak: 1, tekrar: 1);
+        await fixture.StokServisi().StokGirisiAsync(new StokGirisiBilgisi { UrunId = urun.Id, PartiNo = "TUT-1", Miktar = 10_000 });
+        var soyad = BenzersizSoyad();
+        var aile = await fixture.KayitServisi(RolTuru.KayitGorevlisi).AileOlusturAsync($"{soyad} Ailesi", false, [Kisi("Ayten", soyad, 40)]);
+        var dagitim = fixture.DagitimServisi();
+        var liste = await dagitim.ListeOlusturAsync(urun.Id);
+        await dagitim.OnaylaAsync(liste.Ozet.Id);
+        var detay = liste.Satirlar.Single(s => s.AileId == aile.Id);
+        await dagitim.TeslimEtAsync(detay.DetayId, 1, aile.Uyeler[0].Id);
+
+        var depo = await fixture.KullaniciOturumuAsync(RolTuru.DepoSorumlusu);
+        var tutanak = await fixture.RaporServisi(depo).DagitimTutanagiAsync(liste.Ozet.Id);
+
+        Assert.Equal("Dağıtım Tutanağı", tutanak.Baslik);
+        Assert.Contains(urun.Ad, tutanak.AltBasliklar[0]);
+        var satir = tutanak.Satirlar.Single(s => s[0] == aile.AileNo);
+        Assert.Equal(("1", "1", "0"), (satir[3], satir[4], satir[5]));
+        Assert.Contains("Ayten", satir[6]);
+        Assert.Equal(tutanak.Sutunlar.Count, satir.Count);
+        Assert.NotEmpty(tutanak.ImzaAlanlari);
+
+        var kayitGorevlisi = await fixture.KullaniciOturumuAsync(RolTuru.KayitGorevlisi);
+        await Assert.ThrowsAsync<YetkisizIslemException>(() => fixture.RaporServisi(kayitGorevlisi).DagitimTutanagiAsync(liste.Ozet.Id));
+        await dagitim.GunSonuAsync();
+    }
+
+    [Fact]
+    public async Task StokNufusVeTalepRaporlari_IzneGoreAlinir()
+    {
+        var urun = await fixture.TestUrunuAsync(kritik: 50);
+        await fixture.StokServisi().StokGirisiAsync(new StokGirisiBilgisi { UrunId = urun.Id, PartiNo = "RAP-1", Miktar = 20 });
+        var koordinator = await fixture.KullaniciOturumuAsync(RolTuru.Koordinator);
+        var depo = await fixture.KullaniciOturumuAsync(RolTuru.DepoSorumlusu);
+        var rapor = fixture.RaporServisi(koordinator);
+
+        var stok = await fixture.RaporServisi(depo).StokRaporuAsync();
+        var stokSatiri = stok.Satirlar.Single(s => s[0] == urun.Ad);
+        Assert.Equal(("20", "Kritik seviyenin altında"), (stokSatiri[4], stokSatiri[9]));
+
+        var nufus = await rapor.NufusRaporuAsync();
+        Assert.Contains(nufus.Satirlar, s => s[0] == "Kişi durumu" && s[1] == "Burada" && int.Parse(s[2]) > 0);
+        Assert.Contains(nufus.Satirlar, s => s[0] == "Yaş grubu (çadır kentte)" && s[1] == "0–2 yaş");
+        Assert.All(nufus.Satirlar, s => Assert.Equal(nufus.Sutunlar.Count, s.Count));
+        await Assert.ThrowsAsync<YetkisizIslemException>(() => fixture.RaporServisi(depo).NufusRaporuAsync());
+
+        var talep = await fixture.TalepServisi(koordinator).OlusturAsync(new TalepBilgisi
+        {
+            Aciklama = "Rapor testi talebi", Kaynak = TalepKaynagi.Gorevli, Tur = TalepTuru.Diger,
+        });
+        var bugun = DateOnly.FromDateTime(DateTime.Today);
+        var talepRaporu = await rapor.TalepRaporuAsync(bugun, bugun);
+        Assert.Contains(talepRaporu.Satirlar, s => s[0] == talep.Id.ToString() && s[8] == "Rapor testi talebi");
+        Assert.DoesNotContain((await rapor.TalepRaporuAsync(bugun.AddDays(-10), bugun.AddDays(-9))).Satirlar, s => s[0] == talep.Id.ToString());
+        await Assert.ThrowsAsync<DogrulamaException>(() => rapor.TalepRaporuAsync(bugun, bugun.AddDays(-1)));
+        await Assert.ThrowsAsync<YetkisizIslemException>(() => fixture.RaporServisi(depo).TalepRaporuAsync(bugun, bugun));
+    }
+
+    [Fact]
+    public async Task AileFisi_KayitGorevlisiYazdirir_AileNoCadirVeKioskBilgisiVar()
+    {
+        var soyad = BenzersizSoyad();
+        var aile = await fixture.KayitServisi(RolTuru.KayitGorevlisi).AileOlusturAsync($"{soyad} Ailesi", false,
+            [Kisi("Elif", soyad, 35), Kisi("Can", soyad, 8)]);
+        var kayit = await fixture.KullaniciOturumuAsync(RolTuru.KayitGorevlisi);
+
+        var fis = await fixture.RaporServisi(kayit).AileFisiAsync(aile.Id);
+
+        Assert.Equal((aile.AileNo, 2), (fis.AileNo, fis.Uyeler.Count));
+        Assert.Contains(aile.AileNo, fis.KioskBilgisi);
+        Assert.Contains("Henüz çadır verilmedi", Assert.Single(fis.Cadirlar));
+        var kiosk = await fixture.KullaniciOturumuAsync(RolTuru.Kiosk);
+        await Assert.ThrowsAsync<YetkisizIslemException>(() => fixture.RaporServisi(kiosk).AileFisiAsync(aile.Id));
+    }
 }
