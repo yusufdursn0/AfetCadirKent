@@ -1,4 +1,5 @@
 using AfetCadirKent.Business.AnaEkran;
+using AfetCadirKent.Business.Ayarlar;
 using AfetCadirKent.Business.CadirYonetimi;
 using AfetCadirKent.Business.DagitimYonetimi;
 using AfetCadirKent.Business.Denetim;
@@ -59,6 +60,8 @@ public static class IsKatmaniKayitlari
         servisler.AddSingleton<IIslemGecmisiServisi, IslemGecmisiServisi>();
         servisler.AddSingleton<IYakinBulmaServisi, YakinBulmaServisi>();
         servisler.AddSingleton<IGonulluServisi, GonulluServisi>();
+        servisler.AddSingleton<IDuyuruServisi, DuyuruServisi>();
+        servisler.AddSingleton<IGerekceAyarServisi, GerekceAyarServisi>();
         return servisler;
     }
 }
