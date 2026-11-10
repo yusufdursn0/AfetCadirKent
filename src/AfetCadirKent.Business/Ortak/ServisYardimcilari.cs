@@ -222,6 +222,24 @@ public static class Gosterim
         _ => durum.ToString(),
     };
 
+    public static string Metin(this Modul modul) => modul switch
+    {
+        Modul.Kayit => "Kayıt",
+        Modul.Cadir => "Çadır",
+        Modul.Depo => "Depo",
+        Modul.Dagitim => "Dağıtım",
+        Modul.Talep => "Talep",
+        Modul.SaglikBilgisi => "Sağlık bilgisi",
+        Modul.YakinBulma => "Yakın bulma",
+        Modul.Gonullu => "Gönüllü",
+        Modul.Duyuru => "Duyuru",
+        Modul.KullaniciYonetimi => "Kullanıcı yönetimi",
+        Modul.Ayarlar => "Ayarlar",
+        Modul.IslemGecmisi => "İşlem geçmişi",
+        Modul.Kiosk => "Kiosk",
+        _ => modul.ToString(),
+    };
+
     public static string Metin(this RolTuru rol) => rol switch
     {
         RolTuru.Koordinator => "Koordinatör",

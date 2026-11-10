@@ -54,6 +54,7 @@ namespace AfetCadirKent.UI.Formlar
             this.bbiGonulluler = new DevExpress.XtraBars.BarButtonItem();
             this.rpgGonullu = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.bbiRaporlar = new DevExpress.XtraBars.BarButtonItem();
+            this.bbiAyarlar = new DevExpress.XtraBars.BarButtonItem();
             this.rpgYonetim = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.ribbonStatusBar = new DevExpress.XtraBars.Ribbon.RibbonStatusBar();
             this.layoutControl = new DevExpress.XtraLayout.LayoutControl();
@@ -123,9 +124,10 @@ namespace AfetCadirKent.UI.Formlar
             this.bbiYakinBulma,
             this.bbiIslemGecmisi,
             this.bbiGonulluler,
-            this.bbiRaporlar});
+            this.bbiRaporlar,
+            this.bbiAyarlar});
             this.ribbonControl.Location = new System.Drawing.Point(0, 0);
-            this.ribbonControl.MaxItemId = 20;
+            this.ribbonControl.MaxItemId = 21;
             this.ribbonControl.Name = "ribbonControl";
             this.ribbonControl.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] {
             this.ribbonPageAnaSayfa,
@@ -368,9 +370,18 @@ namespace AfetCadirKent.UI.Formlar
             this.bbiRaporlar.RibbonStyle = DevExpress.XtraBars.Ribbon.RibbonItemStyles.Large;
             this.bbiRaporlar.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.bbiRaporlar_ItemClick);
             //
+            // bbiAyarlar
+            //
+            this.bbiAyarlar.Caption = "Ayarlar ve kullanıcılar";
+            this.bbiAyarlar.Id = 20;
+            this.bbiAyarlar.Name = "bbiAyarlar";
+            this.bbiAyarlar.RibbonStyle = DevExpress.XtraBars.Ribbon.RibbonItemStyles.Large;
+            this.bbiAyarlar.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.bbiAyarlar_ItemClick);
+            //
             // rpgYonetim
             //
             this.rpgYonetim.ItemLinks.Add(this.bbiRaporlar);
+            this.rpgYonetim.ItemLinks.Add(this.bbiAyarlar);
             this.rpgYonetim.Name = "rpgYonetim";
             this.rpgYonetim.Text = "Yönetim";
             //
@@ -785,6 +796,7 @@ namespace AfetCadirKent.UI.Formlar
         private DevExpress.XtraBars.BarButtonItem bbiGonulluler;
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgGonullu;
         private DevExpress.XtraBars.BarButtonItem bbiRaporlar;
+        private DevExpress.XtraBars.BarButtonItem bbiAyarlar;
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup rpgYonetim;
         private DevExpress.XtraLayout.LayoutControl layoutControl;
         private DevExpress.XtraLayout.LayoutControlGroup Root;

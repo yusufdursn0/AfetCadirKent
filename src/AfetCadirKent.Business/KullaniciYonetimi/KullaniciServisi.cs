@@ -7,6 +7,7 @@ public interface IKullaniciServisi
 {
     Task<IReadOnlyList<KullaniciOzeti>> ListeleAsync(bool pasifleriDeGoster = false, CancellationToken iptal = default);
 
+    /// <summary>Roller ve yetkileri (Ayarlar ekranında rol–modül–izin tablosu).</summary>
     Task<IReadOnlyList<Rol>> RolleriListeleAsync(CancellationToken iptal = default);
 
     /// <summary>Koordinatör yeni görevli (veya kiosk hesabı) ekler.</summary>
@@ -40,7 +41,7 @@ public class KullaniciServisi(IVeriOturumuFabrikasi veriFabrikasi, IOturum oturu
     {
         oturum.IzinGerekli(Modul.KullaniciYonetimi, Izin.Gorme);
         await using var veri = veriFabrikasi.Ac();
-        return await veri.Repo<Rol>().Sorgu().AsNoTracking().OrderBy(r => r.Id).ToListAsync(iptal);
+        return await veri.Repo<Rol>().Sorgu().AsNoTracking().Include(r => r.Yetkiler).OrderBy(r => r.Id).ToListAsync(iptal);
     }
 
     public async Task<KullaniciOzeti> EkleAsync(YeniKullaniciBilgisi bilgi, RolTuru rol, CancellationToken iptal = default)

@@ -60,6 +60,7 @@ public partial class AnaForm : RibbonForm
         SimgeAta(bbiIslemGecmisi, "svgimages/business%20objects/bo_audit_changehistory.svg");
         SimgeAta(bbiGonulluler, "svgimages/business%20objects/bo_employee.svg");
         SimgeAta(bbiRaporlar, "svgimages/business%20objects/bo_report.svg");
+        SimgeAta(bbiAyarlar, "svgimages/setup/properties.svg");
 
         _dolulukOlcegi = DolulukGostergesiOlustur();
         GridYardimcisi.BosMetinGoster(gridViewUyarilar, "Stok uyarısı yok: kritik seviyenin altında ürün ve son kullanma tarihi yaklaşan parti bulunmuyor.");
@@ -79,7 +80,8 @@ public partial class AnaForm : RibbonForm
             .Izin(bbiIslemGecmisi, Modul.IslemGecmisi, Izin.Gorme)
             .Izin(bbiGonulluler, Modul.Gonullu, Izin.Gorme)
             // Raporlar: herhangi bir modülde rapor izni olan (Koordinatör, Depo sorumlusu); ekran yalnızca izinli raporları sunar.
-            .Kural(bbiRaporlar, o => new[] { Modul.Dagitim, Modul.Depo, Modul.Kayit, Modul.Talep }.Any(m => o.IzinVarMi(m, Izin.Rapor)));
+            .Kural(bbiRaporlar, o => new[] { Modul.Dagitim, Modul.Depo, Modul.Kayit, Modul.Talep }.Any(m => o.IzinVarMi(m, Izin.Rapor)))
+            .Kural(bbiAyarlar, o => new[] { Modul.KullaniciYonetimi, Modul.Ayarlar, Modul.Duyuru }.Any(m => o.IzinVarMi(m, Izin.Gorme)));
         _yetkiler.Uygula(ribbonControl, _oturum);
 
         var kullanici = _oturum.Kullanici;
@@ -259,6 +261,8 @@ public partial class AnaForm : RibbonForm
     private void bbiGonulluler_ItemClick(object? sender, ItemClickEventArgs e) => _formAcici.EkranAc<GonullulerForm>(this);
 
     private void bbiRaporlar_ItemClick(object? sender, ItemClickEventArgs e) => _formAcici.EkranAc<RaporlarForm>(this);
+
+    private void bbiAyarlar_ItemClick(object? sender, ItemClickEventArgs e) => _formAcici.EkranAc<AyarlarForm>(this);
 
     private void bbiParolaDegistir_ItemClick(object? sender, ItemClickEventArgs e) =>
         _formAcici.DiyalogAc<ParolaDegistirForm>(this);
