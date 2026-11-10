@@ -33,7 +33,8 @@ namespace AfetCadirKent.UI.Formlar
             this.chkTekEbeveyn = new DevExpress.XtraEditors.CheckEdit();
             this.lciNotlar = new DevExpress.XtraLayout.LayoutControlItem();
             this.txtNotlar = new DevExpress.XtraEditors.TextEdit();
-            this.bosAile = new DevExpress.XtraLayout.EmptySpaceItem();
+            this.lciAileFisi = new DevExpress.XtraLayout.LayoutControlItem();
+            this.btnAileFisi = new DevExpress.XtraEditors.SimpleButton();
             this.lciCadiraYerlestir = new DevExpress.XtraLayout.LayoutControlItem();
             this.btnCadiraYerlestir = new DevExpress.XtraEditors.SimpleButton();
             this.lciAileKaydet = new DevExpress.XtraLayout.LayoutControlItem();
@@ -130,7 +131,7 @@ namespace AfetCadirKent.UI.Formlar
             ((System.ComponentModel.ISupportInitialize)(this.chkTekEbeveyn.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lciNotlar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtNotlar.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bosAile)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lciAileFisi)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lciCadiraYerlestir)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lciAileKaydet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.grpUyeler)).BeginInit();
@@ -201,6 +202,7 @@ namespace AfetCadirKent.UI.Formlar
             this.layoutControl.Controls.Add(this.txtNotlar);
             this.layoutControl.Controls.Add(this.btnAileKaydet);
             this.layoutControl.Controls.Add(this.btnCadiraYerlestir);
+            this.layoutControl.Controls.Add(this.btnAileFisi);
             this.layoutControl.Controls.Add(this.gridUyeler);
             this.layoutControl.Controls.Add(this.btnKisiYeni);
             this.layoutControl.Controls.Add(this.btnUyeCikar);
@@ -848,11 +850,26 @@ namespace AfetCadirKent.UI.Formlar
             this.lciNotlar.TextAlignMode = DevExpress.XtraLayout.TextAlignModeItem.CustomSize;
             this.lciNotlar.TextSize = new System.Drawing.Size(100, 13);
             // 
-            // bosAile
+            // btnAileFisi
             // 
-            this.bosAile.Location = new System.Drawing.Point(200, 96);
-            this.bosAile.Name = "bosAile";
-            this.bosAile.Size = new System.Drawing.Size(136, 34);
+            this.btnAileFisi.Location = new System.Drawing.Point(224, 165);
+            this.btnAileFisi.Name = "btnAileFisi";
+            this.btnAileFisi.Text = "Aile fişi";
+            this.btnAileFisi.Click += new System.EventHandler(this.btnAileFisi_Click);
+            this.btnAileFisi.Size = new System.Drawing.Size(132, 30);
+            this.btnAileFisi.StyleController = this.layoutControl;
+            this.btnAileFisi.TabIndex = 39;
+            // 
+            // lciAileFisi
+            // 
+            this.lciAileFisi.Control = this.btnAileFisi;
+            this.lciAileFisi.Location = new System.Drawing.Point(200, 96);
+            this.lciAileFisi.MaxSize = new System.Drawing.Size(0, 34);
+            this.lciAileFisi.MinSize = new System.Drawing.Size(100, 34);
+            this.lciAileFisi.Name = "lciAileFisi";
+            this.lciAileFisi.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
+            this.lciAileFisi.Size = new System.Drawing.Size(136, 34);
+            this.lciAileFisi.TextVisible = false;
             //
             // lciCadiraYerlestir
             //
@@ -884,7 +901,7 @@ namespace AfetCadirKent.UI.Formlar
             this.lciTekEbeveyn,
             this.lciNotlar,
             this.lciCadiraYerlestir,
-            this.bosAile,
+            this.lciAileFisi,
             this.lciAileKaydet});
             this.grpAile.Location = new System.Drawing.Point(0, 26);
             this.grpAile.Name = "grpAile";
@@ -1272,7 +1289,7 @@ namespace AfetCadirKent.UI.Formlar
             ((System.ComponentModel.ISupportInitialize)(this.chkTekEbeveyn.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lciNotlar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtNotlar.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bosAile)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lciAileFisi)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lciCadiraYerlestir)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lciAileKaydet)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.grpUyeler)).EndInit();
@@ -1353,7 +1370,8 @@ namespace AfetCadirKent.UI.Formlar
         private DevExpress.XtraEditors.CheckEdit chkTekEbeveyn;
         private DevExpress.XtraLayout.LayoutControlItem lciNotlar;
         private DevExpress.XtraEditors.TextEdit txtNotlar;
-        private DevExpress.XtraLayout.EmptySpaceItem bosAile;
+        private DevExpress.XtraLayout.LayoutControlItem lciAileFisi;
+        private DevExpress.XtraEditors.SimpleButton btnAileFisi;
         private DevExpress.XtraLayout.LayoutControlItem lciCadiraYerlestir;
         private DevExpress.XtraEditors.SimpleButton btnCadiraYerlestir;
         private DevExpress.XtraLayout.LayoutControlItem lciAileKaydet;

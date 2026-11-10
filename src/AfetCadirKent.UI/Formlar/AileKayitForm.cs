@@ -5,7 +5,10 @@ using AfetCadirKent.Business.Ortak;
 using AfetCadirKent.Entities.Enumlar;
 using AfetCadirKent.Entities.Kayit;
 using AfetCadirKent.Entities.Kisiler;
+using AfetCadirKent.Business.Raporlama;
 using AfetCadirKent.UI.Altyapi;
+using AfetCadirKent.UI.Raporlar;
+using DevExpress.XtraReports.UI;
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Camera;
 using DevExpress.XtraEditors.Controls;
@@ -39,6 +42,7 @@ public partial class AileKayitForm : XtraForm
     private readonly IGerekceServisi _gerekceServisi;
     private readonly IOturum _oturum;
     private readonly FormAcici _formAcici;
+    private readonly IRaporServisi _raporServisi;
     private readonly bool _degistirebilir;
     private readonly bool _yerlestirebilir;
     private readonly bool _saglikGorebilir;
@@ -52,10 +56,12 @@ public partial class AileKayitForm : XtraForm
     private byte[]? _yeniFotograf;
     private bool _programatik;
 
-    public AileKayitForm(IKayitServisi kayitServisi, IGerekceServisi gerekceServisi, IOturum oturum, FormAcici formAcici)
+    public AileKayitForm(IKayitServisi kayitServisi, IGerekceServisi gerekceServisi, IOturum oturum, FormAcici formAcici,
+        IRaporServisi raporServisi)
     {
         InitializeComponent();
         _kayitServisi = kayitServisi;
+        _raporServisi = raporServisi;
         _gerekceServisi = gerekceServisi;
         _oturum = oturum;
         _formAcici = formAcici;
@@ -158,6 +164,7 @@ public partial class AileKayitForm : XtraForm
         btnAileKaydet.Text = "Aileyi ve üyeleri kaydet";
         btnAilePasif.Enabled = false;
         btnCadiraYerlestir.Enabled = false;
+        btnAileFisi.Enabled = false;
         lciUyeCikar.Visibility = _degistirebilir ? LayoutVisibility.Always : LayoutVisibility.Never;
         lciAiledenAyir.Visibility = LayoutVisibility.Never;
         UyeleriGoster();
@@ -193,6 +200,7 @@ public partial class AileKayitForm : XtraForm
         btnAileKaydet.Text = "Aile bilgilerini kaydet";
         btnAilePasif.Enabled = aile.Aktif;
         btnCadiraYerlestir.Enabled = aile.Aktif && buradakiler > 0;
+        btnAileFisi.Enabled = aile.Aktif;
         lciUyeCikar.Visibility = LayoutVisibility.Never;
         lciAiledenAyir.Visibility = _degistirebilir ? LayoutVisibility.Always : LayoutVisibility.Never;
         UyeleriGoster();
@@ -543,6 +551,27 @@ public partial class AileKayitForm : XtraForm
                                  $"Kişi numaraları: {string.Join(", ", yeni.Uyeler.Select(u => $"{u.KisiNo} {u.AdSoyad}"))}",
             "Kayıt tamamlandı");
         await KaydedilenAileyiAcAsync(yeni.Id);
+        // Şartname M2: kayıt bitince aile fişi yazdırılır (aile no, çadır, kiosk giriş bilgisi).
+        if (_aile?.Id == yeni.Id && HataYonetimi.Onayla(this, "Aile fişi yazdırılsın mı?", "Aile fişi"))
+            await AileFisiGosterAsync(yeni.Id);
+    }
+
+    private async void btnAileFisi_Click(object? sender, EventArgs e)
+    {
+        if (_aile is { } aile)
+            await AileFisiGosterAsync(aile.Id);
+    }
+
+    /// <summary>Aile fişinin önizlemesini açar; buradan yazdırılır veya PDF olarak kaydedilir.</summary>
+    private async Task AileFisiGosterAsync(int aileId)
+    {
+        AileFisi? fis = null;
+        if (!await Bekleme.CalistirAsync(this, async () => fis = await _raporServisi.AileFisiAsync(aileId)))
+            return;
+        using var belge = new AileFisiBelgesi(fis!);
+        using var arac = new ReportPrintTool(belge);
+        arac.PreviewForm.Text = $"Aile fişi – {fis!.AileNo} (yazdırmak için yazıcı simgesine basın)";
+        arac.ShowPreviewDialog();
     }
 
     /// <summary>Kayıttan sonra aile listesini ve aileyi yeniden yükler. Aile kullanıcıya gizliyse (refakatsiz çocuk) boş ekrana döner.</summary>
